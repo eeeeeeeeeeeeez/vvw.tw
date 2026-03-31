@@ -46,7 +46,7 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
         onClick={() => setActiveTab("home")}
       >
         <Logo className="w-10 h-10" />
-        亨波趨勢 Hengbo Trend
+        亨波趨勢
       </div>
       <div className="hidden md:flex items-center gap-12">
         {tabs.map((tab) => (
@@ -79,7 +79,7 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
       <div className="col-span-1 md:col-span-2">
         <div className="flex items-center gap-4 mb-8">
           <Logo className="w-12 h-12" variant="white" />
-          <span className="text-4xl font-black block">HENGBO TREND</span>
+          <span className="text-4xl font-black block">亨波趨勢</span>
         </div>
         <p className="font-bold text-sm tracking-widest uppercase opacity-70 max-w-lg">
           © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. MASTERING TRENDS, MAXIMIZING POTENTIAL.
@@ -518,7 +518,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           <div>
             <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">亨波趨勢：精準的執行者</h3>
             <p className="text-lg leading-relaxed text-muted">
-              創立於2022年，<Logo className="w-5 h-5 mx-1" />HENGBO TREND 代表了一股新銳力量。我們屏棄冗餘，回歸本質。每一個細節，都經過嚴密的計算與審核。
+              我們創立於2022年，代表市場上的一股新銳力量。我們摒棄冗餘，回歸本質。讓每一個細節，都經過嚴密的計畫與審核。
             </p>
           </div>
           <div>
