@@ -46,7 +46,7 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
         onClick={() => setActiveTab("home")}
       >
         <Logo className="w-10 h-10" />
-        HENGBO TREND
+        亨波趨勢
       </div>
       <div className="hidden md:flex items-center gap-12">
         {tabs.map((tab) => (
