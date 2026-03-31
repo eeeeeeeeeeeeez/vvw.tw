@@ -548,9 +548,9 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-2 bg-primary hidden md:block"></div>
           
           {[
-            { year: "2024", title: "整合與擴張", desc: "啟動全球化戰略，將精準設計理念引入新興市場。深化BIM技術在動態結構中的應用。", side: "left" },
-            { year: "2025", title: "永續智慧城市", desc: "領先業界發布「零碳排建築骨幹」計畫，目標於2025年底完成首個全循環建築示範點。", side: "right" },
-            { year: "2026", title: "極致精密自動化", desc: "導入AI驅動的參數化設計模型，全面提升施工精確度至毫米等級。", side: "left" }
+            { year: "2024", title: "從邏輯架構到品牌轉型", desc: "強調數據洞察與故事行銷的完美結合，為企業建立具市場競爭力的核心價值。", side: "left" },
+            { year: "2025", title: "政策鏈結與資源整合開發", desc: "透過專業計畫書編製與專業諮詢，協助單位跨越財務門檻，實現公共服務與社會影響力。", side: "right" },
+            { year: "2026", title: "數據驅動與全渠道精準觸及", desc: "整合多社群平台資源與動態優化技術，在碎片的數位環境中精準捕捉目標客群與商機。", side: "left" }
           ].map((item, idx) => (
             <div key={item.year} className="relative flex flex-col md:flex-row items-center mb-32 group">
               <div className={`w-full md:w-1/2 ${item.side === 'left' ? 'md:pr-16 text-right order-2 md:order-1' : 'order-2 md:order-1'}`}>
