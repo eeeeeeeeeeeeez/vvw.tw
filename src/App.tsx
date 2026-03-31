@@ -82,7 +82,7 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           <span className="text-4xl font-black block">HENGBO TREND</span>
         </div>
         <p className="font-bold text-sm tracking-widest uppercase opacity-70 max-w-lg">
-          © 2024 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. ARCHITECTURAL PRECISION IN MOTION. SHARP EDGES. NO COMPROMISE.
+          © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. ARCHITECTURAL PRECISION IN MOTION. SHARP EDGES. NO COMPROMISE.
         </p>
       </div>
       <div className="flex flex-col gap-8">
@@ -550,7 +550,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           {[
             { year: "2024", title: "從邏輯架構到品牌轉型", desc: "強調數據洞察與故事行銷的完美結合，為企業建立具市場競爭力的核心價值。", side: "left" },
             { year: "2025", title: "政策鏈結與資源整合開發", desc: "透過專業計畫書編製與專業諮詢，協助單位跨越財務門檻，實現公共服務與社會影響力。", side: "right" },
-            { year: "2026", title: "數據驅動與全渠道精準觸及", desc: "整合多社群平台資源與動態優化技術，在碎片的數位環境中精準捕捉目標客群與商機。", side: "left" }
+            { year: "2026", title: "數據驅動與精準觸及", desc: "整合多社群平台資源與動態優化技術，在碎片的數位環境中精準捕捉目標客群與商機。", side: "left" }
           ].map((item, idx) => (
             <div key={item.year} className="relative flex flex-col md:flex-row items-center mb-32 group">
               <div className={`w-full md:w-1/2 ${item.side === 'left' ? 'md:pr-16 text-right order-2 md:order-1' : 'order-2 md:order-1'}`}>
