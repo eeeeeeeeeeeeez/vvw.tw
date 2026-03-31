@@ -46,7 +46,7 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
         onClick={() => setActiveTab("home")}
       >
         <Logo className="w-10 h-10" />
-        亨波趨勢
+        亨波趨勢 Hengbo Trend
       </div>
       <div className="hidden md:flex items-center gap-12">
         {tabs.map((tab) => (
@@ -654,7 +654,7 @@ const ContactView: React.FC = () => {
                 聯繫<br/><span className="text-secondary">我們</span>
               </h1>
               <p className="text-xl font-bold text-muted mb-16 border-l-8 border-primary pl-6 uppercase tracking-tight">
-                為您的企業轉型部署建築級解決方案。
+                為您的企業提供世界級的解決方案。
               </p>
 
               <div className="space-y-12">
