@@ -525,7 +525,8 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">創新與卓越</h3>
             <p className="text-lg leading-relaxed text-muted">
               在快速變遷的環境中，我們專注提供高品質、高效能的解決方案，協助客戶精準撰寫企劃與計畫書，並順利申請各項政府與企業補助資源，同時透過專業的數位廣告投放與高品質網頁設計，幫助品牌有效曝光，提升市場競爭力。
-          </div>
+            </p>
+            </div>
           <div className="grid grid-cols-2 gap-8 pt-12">
             <div className="border-t-4 border-primary pt-4">
               <div className="text-4xl font-black text-secondary">50+</div>
