@@ -516,7 +516,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
       <div className="w-full md:w-1/2 bg-white p-12 md:p-24 border-b-4 md:border-b-0 md:border-l-4 border-primary">
         <div className="space-y-12">
           <div>
-            <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">亨波趨勢：精準的執行者</h3>
+            <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">亨波趨勢：細節的執行者</h3>
             <p className="text-lg leading-relaxed text-muted">
               我們創立於2022年，代表市場上的一股新銳力量。我們摒棄冗餘，回歸本質。讓每一個細節，都經過嚴密的計畫與審核。
             </p>
