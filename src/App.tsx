@@ -82,7 +82,7 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           <span className="text-4xl font-black block">HENGBO TREND</span>
         </div>
         <p className="font-bold text-sm tracking-widest uppercase opacity-70 max-w-lg">
-          © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. ARCHITECTURAL PRECISION IN MOTION. SHARP EDGES. NO COMPROMISE.
+          © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. MASTERING TRENDS, MAXIMIZING POTENTIAL.
         </p>
       </div>
       <div className="flex flex-col gap-8">
@@ -496,7 +496,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
         </h1>
         <div className="mt-12 max-w-2xl border-l-8 border-secondary pl-8">
           <p className="text-xl md:text-2xl font-bold text-ink leading-tight">
-            超越建築的界限，用精確的動態美學重塑城市天際線。我們不僅是設計者，更是未來空間的策劃者。
+            透過精準的企劃力與資源整合，協助企業對接政府補助並極大化廣告效益，讓優質品牌在趨勢中穩健成長。
           </p>
         </div>
       </div>
