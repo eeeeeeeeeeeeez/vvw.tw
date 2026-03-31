@@ -516,16 +516,15 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
       <div className="w-full md:w-1/2 bg-white p-12 md:p-24 border-b-4 md:border-b-0 md:border-l-4 border-primary">
         <div className="space-y-12">
           <div>
-            <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">亨波趨勢：精準建築的守望者</h3>
+            <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">亨波趨勢：精準的執行者</h3>
             <p className="text-lg leading-relaxed text-muted">
-              創立於對空間秩序的極致追求，<Logo className="w-5 h-5 mx-1" />HENGBO TREND 代表了建築界的一種新銳力量。我們屏棄冗餘的裝飾，回歸建築本身的結構美學。每一個角度、每一條線條，都經過嚴密的工程計算與藝術審核。
+              創立於2022年，<Logo className="w-5 h-5 mx-1" />HENGBO TREND 代表了一股新銳力量。我們屏棄冗餘，回歸本質。每一個細節，都經過嚴密的計算與審核。
             </p>
           </div>
           <div>
             <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">創新與卓越</h3>
             <p className="text-lg leading-relaxed text-muted">
-              在快速變遷的城市發展中，我們專注於提供高機能、高品質的設計解決方案。透過模組化結構與永續材料的結合，我們為客戶創造出具備時間韌性的空間作品。
-            </p>
+              在快速變遷的環境中，我們專注提供高品質、高效能的解決方案，協助客戶精準撰寫企劃與計畫書，並順利申請各項政府與企業補助資源，同時透過專業的數位廣告投放與高品質網頁設計，幫助品牌有效曝光，提升市場競爭力。
           </div>
           <div className="grid grid-cols-2 gap-8 pt-12">
             <div className="border-t-4 border-primary pt-4">
