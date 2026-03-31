@@ -779,7 +779,7 @@ const ContactView: React.FC = () => {
                         <BadgeCheck size={64} />
                       </div>
                       <h2 className="text-5xl font-black text-primary uppercase mb-4 tracking-tighter">訊息發送成功</h2>
-                      <p className="text-xl font-bold text-muted max-w-md uppercase">我們已收到您的諮詢申請，我們的策略專家將在 24 小時內與您聯繫。</p>
+                      <p className="text-xl font-bold text-muted max-w-md uppercase">我們已收到您的諮詢申請，我們的業務專員將在 24 小時內與您聯繫。</p>
                       <button 
                         onClick={() => setIsSubmitted(false)}
                         className="mt-12 text-secondary font-black uppercase tracking-widest border-b-4 border-secondary hover:text-primary hover:border-primary snap-transition"
