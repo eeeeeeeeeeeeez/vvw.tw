@@ -24,7 +24,7 @@ import { motion, AnimatePresence } from "motion/react";
 
 const Logo = ({ className = "w-8 h-8", variant = "default" }: { className?: string, variant?: "default" | "white" }) => (
   <img 
-    src="/logo.png" // 請將您的 logo.png 放入 public 資料夾中
+    src="/logo.png" 
     alt="HENGBO TREND Logo"
     className={`inline-block object-contain ${variant === "white" ? "brightness-0 invert" : ""} ${className}`}
     referrerPolicy="no-referrer"
@@ -82,18 +82,18 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           <span className="text-4xl font-black block">亨波趨勢</span>
         </div>
         <p className="font-bold text-sm tracking-widest uppercase opacity-70 max-w-lg">
-          © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. MASTERING TRENDS, MAXIMIZING POTENTIAL.
+          © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. MASTERING TRENDS, MAXIMIZING IMPACT.
         </p>
       </div>
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-4">
-          <span className="text-secondary font-black tracking-widest uppercase">Navigation</span>
+          <span className="text-secondary font-black tracking-widest uppercase">導覽導航</span>
           <button onClick={() => setActiveTab("about")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">隱私政策</button>
           <button onClick={() => setActiveTab("about")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">使用條款</button>
           <button onClick={() => setActiveTab("contact")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">聯繫我們</button>
         </div>
         <div className="flex flex-col gap-4">
-          <span className="text-secondary font-black tracking-widest uppercase">Connect</span>
+          <span className="text-secondary font-black tracking-widest uppercase">社群連結</span>
           <a href="#" className="text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">新浪微博</a>
           <a href="#" className="text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">領英</a>
         </div>
@@ -141,8 +141,8 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
         </div>
         <div className="col-span-12 lg:col-span-10 z-10">
           <h1 className="text-[clamp(4rem,10vw,8rem)] leading-[0.85] font-black text-primary uppercase tracking-tighter mb-12">
-            Empowering<br/>
-            <span className="text-secondary">Your Future</span>
+            賦能企業<br/>
+            <span className="text-secondary">築造未來</span>
           </h1>
         </div>
         <div className="col-span-12 lg:col-span-6 lg:ml-[16.6%] bg-primary p-12 relative z-20 border-r-8 border-secondary">
@@ -161,10 +161,10 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
     <section className="px-8 py-32 bg-surface-low border-t-2 border-primary">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
-          <h2 className="text-7xl font-black uppercase tracking-tighter text-primary">Core<br/>Precision</h2>
+          <h2 className="text-7xl font-black uppercase tracking-tighter text-primary">策略<br/>精準度</h2>
           <div className="max-w-md text-right">
-            <span className="font-black uppercase tracking-[0.3em] text-secondary block mb-4">Service Capabilities</span>
-            <p className="font-bold text-muted">We don't just provide services; we engineer market dominance through architectural precision and data-driven planning.</p>
+            <span className="font-black uppercase tracking-[0.3em] text-secondary block mb-4">核心服務能力</span>
+            <p className="font-bold text-muted">我們不只提供服務；我們透過數據驅動的精準規劃，協助您在市場競爭中取得絕對優勢。</p>
           </div>
         </div>
         <div className="grid grid-cols-12 gap-8">
@@ -174,20 +174,20 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
             </div>
             <span className="text-secondary font-black text-2xl mb-8 block">01</span>
             <h3 className="text-5xl font-black mb-6 uppercase">企劃撰寫</h3>
-            <p className="text-xl max-w-xl font-medium mb-8">Strategic documentation that secures investment and defines operational roadmaps with surgical accuracy.</p>
+            <p className="text-xl max-w-xl font-medium mb-8">以嚴密的邏輯與市場洞察，為企業打造具備高度執行力的商業運作藍圖。</p>
             <div className="w-16 h-2 bg-secondary"></div>
           </div>
           <div className="col-span-12 md:col-span-4 bg-secondary p-12 text-white brutalist-border border-secondary relative">
             <span className="text-white/50 font-black text-2xl mb-8 block">02</span>
             <h3 className="text-4xl font-black mb-6 uppercase">補助申請</h3>
             <Rocket size={80} className="mb-8" />
-            <p className="font-bold">Navigating regulatory landscapes to capture governmental growth opportunities.</p>
+            <p className="font-bold">對接政府資源與政策方向，協助企業跨越財務門檻，獲取成長動能。</p>
           </div>
           <div className="col-span-12 md:col-span-5 bg-white brutalist-border p-12 flex flex-col justify-between">
             <div>
               <span className="text-secondary font-black text-2xl mb-8 block">03</span>
-              <h3 className="text-4xl font-black mb-6 uppercase">名片設計</h3>
-              <p className="font-bold text-muted">Physical manifestations of corporate identity. Minimalist. Bold. Unforgettable.</p>
+              <h3 className="text-4xl font-black mb-6 uppercase">品牌設計</h3>
+              <p className="font-bold text-muted">將品牌靈魂轉化為視覺語彙。簡潔、大膽、令人難忘。</p>
             </div>
             <div className="mt-12 flex items-center justify-center border-t-2 border-surface-container pt-12">
               <BadgeCheck size={120} className="text-primary" />
@@ -198,7 +198,7 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
               <div className="relative z-10">
                 <span className="text-secondary font-black text-2xl mb-8 block">04</span>
                 <h3 className="text-6xl font-black mb-6 uppercase leading-none">廣告<br/>投放</h3>
-                <p className="text-xl max-w-sm opacity-80">High-impact distribution strategies using behavioral intelligence to disrupt market share.</p>
+                <p className="text-xl max-w-sm opacity-80">利用數據分析與精準建模，讓每一分廣告預算都轉化為實質的業務成長。</p>
               </div>
               <div className="hidden lg:block rotate-12 opacity-30">
                 <TrendingUp size={300} />
@@ -218,34 +218,34 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
     {/* Quote */}
     <section className="px-8 py-32 bg-white">
       <div className="max-w-7xl mx-auto border-l-8 border-primary pl-12">
-        <p className="font-black text-secondary tracking-[0.5em] mb-8 uppercase">Architecture in Motion</p>
+        <p className="font-black text-secondary tracking-[0.5em] mb-8 uppercase">行動中的架構美學</p>
         <blockquote className="text-[clamp(2.5rem,5vw,5rem)] font-black leading-tight text-primary uppercase italic">
-          "WE DO NOT ADAPT TO THE FUTURE.<br/>
-          WE <span className="text-secondary not-italic underline decoration-8 underline-offset-8">ARCHITECT</span> IT."
+          "我們不只是適應未來。<br/>
+          我們 <span className="text-secondary not-italic underline decoration-8 underline-offset-8">築造</span> 它。"
         </blockquote>
       </div>
     </section>
 
-    {/* CTA */}
-    <section className="px-8 py-0">
-      <div className="max-w-7xl mx-auto grid grid-cols-12 gap-0 brutalist-border">
-        <div className="col-span-12 md:col-span-8 p-16 bg-surface-high">
-          <h2 className="text-5xl font-black text-primary mb-8 uppercase">Ready for<br/>Transition?</h2>
-          <p className="text-xl font-bold text-muted mb-12 max-w-lg">Our consultants are ready to deploy professional strategies for your next market expansion.</p>
-          <div className="flex flex-col sm:flex-row gap-6">
+    {/* Newsletter */}
+    <section className="px-8 py-32 bg-surface-low border-y-2 border-primary">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-0">
+        <div className="col-span-8 bg-white brutalist-border-heavy p-12 md:p-24">
+          <h2 className="text-6xl font-black text-primary uppercase mb-8 tracking-tighter">掌握趨勢</h2>
+          <p className="text-xl font-bold text-muted mb-12 max-w-md">訂閱我們的電子報，第一時間獲取最新的市場洞察與補助政策資訊。</p>
+          <div className="flex flex-col sm:flex-row gap-4">
             <input 
-              className="bg-transparent border-b-4 border-primary p-4 font-black uppercase tracking-widest focus:outline-none focus:border-secondary w-full sm:w-80" 
-              placeholder="YOUR@IDENTITY.COM" 
-              type="email"
+              type="email" 
+              placeholder="您的電子郵件" 
               value={ctaEmail}
               onChange={(e) => setCtaEmail(e.target.value)}
+              className="flex-grow bg-surface-low border-b-4 border-primary p-6 font-bold focus:outline-none focus:border-secondary snap-transition"
             />
             <button 
               onClick={handleSubscribe}
               disabled={ctaLoading}
-              className={`bg-secondary text-white px-12 py-4 font-black uppercase tracking-widest hover:bg-primary snap-transition ${ctaLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className="bg-primary text-white px-12 py-6 font-black uppercase tracking-widest hover:bg-secondary snap-transition"
             >
-              {ctaLoading ? '提交中...' : 'Submit'}
+              {ctaLoading ? "處理中..." : "立即訂閱"}
             </button>
           </div>
           {ctaMsg && <p className="mt-4 font-bold text-secondary text-sm uppercase tracking-widest">{ctaMsg}</p>}
@@ -270,12 +270,12 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
       <div className="relative inline-block mb-4">
         <div className="absolute -top-4 -left-4 w-20 h-20 bg-secondary opacity-20 -z-10"></div>
         <h1 className="text-7xl md:text-9xl font-black text-primary leading-none tracking-tighter">
-          SERVICES<br/><span className="text-secondary">ELITE</span>
+          核心<br/><span className="text-secondary">服務</span>
         </h1>
       </div>
       <div className="max-w-2xl mt-8">
         <p className="text-xl font-bold text-muted border-l-8 border-primary pl-6">
-          ARCHITECTURAL PRECISION IN BUSINESS GROWTH. WE DO NOT DECORATE; WE CONSTRUCT.
+          我們不只是裝飾品牌，我們是在構築成長。每一項決策都具備建築師般的嚴謹與精確。
         </p>
       </div>
     </header>
@@ -285,10 +285,10 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
         id: "01",
         title: "企劃撰寫",
         icon: <FileText size={120} />,
-        desc: "STRATEGIC DOCUMENTATION FOR MARKET DOMINANCE.",
+        desc: "以策略性文獻，構築市場主導地位。",
         items: [
           { t: "品牌營運企劃", d: "深入市場洞察，構建具備高度執行力的商業運作藍圖。" },
-          { t: "行銷活動策劃", d: "精準受眾分析，打造引爆市場討論度的病毒式傳播方案。" },
+          { t: "行銷活動策劃", d: "精準受眾分析，打造引爆市場討論度的傳播方案。" },
           { t: "融資計畫撰寫", d: "邏輯嚴密的財務預測與價值主張，吸引資本青睞。" },
           { t: "投標建議書", d: "專業技術規格與管理方案整合，提升競標勝率。" }
         ]
@@ -297,7 +297,7 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
         id: "02",
         title: "補助申請",
         icon: <Rocket size={120} />,
-        desc: "CAPITAL ACQUISITION THROUGH POLICY ALIGNMENT.",
+        desc: "對接政策優勢，精準獲取成長資金。",
         items: [
           { t: "SBIR/SIIR 專案", d: "中小企業創新研發補助，從技術到服務的全面合規申請。" },
           { t: "國發基金申請", d: "對接國家發展戰略，爭取高額股權投資或低利貸款。" },
@@ -307,25 +307,25 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
       },
       {
         id: "03",
-        title: "名片設計",
+        title: "品牌設計",
         icon: <BadgeCheck size={120} />,
-        desc: "IDENTITY ENCAPSULATED IN GEOMETRY.",
+        desc: "將品牌靈魂，轉化為視覺的幾何美學。",
         items: [
-          { t: "極簡主義名片", d: "剔除雜訊，僅保留最核心的品牌價值與專業度傳遞。" },
+          { t: "極簡主義視覺", d: "剔除雜訊，僅保留最核心的品牌價值與專業度傳遞。" },
           { t: "工藝複合材質", d: "觸覺與視覺的雙重衝擊，提升初次見面的權威感。" },
-          { t: "數位名片整合", d: "實體卡片結合 NFC/QR 技術，實現無縫社交與數據追蹤。" },
-          { t: "品牌視覺延伸", d: "確保名片作為品牌第一線媒介，與企業識別系統完美契合。" }
+          { t: "數位識別整合", d: "實體與數位媒介的無縫銜接，實現跨平台的品牌一致性。" },
+          { t: "企業識別系統", d: "確保品牌在所有接觸點，都能傳遞統一且專業的形象。" }
         ]
       },
       {
         id: "04",
         title: "廣告投放",
         icon: <TrendingUp size={120} />,
-        desc: "ALGORITHMIC PRECISION FOR CONVERSION.",
+        desc: "利用數據演算法，精準提升轉化率。",
         items: [
           { t: "多平台矩陣投放", d: "Meta, Google, LinkedIn 跨平台聯動，覆蓋全網受眾。" },
           { t: "精準受眾建模", d: "利用大數據進行 Lookalike 建模，鎖定高價值潛在客戶。" },
-          { t: "動態素材優化", d: "A/B Testing 持續測試，確保每一分廣告預算都轉化為效益。" },
+          { t: "動態素材優化", d: "A/B Testing 持續測試，確保每一分預算都轉化為效益。" },
           { t: "數據追蹤報告", d: "透明化的 ROI 分析，數據驅動決策，優化行銷閉環。" }
         ]
       }
@@ -360,13 +360,13 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
     <section className="bg-primary py-40 px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
         <h2 className="text-[12rem] md:text-[20rem] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">STRATEGY</h2>
-        <h3 className="text-7xl md:text-9xl font-black text-white mb-12 tracking-tighter relative z-10 uppercase">Ready?</h3>
+        <h3 className="text-7xl md:text-9xl font-black text-white mb-12 tracking-tighter relative z-10 uppercase">準備好了嗎？</h3>
         <div className="relative z-10">
           <button 
             onClick={() => setActiveTab("contact")}
             className="bg-secondary text-white text-2xl font-black px-16 py-6 hover:bg-white hover:text-primary snap-transition flex items-center gap-4"
           >
-            GET IN TOUCH
+            立即諮詢
             <ArrowRight size={32} />
           </button>
         </div>
@@ -384,13 +384,13 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
   >
     <section className="px-8 py-16 md:py-32">
       <h1 className="text-[12vw] md:text-[15vw] leading-[0.85] font-black text-primary tracking-tighter uppercase mb-4">
-        SUCCESS<br/>STORIES
+        精選<br/>案例
       </h1>
       <div className="flex flex-col md:flex-row justify-between items-end border-t-4 border-primary pt-8">
         <p className="max-w-2xl text-xl font-bold uppercase tracking-tight">
-          Architectural precision in visual storytelling. Transforming complex data into kinetic brand experiences.
+          我們將複雜的數據轉化為具備生命力的品牌體驗，在每一個細節中追求極致。
         </p>
-        <span className="text-secondary font-black text-6xl md:text-8xl">/012</span>
+        <span className="text-secondary font-black text-6xl md:text-8xl">/12</span>
       </div>
     </section>
 
@@ -400,8 +400,8 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           <div className="flex justify-between items-start">
             <Building2 size={120} className="group-hover:text-secondary snap-transition" />
             <div className="text-right">
-              <div className="font-black tracking-widest uppercase mb-2 text-xs">Service: Structural Design</div>
-              <div className="font-black tracking-widest uppercase text-xs">Year: 2024</div>
+              <div className="font-black tracking-widest uppercase mb-2 text-xs">服務: 品牌重塑</div>
+              <div className="font-black tracking-widest uppercase text-xs">年份: 2024</div>
             </div>
           </div>
           <div>
@@ -414,7 +414,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           <div className="flex justify-between items-start text-white group-hover:text-primary">
             <Rocket size={120} className="group-hover:text-secondary snap-transition" />
             <div className="text-right">
-              <div className="font-black tracking-widest uppercase text-xs">Service: Brand Launch</div>
+              <div className="font-black tracking-widest uppercase text-xs">服務: 品牌發佈</div>
             </div>
           </div>
           <div>
@@ -425,9 +425,9 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
         <div className="col-span-12 md:col-span-4 bg-primary text-white brutalist-border group cursor-pointer snap-transition hover:bg-white hover:text-primary p-8 flex flex-col justify-between min-h-[500px]">
           <div>
             <Network size={80} className="mb-8" />
-            <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">Digital Infrastructure Mapping</h2>
+            <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">數位基礎設施規劃</h2>
           </div>
-          <p className="font-bold uppercase tracking-widest text-sm opacity-60 group-hover:opacity-100">Click to Expand Case Study</p>
+          <p className="font-bold uppercase tracking-widest text-sm opacity-60 group-hover:opacity-100">點擊展開案例研究</p>
         </div>
 
         <div className="col-span-12 md:col-span-8 bg-surface-low brutalist-border group cursor-pointer snap-transition hover:bg-secondary hover:text-white p-8 flex flex-col justify-between min-h-[500px] relative overflow-hidden">
@@ -435,16 +435,16 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           <div className="flex flex-col md:flex-row gap-8 z-10">
             <Layout size={120} />
             <div>
-              <div className="font-black tracking-widest uppercase mb-4 text-secondary group-hover:text-white">Award Winning Project</div>
+              <div className="font-black tracking-widest uppercase mb-4 text-secondary group-hover:text-white">獲獎專案</div>
               <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-tight">Green Horizon 2030</h2>
-              <p className="mt-4 max-w-md font-bold text-lg uppercase">Sustainable urban planning and visual identity for the future of city living.</p>
+              <p className="mt-4 max-w-md font-bold text-lg uppercase">為未來城市生活量身打造的可持續城市規劃與視覺識別系統。</p>
             </div>
           </div>
         </div>
 
         <div className="col-span-12 md:col-span-6 bg-tertiary text-white brutalist-border group cursor-pointer snap-transition hover:bg-primary p-8 flex flex-col justify-between min-h-[400px]">
           <Cpu size={80} />
-          <h2 className="text-4xl font-black uppercase tracking-tighter">Precision Industrial Logic</h2>
+          <h2 className="text-4xl font-black uppercase tracking-tighter">精準工業邏輯</h2>
         </div>
 
         <div className="col-span-12 md:col-span-6 brutalist-border group cursor-pointer p-8 flex flex-col justify-between min-h-[400px] relative overflow-hidden bg-white">
@@ -453,7 +453,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
               <Eye size={80} className="text-primary" />
               <span className="text-secondary font-black text-3xl">NEW</span>
             </div>
-            <h2 className="text-4xl font-black uppercase tracking-tighter text-primary">Immersive Retail Environments</h2>
+            <h2 className="text-4xl font-black uppercase tracking-tighter text-primary">沉浸式零售環境設計</h2>
           </div>
         </div>
       </div>
@@ -462,13 +462,13 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
     <section className="bg-primary py-40 px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
         <h2 className="text-[12rem] md:text-[20rem] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">SUCCESS</h2>
-        <h3 className="text-7xl md:text-9xl font-black text-white mb-12 tracking-tighter relative z-10 uppercase">Ready?</h3>
+        <h3 className="text-7xl md:text-9xl font-black text-white mb-12 tracking-tighter relative z-10 uppercase">想要了解更多？</h3>
         <div className="relative z-10">
           <button 
             onClick={() => setActiveTab("contact")}
             className="bg-secondary text-white text-2xl font-black px-16 py-6 hover:bg-white hover:text-primary snap-transition flex items-center gap-4"
           >
-            GET IN TOUCH
+            與我們聯繫
             <ArrowRight size={32} />
           </button>
         </div>
@@ -486,7 +486,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
   >
     <section className="relative px-8 py-32 overflow-hidden bg-surface-low border-b-4 border-primary">
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="font-black uppercase tracking-[0.4em] text-secondary mb-4">OUR PHILOSOPHY</div>
+        <div className="font-black uppercase tracking-[0.4em] text-secondary mb-4">核心理念</div>
         <h1 className="text-6xl md:text-9xl font-black tracking-tighter leading-none text-primary uppercase relative">
           我們的使命<br/>
           <span className="text-stroke">與願景</span>
@@ -506,7 +506,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
     <section className="flex flex-col md:flex-row w-full min-h-screen">
       <div className="w-full md:w-1/2 bg-primary p-12 md:p-24 flex flex-col justify-between">
         <div>
-          <h2 className="text-8xl font-black text-white tracking-tighter leading-none mb-12">ABOUT<br/>US</h2>
+          <h2 className="text-8xl font-black text-white tracking-tighter leading-none mb-12">關於<br/>我們</h2>
           <div className="w-24 h-2 bg-secondary mb-8"></div>
         </div>
         <div className="text-white opacity-20">
@@ -524,7 +524,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           <div>
             <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">創新與卓越</h3>
             <p className="text-lg leading-relaxed text-muted">
-              在快速變遷的環境中，我們專注提供高品質、高效能的解決方案，協助客戶精準撰寫企劃與計畫書，並順利申請各項政府與企業補助資源，同時透過專業的數位廣告投放與高品質網頁設計，幫助品牌有效曝光，提升市場競爭力。
+              在快速變遷的環境中，我們專注提供高品質、高效能的解決方案，協助客戶精準撰寫企劃與計畫書，並順利申請各項政府與企業補助資源，同時透過專業的數位廣告投放與高品質品牌設計，幫助品牌有效曝光，提升市場競爭力。
             </p>
             </div>
           <div className="grid grid-cols-2 gap-8 pt-12">
@@ -543,7 +543,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
 
     <section className="px-8 py-32 bg-surface-high">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-5xl font-black text-primary uppercase mb-24 text-center tracking-tighter underline decoration-secondary decoration-8 underline-offset-8">Growth Strategy</h2>
+        <h2 className="text-5xl font-black text-primary uppercase mb-24 text-center tracking-tighter underline decoration-secondary decoration-8 underline-offset-8">成長策略</h2>
         <div className="relative flex flex-col gap-0">
           <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-2 bg-primary hidden md:block"></div>
           
@@ -580,14 +580,14 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
 
     <section className="bg-primary py-40 px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-        <h2 className="text-[12rem] md:text-[20rem] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">READY?</h2>
-        <h3 className="text-7xl md:text-9xl font-black text-white mb-12 tracking-tighter relative z-10 uppercase">Ready?</h3>
+        <h2 className="text-[12rem] md:text-[20rem] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">GO!</h2>
+        <h3 className="text-7xl md:text-9xl font-black text-white mb-12 tracking-tighter relative z-10 uppercase">準備好了嗎？</h3>
         <div className="relative z-10">
           <button 
             onClick={() => setActiveTab("contact")}
             className="bg-secondary text-white text-2xl font-black px-16 py-6 hover:bg-white hover:text-primary snap-transition flex items-center gap-4"
           >
-            GET IN TOUCH
+            立即開始
             <ArrowRight size={32} />
           </button>
         </div>
@@ -735,7 +735,7 @@ const ContactView: React.FC = () => {
                             <select 
                               value={formState.subject}
                               onChange={(e) => setFormState({...formState, subject: e.target.value})}
-                              className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition appearance-none"
+                              className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition"
                             >
                               <option>企劃撰寫諮詢</option>
                               <option>補助申請專案</option>
