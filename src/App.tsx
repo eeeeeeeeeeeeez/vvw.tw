@@ -31,6 +31,36 @@ const Logo = ({ className = "w-8 h-8", variant = "default" }: { className?: stri
   />
 );
 
+const LoadingScreen = () => (
+  <motion.div 
+    initial={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.8, ease: "easeInOut" }}
+    className="fixed inset-0 z-[100] bg-primary flex flex-col items-center justify-center"
+  >
+    <motion.div
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ 
+        duration: 0.5, 
+        repeat: Infinity, 
+        repeatType: "reverse",
+        ease: "easeInOut" 
+      }}
+      className="mb-8"
+    >
+      <Logo className="w-24 h-24" variant="white" />
+    </motion.div>
+    <motion.div 
+      initial={{ width: 0 }}
+      animate={{ width: 200 }}
+      transition={{ duration: 1.5, ease: "easeInOut" }}
+      className="h-1 bg-secondary"
+    />
+    <span className="text-white font-black tracking-[0.5em] mt-4 uppercase text-sm">HENGBO TREND</span>
+  </motion.div>
+);
+
 const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }> = ({ activeTab, setActiveTab }) => {
   const tabs = [
     { id: "home", label: "首頁" },
@@ -140,13 +170,13 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
           <Building2 size={600} className="text-primary" />
         </div>
         <div className="col-span-12 lg:col-span-10 z-10">
-          <h1 className="text-[clamp(4rem,10vw,8rem)] leading-[0.85] font-black text-primary uppercase tracking-tighter mb-12">
+          <h1 className="text-[clamp(3rem,12vw,8rem)] leading-[0.85] font-black text-primary uppercase tracking-tighter mb-12">
             賦能企業<br/>
             <span className="text-secondary">築造未來</span>
           </h1>
         </div>
         <div className="col-span-12 lg:col-span-6 lg:ml-[16.6%] bg-primary p-12 relative z-20 border-r-8 border-secondary">
-          <p className="text-white text-4xl font-bold tracking-[0.2em] mb-8">助力企業，引領趨勢</p>
+          <p className="text-white text-[clamp(1.5rem,5vw,2.25rem)] font-bold tracking-[0.2em] mb-8">助力企業，引領趨勢</p>
           <div className="w-full h-1 bg-secondary mb-8"></div>
           <div className="flex gap-4">
             <div className="w-24 h-24 bg-white flex items-center justify-center brutalist-border">
@@ -161,7 +191,7 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
     <section className="px-8 py-32 bg-surface-low border-t-2 border-primary">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
-          <h2 className="text-7xl font-black uppercase tracking-tighter text-primary">策略<br/>精準度</h2>
+          <h2 className="text-[clamp(3rem,10vw,4.5rem)] font-black uppercase tracking-tighter text-primary">策略<br/>精準度</h2>
           <div className="max-w-md text-right">
             <span className="font-black uppercase tracking-[0.3em] text-secondary block mb-4">核心服務能力</span>
             <p className="font-bold text-muted">我們不只提供服務；我們透過數據驅動的精準規劃，協助您在市場競爭中取得絕對優勢。</p>
@@ -173,20 +203,20 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
               <FileText size={240} />
             </div>
             <span className="text-secondary font-black text-2xl mb-8 block">01</span>
-            <h3 className="text-5xl font-black mb-6 uppercase">企劃撰寫</h3>
+            <h3 className="text-[clamp(2rem,6vw,3rem)] font-black mb-6 uppercase">企劃撰寫</h3>
             <p className="text-xl max-w-xl font-medium mb-8">以嚴密的邏輯與市場洞察，為企業打造具備高度執行力的商業運作藍圖。</p>
             <div className="w-16 h-2 bg-secondary"></div>
           </div>
           <div className="col-span-12 md:col-span-4 bg-secondary p-12 text-white brutalist-border border-secondary relative">
             <span className="text-white/50 font-black text-2xl mb-8 block">02</span>
-            <h3 className="text-4xl font-black mb-6 uppercase">補助申請</h3>
+            <h3 className="text-[clamp(1.5rem,5vw,2.25rem)] font-black mb-6 uppercase">補助申請</h3>
             <Rocket size={80} className="mb-8" />
             <p className="font-bold">對接政府資源與政策方向，協助企業跨越財務門檻，獲取成長動能。</p>
           </div>
           <div className="col-span-12 md:col-span-5 bg-white brutalist-border p-12 flex flex-col justify-between">
             <div>
               <span className="text-secondary font-black text-2xl mb-8 block">03</span>
-              <h3 className="text-4xl font-black mb-6 uppercase">品牌設計</h3>
+              <h3 className="text-[clamp(1.5rem,5vw,2.25rem)] font-black mb-6 uppercase">品牌設計</h3>
               <p className="font-bold text-muted">將品牌靈魂轉化為視覺語彙。簡潔、大膽、令人難忘。</p>
             </div>
             <div className="mt-12 flex items-center justify-center border-t-2 border-surface-container pt-12">
@@ -197,7 +227,7 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
             <div className="flex justify-between items-start">
               <div className="relative z-10">
                 <span className="text-secondary font-black text-2xl mb-8 block">04</span>
-                <h3 className="text-6xl font-black mb-6 uppercase leading-none">廣告<br/>投放</h3>
+                <h3 className="text-[clamp(2.5rem,8vw,3.75rem)] font-black mb-6 uppercase leading-none">廣告<br/>投放</h3>
                 <p className="text-xl max-w-sm opacity-80">利用數據分析與精準建模，讓每一分廣告預算都轉化為實質的業務成長。</p>
               </div>
               <div className="hidden lg:block rotate-12 opacity-30">
@@ -219,7 +249,7 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
     <section className="px-8 py-32 bg-white">
       <div className="max-w-7xl mx-auto border-l-8 border-primary pl-12">
         <p className="font-black text-secondary tracking-[0.5em] mb-8 uppercase">行動中的架構美學</p>
-        <blockquote className="text-[clamp(2.5rem,5vw,5rem)] font-black leading-tight text-primary uppercase italic">
+        <blockquote className="text-[clamp(2rem,6vw,5rem)] font-black leading-tight text-primary uppercase italic">
           "我們不只是適應未來。<br/>
           我們 <span className="text-secondary not-italic underline decoration-8 underline-offset-8">築造</span> 它。"
         </blockquote>
@@ -230,7 +260,7 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
     <section className="px-8 py-32 bg-surface-low border-y-2 border-primary">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-0">
         <div className="col-span-8 bg-white brutalist-border-heavy p-12 md:p-24">
-          <h2 className="text-6xl font-black text-primary uppercase mb-8 tracking-tighter">掌握趨勢</h2>
+          <h2 className="text-[clamp(2.5rem,8vw,3.75rem)] font-black text-primary uppercase mb-8 tracking-tighter">掌握趨勢</h2>
           <p className="text-xl font-bold text-muted mb-12 max-w-md">訂閱我們的電子報，第一時間獲取最新的市場洞察與補助政策資訊。</p>
           <div className="flex flex-col sm:flex-row gap-4">
             <input 
@@ -269,7 +299,7 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
     <header className="py-12">
       <div className="relative inline-block mb-4">
         <div className="absolute -top-4 -left-4 w-20 h-20 bg-secondary opacity-20 -z-10"></div>
-        <h1 className="text-7xl md:text-9xl font-black text-primary leading-none tracking-tighter">
+        <h1 className="text-[clamp(3.5rem,12vw,8rem)] font-black text-primary leading-none tracking-tighter">
           核心<br/><span className="text-secondary">服務</span>
         </h1>
       </div>
@@ -332,8 +362,8 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
     ].map((section, idx) => (
       <section key={section.id} className={`grid grid-cols-1 lg:grid-cols-12 gap-0 relative group ${idx % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}>
         <div className={`lg:col-span-4 flex flex-col justify-start ${idx % 2 !== 0 ? 'lg:order-2 lg:items-end text-right' : ''}`}>
-          <span className="text-[12rem] font-black leading-none text-secondary opacity-20 lg:opacity-100 snap-transition">{section.id}</span>
-          <h2 className="text-5xl font-black text-primary -mt-20 relative z-10">{section.title}</h2>
+          <span className="text-[clamp(6rem,15vw,12rem)] font-black leading-none text-secondary opacity-20 lg:opacity-100 snap-transition">{section.id}</span>
+          <h2 className="text-[clamp(2.5rem,8vw,3rem)] font-black text-primary -mt-12 lg:-mt-20 relative z-10">{section.title}</h2>
           <div className="mt-8 text-muted">
             {section.icon}
           </div>
@@ -359,8 +389,8 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
 
     <section className="bg-primary py-40 px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-        <h2 className="text-[12rem] md:text-[20rem] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">STRATEGY</h2>
-        <h3 className="text-7xl md:text-9xl font-black text-white mb-12 tracking-tighter relative z-10 uppercase">準備好了嗎？</h3>
+        <h2 className="text-[clamp(5rem,20vw,20rem)] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">STRATEGY</h2>
+        <h3 className="text-[clamp(3rem,12vw,6rem)] font-black text-white mb-12 tracking-tighter relative z-10 uppercase">準備好了嗎？</h3>
         <div className="relative z-10">
           <button 
             onClick={() => setActiveTab("contact")}
@@ -383,14 +413,14 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
     className="pt-24 pb-32"
   >
     <section className="px-8 py-16 md:py-32">
-      <h1 className="text-[12vw] md:text-[15vw] leading-[0.85] font-black text-primary tracking-tighter uppercase mb-4">
+      <h1 className="text-[clamp(4rem,15vw,12rem)] leading-[0.85] font-black text-primary tracking-tighter uppercase mb-4">
         精選<br/>案例
       </h1>
       <div className="flex flex-col md:flex-row justify-between items-end border-t-4 border-primary pt-8">
         <p className="max-w-2xl text-xl font-bold uppercase tracking-tight">
           我們將複雜的數據轉化為具備生命力的品牌體驗，在每一個細節中追求極致。
         </p>
-        <span className="text-secondary font-black text-6xl md:text-8xl">/12</span>
+        <span className="text-secondary font-black text-[clamp(4rem,10vw,8rem)]">/12</span>
       </div>
     </section>
 
@@ -405,7 +435,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             </div>
           </div>
           <div>
-            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none mb-4">Metropolis Core Rebranding</h2>
+            <h2 className="text-[clamp(2rem,6vw,3.75rem)] font-black uppercase tracking-tighter leading-none mb-4">Metropolis Core Rebranding</h2>
             <div className="w-16 h-2 bg-secondary group-hover:bg-white snap-transition"></div>
           </div>
         </div>
@@ -418,14 +448,14 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             </div>
           </div>
           <div>
-            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none">Apex Venture Systems</h2>
+            <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none">Apex Venture Systems</h2>
           </div>
         </div>
 
         <div className="col-span-12 md:col-span-4 bg-primary text-white brutalist-border group cursor-pointer snap-transition hover:bg-white hover:text-primary p-8 flex flex-col justify-between min-h-[500px]">
           <div>
             <Network size={80} className="mb-8" />
-            <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">數位基礎設施規劃</h2>
+            <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter leading-none">數位基礎設施規劃</h2>
           </div>
           <p className="font-bold uppercase tracking-widest text-sm opacity-60 group-hover:opacity-100">點擊展開案例研究</p>
         </div>
@@ -436,7 +466,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             <Layout size={120} />
             <div>
               <div className="font-black tracking-widest uppercase mb-4 text-secondary group-hover:text-white">獲獎專案</div>
-              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-tight">Green Horizon 2030</h2>
+              <h2 className="text-[clamp(2.5rem,8vw,4.5rem)] font-black uppercase tracking-tighter leading-tight">Green Horizon 2030</h2>
               <p className="mt-4 max-w-md font-bold text-lg uppercase">為未來城市生活量身打造的可持續城市規劃與視覺識別系統。</p>
             </div>
           </div>
@@ -444,7 +474,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
 
         <div className="col-span-12 md:col-span-6 bg-tertiary text-white brutalist-border group cursor-pointer snap-transition hover:bg-primary p-8 flex flex-col justify-between min-h-[400px]">
           <Cpu size={80} />
-          <h2 className="text-4xl font-black uppercase tracking-tighter">精準工業邏輯</h2>
+          <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter">精準工業邏輯</h2>
         </div>
 
         <div className="col-span-12 md:col-span-6 brutalist-border group cursor-pointer p-8 flex flex-col justify-between min-h-[400px] relative overflow-hidden bg-white">
@@ -453,7 +483,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
               <Eye size={80} className="text-primary" />
               <span className="text-secondary font-black text-3xl">NEW</span>
             </div>
-            <h2 className="text-4xl font-black uppercase tracking-tighter text-primary">沉浸式零售環境設計</h2>
+            <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter text-primary">沉浸式零售環境設計</h2>
           </div>
         </div>
       </div>
@@ -461,8 +491,8 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
 
     <section className="bg-primary py-40 px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-        <h2 className="text-[12rem] md:text-[20rem] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">SUCCESS</h2>
-        <h3 className="text-7xl md:text-9xl font-black text-white mb-12 tracking-tighter relative z-10 uppercase">想要了解更多？</h3>
+        <h2 className="text-[clamp(5rem,20vw,20rem)] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">SUCCESS</h2>
+        <h3 className="text-[clamp(3rem,12vw,6rem)] font-black text-white mb-12 tracking-tighter relative z-10 uppercase">想要了解更多？</h3>
         <div className="relative z-10">
           <button 
             onClick={() => setActiveTab("contact")}
@@ -487,7 +517,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
     <section className="relative px-8 py-32 overflow-hidden bg-surface-low border-b-4 border-primary">
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="font-black uppercase tracking-[0.4em] text-secondary mb-4">核心理念</div>
-        <h1 className="text-6xl md:text-9xl font-black tracking-tighter leading-none text-primary uppercase relative">
+        <h1 className="text-[clamp(3rem,10vw,6rem)] font-black tracking-tighter leading-none text-primary uppercase relative">
           我們的使命<br/>
           <span className="text-stroke">與願景</span>
           <div className="absolute -top-12 -left-8 opacity-5 pointer-events-none select-none">
@@ -506,7 +536,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
     <section className="flex flex-col md:flex-row w-full min-h-screen">
       <div className="w-full md:w-1/2 bg-primary p-12 md:p-24 flex flex-col justify-between">
         <div>
-          <h2 className="text-8xl font-black text-white tracking-tighter leading-none mb-12">關於<br/>我們</h2>
+          <h2 className="text-[clamp(4rem,12vw,8rem)] font-black text-white tracking-tighter leading-none mb-12">關於<br/>我們</h2>
           <div className="w-24 h-2 bg-secondary mb-8"></div>
         </div>
         <div className="text-white opacity-20">
@@ -543,7 +573,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
 
     <section className="px-8 py-32 bg-surface-high">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-5xl font-black text-primary uppercase mb-24 text-center tracking-tighter underline decoration-secondary decoration-8 underline-offset-8">成長策略</h2>
+        <h2 className="text-[clamp(2.5rem,8vw,3.75rem)] font-black text-primary uppercase mb-24 text-center tracking-tighter underline decoration-secondary decoration-8 underline-offset-8">成長策略</h2>
         <div className="relative flex flex-col gap-0">
           <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-2 bg-primary hidden md:block"></div>
           
@@ -580,8 +610,8 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
 
     <section className="bg-primary py-40 px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-        <h2 className="text-[12rem] md:text-[20rem] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">GO!</h2>
-        <h3 className="text-7xl md:text-9xl font-black text-white mb-12 tracking-tighter relative z-10 uppercase">準備好了嗎？</h3>
+        <h2 className="text-[clamp(5rem,20vw,20rem)] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">GO!</h2>
+        <h3 className="text-[clamp(3rem,12vw,6rem)] font-black text-white mb-12 tracking-tighter relative z-10 uppercase">準備好了嗎？</h3>
         <div className="relative z-10">
           <button 
             onClick={() => setActiveTab("contact")}
@@ -650,7 +680,7 @@ const ContactView: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-5">
-              <h1 className="text-8xl font-black text-primary uppercase tracking-tighter leading-none mb-12">
+              <h1 className="text-[clamp(4rem,12vw,8rem)] font-black text-primary uppercase tracking-tighter leading-none mb-12">
                 聯繫<br/><span className="text-secondary">我們</span>
               </h1>
               <p className="text-xl font-bold text-muted mb-16 border-l-8 border-primary pl-6 uppercase tracking-tight">
@@ -801,6 +831,15 @@ const ContactView: React.FC = () => {
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate initial loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -820,6 +859,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen">
+      <AnimatePresence>
+        {isLoading && <LoadingScreen key="loading" />}
+      </AnimatePresence>
+
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <AnimatePresence mode="wait">
