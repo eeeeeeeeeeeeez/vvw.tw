@@ -94,8 +94,8 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
         </div>
         <div className="flex flex-col gap-4">
           <span className="text-secondary font-black tracking-widest uppercase">社群連結</span>
-          <a href="#" className="text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">新浪微博</a>
-          <a href="#" className="text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">領英</a>
+          <a href="https://www.facebook.com/share/1H7nCUSiie/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">Facebook</a>
+          <a href="https://lin.ee/XrjcRfb" target="_blank" rel="noopener noreferrer" className="text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">LINE</a>
         </div>
       </div>
     </div>
