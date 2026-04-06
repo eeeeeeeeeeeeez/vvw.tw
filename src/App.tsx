@@ -118,8 +118,10 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-4">
           <span className="text-secondary font-black tracking-widest uppercase">導覽導航</span>
-          <button onClick={() => setActiveTab("about")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">隱私政策</button>
-          <button onClick={() => setActiveTab("about")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">使用條款</button>
+          <button onClick={() => setActiveTab("home")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">首頁</button>
+          <button onClick={() => setActiveTab("services")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">專業服務</button>
+          <button onClick={() => setActiveTab("cases")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">精選案例</button>
+          <button onClick={() => setActiveTab("about")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">關於我們</button>
           <button onClick={() => setActiveTab("contact")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">聯繫我們</button>
         </div>
         <div className="flex flex-col gap-4">
