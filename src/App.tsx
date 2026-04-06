@@ -474,7 +474,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           </div>
         </div>
 
-        <div className="col-span-12 md:col-span-6 bg-tertiary text-white brutalist-border group cursor-pointer snap-transition hover:bg-primary p-8 flex flex-col justify-between min-h-[400px]">
+        <div className="col-span-12 md:col-span-6 bg-primary text-white brutalist-border group cursor-pointer snap-transition hover:bg-secondary p-8 flex flex-col justify-between min-h-[400px]">
           <Cpu size={80} />
           <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter">精準工業邏輯</h2>
         </div>
