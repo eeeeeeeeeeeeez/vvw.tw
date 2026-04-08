@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
+import ReactMarkdown from "react-markdown";
 
 // --- Constants ---
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || ""; // 已移除洩漏的明文 Key，請在 Vercel 後台配置 VITE_GEMINI_API_KEY
@@ -1066,10 +1067,16 @@ const AIView: React.FC = () => {
                     </>
                   )}
                 </div>
-                <div className={`inline-block text-xl font-bold leading-relaxed whitespace-pre-wrap tracking-tight ${
+                <div className={`inline-block text-xl font-bold leading-relaxed tracking-tight ${
                   msg.role === 'user' ? 'text-primary' : 'text-primary'
                 }`}>
-                  {msg.content}
+                  {msg.role === 'user' ? (
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                  ) : (
+                    <div className="markdown-content">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  )}
                 </div>
                 {msg.role === 'ai' && <div className="w-12 h-1 bg-secondary mt-6 opacity-30" />}
               </div>
