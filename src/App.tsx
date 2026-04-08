@@ -945,6 +945,9 @@ const AIView: React.FC = () => {
         .replace(/The user said[\s\S]*?(\n\n|$)/gi, '') // 過濾包含「The user said」的推理段落
         .replace(/\*?Option \d+.*?\*?:/gi, '')          // 過濾「Option 1:」之類的標籤
         .replace(/Acknowledge the greeting[\s\S]*?(\n\n|$)/gi, '') // 過濾常見的內部步驟描述
+        .replace(/\*?(Identity|General Capabilities|Specific Use Cases|Category \d+|Introduction|Closing|Call to Action)\*?:[\s\S]*?(\n\n|$)/gi, '') // 過濾 AI 輸出的內部分類標籤及其內容
+        .replace(/A good "capabilities" answer should be[\s\S]*?(\n\n|$)/gi, '') // 過濾內部的建議語句
+        .replace(/\[\d+\]/g, '') // 過濾可能出現的內部引用標籤
         .trim();
 
       setMessages(prev => [...prev, { role: "ai", content: text }]);
