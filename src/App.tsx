@@ -925,7 +925,8 @@ const AIView: React.FC = () => {
 
     try {
       const result = await genAI.models.generateContent({
-        model: "gemma-4-31b-it",
+        model: "gemini-1.5-flash",
+        systemInstruction: "你是一位專業的『亨波 AI 助手』。請直接回答使用者的問題，不要輸出任何內部思考過程、分析、或對自己指令的解釋。請確保回應格式正確，並使用 Markdown 渲染（如粗體、列表）。",
         contents: [
           ...messages.map(m => ({
             role: m.role === "user" ? "user" : "model",
