@@ -31,7 +31,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
 
 // --- Constants ---
-const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || (process.env.GEMINI_API_KEY as string) || "";
+const GEMINI_API_KEY = "AIzaSyDD4nqMKgG6Rbok9OWgUvwqQjNLAaHbVmU"; // 直接注入 API Key 以確保線上功能可用
 const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // --- Components ---
