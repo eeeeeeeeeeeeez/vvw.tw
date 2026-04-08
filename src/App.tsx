@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Menu, 
   X, 
@@ -20,9 +20,19 @@ import {
   HelpCircle,
   BarChart3,
   Globe,
-  Leaf
+  Leaf,
+  Lock,
+  User,
+  Bot,
+  Sparkles,
+  RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { GoogleGenerativeAI } from "@google/generai";
+
+// --- Constants ---
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // --- Components ---
 
@@ -71,6 +81,7 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
     { id: "services", label: "專業服務" },
     { id: "cases", label: "精選案例" },
     { id: "about", label: "關於我們" },
+    { id: "ai", label: "亨波 AI" },
   ];
 
   return (
@@ -126,6 +137,7 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           <button onClick={() => setActiveTab("cases")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">精選案例</button>
           <button onClick={() => setActiveTab("about")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">關於我們</button>
           <button onClick={() => setActiveTab("contact")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">聯繫我們</button>
+          <button onClick={() => setActiveTab("ai")} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">亨波 AI</button>
         </div>
         <div className="flex flex-col gap-4">
           <span className="text-secondary font-black tracking-widest uppercase">社群連結</span>
@@ -728,7 +740,7 @@ const ContactView: React.FC = () => {
                 聯繫<br/><span className="text-secondary">我們</span>
               </h1>
               <p className="text-xl font-bold text-muted mb-16 border-l-8 border-primary pl-6 uppercase tracking-tight">
-                為您的企業提供世界級的解決方案。
+                為您的企業提供 world-class 的解決方案。
               </p>
 
               <div className="space-y-12">
@@ -872,6 +884,212 @@ const ContactView: React.FC = () => {
   );
 };
 
+const AIView: React.FC = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  
+  const [messages, setMessages] = useState<{ role: "user" | "ai", content: string }[]>([]);
+  const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // 帳號密碼驗證邏輯
+    if (username === "admin" && password === "hengbo2026") {
+      setIsLoggedIn(true);
+      setMessages([{ role: "ai", content: "您好！我是亨波 AI 助手。很高興為您服務，請問今天有什麼我可以幫您的嗎？" }]);
+    } else {
+      setLoginError("帳號或密碼錯誤，請重新輸入。");
+    }
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isTyping) return;
+
+    const userMsg = input.trim();
+    setInput("");
+    setMessages(prev => [...prev, { role: "user", content: userMsg }]);
+    setIsTyping(true);
+
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const chat = model.startChat({
+        history: messages.map(m => ({
+          role: m.role === "user" ? "user" : "model",
+          parts: [{ text: m.content }],
+        })),
+      });
+
+      const result = await chat.sendMessage(userMsg);
+      const response = await result.response;
+      const text = response.text();
+
+      setMessages(prev => [...prev, { role: "ai", content: text }]);
+    } catch (error) {
+      console.error("Gemini Error:", error);
+      setMessages(prev => [...prev, { role: "ai", content: "抱歉，目前 AI 服務暫時無法回應。請檢查 API Key 配置或稍後再試。" }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        className="min-h-screen flex items-center justify-center bg-surface-low px-8"
+      >
+        <div className="w-full max-w-md bg-white brutalist-border-heavy p-12">
+          <div className="flex flex-col items-center mb-12">
+            <div className="w-20 h-20 bg-primary flex items-center justify-center mb-6">
+              <Lock size={40} className="text-white" />
+            </div>
+            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter">亨波 AI 登入</h2>
+            <p className="text-muted font-bold mt-2">請輸入您的憑據以訪問 AI 助手</p>
+          </div>
+          
+          <form onSubmit={handleLogin} className="space-y-8">
+            <div className="space-y-2">
+              <label className="font-black uppercase tracking-widest text-xs text-secondary">帳號</label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" size={20} />
+                <input 
+                  required
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-surface-low border-b-4 border-primary p-4 pl-12 font-bold focus:outline-none focus:border-secondary snap-transition" 
+                  placeholder="Username"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="font-black uppercase tracking-widest text-xs text-secondary">密碼</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" size={20} />
+                <input 
+                  required
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-surface-low border-b-4 border-primary p-4 pl-12 font-bold focus:outline-none focus:border-secondary snap-transition" 
+                  placeholder="Password"
+                />
+              </div>
+            </div>
+
+            {loginError && <p className="text-red-600 font-bold text-sm uppercase">{loginError}</p>}
+
+            <button className="w-full bg-primary text-white py-6 font-black uppercase tracking-[0.3em] text-xl hover:bg-secondary snap-transition">
+              進入系統
+            </button>
+          </form>
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      className="pt-24 min-h-screen flex flex-col bg-white"
+    >
+      <header className="px-8 py-12 border-b-2 border-primary bg-surface-low">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="bg-secondary p-3 text-white">
+              <Bot size={32} />
+            </div>
+            <div>
+              <h2 className="text-3xl font-black text-primary uppercase tracking-tighter leading-none">亨波 AI 助手</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span className="text-xs font-bold text-muted uppercase tracking-widest">系統已連線</span>
+              </div>
+            </div>
+          </div>
+          <button 
+            onClick={() => setIsLoggedIn(false)}
+            className="text-primary font-black uppercase tracking-widest border-b-2 border-primary hover:text-secondary hover:border-secondary snap-transition"
+          >
+            登出
+          </button>
+        </div>
+      </header>
+
+      <main className="flex-grow overflow-hidden flex flex-col max-w-5xl w-full mx-auto px-8 py-12">
+        <div 
+          ref={scrollRef}
+          className="flex-grow overflow-y-auto space-y-8 pr-4 custom-scrollbar"
+        >
+          {messages.map((msg, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`max-w-[80%] p-6 brutalist-border ${
+                msg.role === 'user' 
+                  ? 'bg-primary text-white border-primary' 
+                  : 'bg-surface-low text-primary border-primary'
+              }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {msg.role === 'user' ? <User size={16} /> : <Sparkles size={16} className="text-secondary" />}
+                  <span className="text-xs font-black uppercase tracking-widest">
+                    {msg.role === 'user' ? 'You' : 'Hengbo AI'}
+                  </span>
+                </div>
+                <p className="font-bold leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+              </div>
+            </motion.div>
+          ))}
+          {isTyping && (
+            <div className="flex justify-start">
+              <div className="bg-surface-low p-6 brutalist-border border-primary">
+                <div className="flex gap-2">
+                  <div className="w-2 h-2 bg-secondary animate-bounce"></div>
+                  <div className="w-2 h-2 bg-secondary animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-2 h-2 bg-secondary animate-bounce [animation-delay:0.4s]"></div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={handleSendMessage} className="mt-12 relative">
+          <input 
+            type="text" 
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="w-full bg-white brutalist-border-heavy p-8 pr-24 font-bold text-xl focus:outline-none focus:border-secondary snap-transition"
+            placeholder="請輸入您的問題..."
+          />
+          <button 
+            disabled={isTyping || !input.trim()}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-primary text-white p-4 hover:bg-secondary snap-transition disabled:opacity-50"
+          >
+            <Send size={24} />
+          </button>
+        </form>
+      </main>
+    </motion.div>
+  );
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -914,14 +1132,15 @@ export default function App() {
         {activeTab === "services" && <ServicesView key="services" setActiveTab={setActiveTab} />}
         {activeTab === "cases" && <CasesView key="cases" setActiveTab={setActiveTab} />}
         {activeTab === "about" && <AboutView key="about" setActiveTab={setActiveTab} />}
+        {activeTab === "ai" && <AIView key="ai" />}
         {activeTab === "contact" && <ContactView key="contact" />}
 
       </AnimatePresence>
 
-      <Footer setActiveTab={setActiveTab} />
+      {activeTab !== "ai" && <Footer setActiveTab={setActiveTab} />}
 
       <AnimatePresence>
-        {showScrollTop && (
+        {showScrollTop && activeTab !== "ai" && (
           <motion.button
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
