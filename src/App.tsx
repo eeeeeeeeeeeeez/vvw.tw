@@ -923,7 +923,7 @@ const AIView: React.FC = () => {
 
     try {
       const result = await genAI.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemma-4-31b",
         contents: [
           ...messages.map(m => ({
             role: m.role === "user" ? "user" : "model",
