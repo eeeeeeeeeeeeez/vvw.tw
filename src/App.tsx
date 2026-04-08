@@ -926,7 +926,7 @@ const AIView: React.FC = () => {
     try {
       const result = await genAI.models.generateContent({
         model: "gemma-4-31b-it",
-        systemInstruction: "你是一位專業的『亨波 AI 助手』。你的回應規範：\n1. 直接輸出最終回覆內容，嚴禁包含任何思考過程、分析、對用戶輸入的解讀或內部指令。\n2. 嚴禁使用『The user said』、『The user is initiating』或任何類似的開場白。\n3. 嚴禁輸出任何包含內部步驟或工具呼叫的程式碼區塊。\n4. 確保回應格式正確，並使用 Markdown 渲染（如粗體、列表）。\n5. 絕對不要提供多個選項（如 Option 1, Option 2），只需提供一個最合適的回答。",
+        systemInstruction: "你是一位專業的『亨波 AI 助手』。請直接回答使用者的問題。在輸出你的最終回答前，請務必先加上標記 [ANSWER]，並將回答內容放在該標記之後。範例：[ANSWER] 您好！很高興為您服務。",
         contents: [
           ...messages.map(m => ({
             role: m.role === "user" ? "user" : "model",
@@ -938,17 +938,21 @@ const AIView: React.FC = () => {
       
       let text = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，AI 沒有回傳任何內容。";
 
-      // 過濾 AI 輸出的內部思考過程和標籤
-      text = text
-        .replace(/<thought>[\s\S]*?<\/thought>/gi, '') // 過濾 <thought> 標籤內容
-        .replace(/思考過程：[\s\S]*?(\n\n|$)/gi, '')    // 過濾「思考過程：」開頭的段落
-        .replace(/The user said[\s\S]*?(\n\n|$)/gi, '') // 過濾包含「The user said」的推理段落
-        .replace(/\*?Option \d+.*?\*?:/gi, '')          // 過濾「Option 1:」之類的標籤
-        .replace(/Acknowledge the greeting[\s\S]*?(\n\n|$)/gi, '') // 過濾常見的內部步驟描述
-        .replace(/\*?(Identity|General Capabilities|Specific Use Cases|Category \d+|Introduction|Closing|Call to Action)\*?:[\s\S]*?(\n\n|$)/gi, '') // 過濾 AI 輸出的內部分類標籤及其內容
-        .replace(/A good "capabilities" answer should be[\s\S]*?(\n\n|$)/gi, '') // 過濾內部的建議語句
-        .replace(/\[\d+\]/g, '') // 過濾可能出現的內部引用標籤
-        .trim();
+      // 最終修復邏輯：只提取 [ANSWER] 標記之後的內容
+      if (text.includes("[ANSWER]")) {
+        text = text.split("[ANSWER]").pop() || "";
+      } else {
+        // 備用過濾邏輯：過濾常見的內部推理標籤
+        text = text
+          .replace(/User says:[\s\S]*?(\n\n|$)/gi, '')
+          .replace(/Context:[\s\S]*?(\n\n|$)/gi, '')
+          .replace(/Role:[\s\S]*?(\n\n|$)/gi, '')
+          .replace(/Tone:[\s\S]*?(\n\n|$)/gi, '')
+          .replace(/The user said[\s\S]*?(\n\n|$)/gi, '')
+          .replace(/\*?(Identity|General Capabilities|Specific Use Cases|Category \d+|Introduction|Closing|Call to Action)\*?:[\s\S]*?(\n\n|$)/gi, '')
+          .trim();
+      }
+      text = text.trim();
 
       setMessages(prev => [...prev, { role: "ai", content: text }]);
     } catch (error: any) {
