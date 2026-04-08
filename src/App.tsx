@@ -923,7 +923,7 @@ const AIView: React.FC = () => {
 
     try {
       const result = await genAI.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         contents: [
           ...messages.map(m => ({
             role: m.role === "user" ? "user" : "model",
@@ -958,7 +958,7 @@ const AIView: React.FC = () => {
               <Lock size={40} className="text-white" />
             </div>
             <h2 className="text-4xl font-black text-primary uppercase tracking-tighter">亨波 AI 登入</h2>
-            <p className="text-muted font-bold mt-2">請輸入您的憑據以訪問 AI 助手</p>
+            <p className="text-muted font-bold mt-2">請輸入您的帳密以訪問 AI 助手</p>
           </div>
           
           <form onSubmit={handleLogin} className="space-y-8">
