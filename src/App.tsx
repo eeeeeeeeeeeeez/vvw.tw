@@ -922,17 +922,18 @@ const AIView: React.FC = () => {
     setIsTyping(true);
 
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const chat = model.startChat({
-        history: messages.map(m => ({
-          role: m.role === "user" ? "user" : "model",
-          parts: [{ text: m.content }],
-        })),
+      const result = await genAI.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: [
+          ...messages.map(m => ({
+            role: m.role === "user" ? "user" : "model",
+            parts: [{ text: m.content }],
+          })),
+          { role: "user", parts: [{ text: userMsg }] }
+        ],
       });
-
-      const result = await chat.sendMessage(userMsg);
-      const response = await result.response;
-      const text = response.text();
+      
+      const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，AI 沒有回傳任何內容。";
 
       setMessages(prev => [...prev, { role: "ai", content: text }]);
     } catch (error: any) {
