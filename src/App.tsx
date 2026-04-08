@@ -948,6 +948,18 @@ const AIView: React.FC = () => {
         .replace(/The user is initiating[\s\S]*?(\n\n|$)/gi, '') // 移除特定的分析語句
         .replace(/the persona of "亨波 AI 助手"[\s\S]*?(\n\n|$)/gi, '') // 移除對人設的分析
         .replace(/<thought>[\s\S]*?<\/thought>/gi, '') // 移除 <thought> 標籤
+        .split('\n')
+        .filter(line => {
+          const trimmed = line.trim();
+          if (!trimmed) return false;
+          // 如果一行中包含大量中文字符，則保留；否則（純英文或符號）則過濾掉分析行
+          const chineseCharCount = (trimmed.match(/[\u4e00-\u9fa5]/g) || []).length;
+          const totalCharCount = trimmed.length;
+          // 如果中文比例太低（低於 10%）且長度超過 10 個字符，則視為分析行過濾掉
+          if (totalCharCount > 10 && chineseCharCount / totalCharCount < 0.1) return false;
+          return true;
+        })
+        .join('\n')
         .trim();
 
       // 2. 如果過濾後內容為空，則保留原內容但嘗試截斷（防止過度過濾）
