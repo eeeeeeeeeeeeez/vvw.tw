@@ -31,7 +31,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
 
 // --- Constants ---
-const GEMINI_API_KEY = "AIzaSyDD4nqMKgG6Rbok9OWgUvwqQjNLAaHbVmU"; // 直接注入 API Key 以確保線上功能可用
+const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || ""; // 已移除洩漏的明文 Key，請在 Vercel 後台配置 VITE_GEMINI_API_KEY
 const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // --- Components ---
@@ -923,7 +923,7 @@ const AIView: React.FC = () => {
 
     try {
       const result = await genAI.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-1.5-flash-latest",
         contents: [
           ...messages.map(m => ({
             role: m.role === "user" ? "user" : "model",
