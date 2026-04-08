@@ -926,7 +926,7 @@ const AIView: React.FC = () => {
     try {
       const result = await genAI.models.generateContent({
         model: "gemma-4-31b-it",
-        systemInstruction: "你是一位專業的『亨波 AI 助手』。請直接回答使用者的問題。在輸出你的最終回答前，請務必先加上標記 [ANSWER]，並將回答內容放在該標記之後。範例：[ANSWER] 您好！很高興為您服務。",
+        systemInstruction: "你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。嚴禁輸出任何英文分析、思考過程或步驟描述。在輸出你的最終回答前，請務必先加上標記 [ANSWER]，並將回答內容放在該標記之後。範例：[ANSWER] 您好！很高興為您服務。",
         contents: [
           ...messages.map(m => ({
             role: m.role === "user" ? "user" : "model",
