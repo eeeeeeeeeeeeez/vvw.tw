@@ -30,6 +30,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // --- Constants ---
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || ""; // 已移除洩漏的明文 Key，請在 Vercel 後台配置 VITE_GEMINI_API_KEY
@@ -1074,7 +1075,7 @@ const AIView: React.FC = () => {
                     <div className="whitespace-pre-wrap">{msg.content}</div>
                   ) : (
                     <div className="markdown-content">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                     </div>
                   )}
                 </div>

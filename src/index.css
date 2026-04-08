@@ -63,7 +63,8 @@
 .markdown-content ul { @apply list-disc pl-6 mb-4; }
 .markdown-content ol { @apply list-decimal pl-6 mb-4; }
 .markdown-content li { @apply mb-1; }
-.markdown-content strong { @apply font-black text-secondary; }
+.markdown-content strong { @apply font-black text-secondary; display: inline; }
+.markdown-content b { @apply font-black text-secondary; }
 .markdown-content em { @apply italic; }
 .markdown-content code { @apply bg-surface-high px-1.5 py-0.5 rounded font-mono text-sm; }
 .markdown-content pre { @apply bg-primary text-white p-4 rounded-none my-4 overflow-x-auto; }
