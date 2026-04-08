@@ -1044,28 +1044,47 @@ const AIView: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`max-w-[80%] p-6 brutalist-border ${
+              <div className={`max-w-[85%] py-4 ${
                 msg.role === 'user' 
-                  ? 'bg-primary text-white border-primary' 
-                  : 'bg-surface-low text-primary border-primary'
+                  ? 'text-right' 
+                  : 'text-left'
               }`}>
-                <div className="flex items-center gap-2 mb-2">
-                  {msg.role === 'user' ? <User size={16} /> : <Sparkles size={16} className="text-secondary" />}
-                  <span className="text-xs font-black uppercase tracking-widest">
-                    {msg.role === 'user' ? 'You' : 'Hengbo AI'}
-                  </span>
+                <div className={`flex items-center gap-2 mb-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {msg.role === 'user' ? (
+                    <>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">YOU</span>
+                      <div className="w-6 h-6 bg-primary text-white flex items-center justify-center">
+                        <User size={12} />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-6 h-6 bg-secondary text-white flex items-center justify-center">
+                        <Sparkles size={12} />
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">HENGBO AI</span>
+                    </>
+                  )}
                 </div>
-                <p className="font-bold leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                <div className={`inline-block text-xl font-bold leading-relaxed whitespace-pre-wrap tracking-tight ${
+                  msg.role === 'user' ? 'text-primary' : 'text-primary'
+                }`}>
+                  {msg.content}
+                </div>
+                {msg.role === 'ai' && <div className="w-12 h-1 bg-secondary mt-6 opacity-30" />}
               </div>
             </motion.div>
           ))}
           {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-surface-low p-6 brutalist-border border-primary">
-                <div className="flex gap-2">
-                  <div className="w-2 h-2 bg-secondary animate-bounce"></div>
-                  <div className="w-2 h-2 bg-secondary animate-bounce [animation-delay:0.2s]"></div>
-                  <div className="w-2 h-2 bg-secondary animate-bounce [animation-delay:0.4s]"></div>
+            <div className="flex justify-start py-4">
+              <div className="flex items-center gap-4">
+                <div className="w-6 h-6 bg-secondary/20 flex items-center justify-center animate-pulse">
+                  <Sparkles size={12} className="text-secondary" />
+                </div>
+                <div className="flex gap-1.5">
+                  <div className="w-1.5 h-1.5 bg-secondary/40 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 bg-secondary/40 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-1.5 h-1.5 bg-secondary/40 rounded-full animate-bounce [animation-delay:0.4s]"></div>
                 </div>
               </div>
             </div>
