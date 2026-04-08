@@ -922,22 +922,23 @@ const AIView: React.FC = () => {
     setIsTyping(true);
 
     try {
-      const result = await genAI.models.generateContent({
-        model: "gemini-2.0-flash",
-        contents: [
-          ...messages.map(m => ({
-            role: m.role === "user" ? "user" : "model",
-            parts: [{ text: m.content }],
-          })),
-          { role: "user", parts: [{ text: userMsg }] }
-        ],
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const chat = model.startChat({
+        history: messages.map(m => ({
+          role: m.role === "user" ? "user" : "model",
+          parts: [{ text: m.content }],
+        })),
       });
-      const text = result.choices[0].message.content || "";
+
+      const result = await chat.sendMessage(userMsg);
+      const response = await result.response;
+      const text = response.text();
 
       setMessages(prev => [...prev, { role: "ai", content: text }]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Gemini Error:", error);
-      setMessages(prev => [...prev, { role: "ai", content: "抱歉，目前 AI 服務暫時無法回應。請檢查 API Key 配置或稍後再試。" }]);
+      const errorDetail = error?.message || "未知錯誤";
+      setMessages(prev => [...prev, { role: "ai", content: `抱歉，目前 AI 服務暫時無法回應。錯誤訊息：${errorDetail}` }]);
     } finally {
       setIsTyping(false);
     }
