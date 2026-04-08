@@ -28,10 +28,10 @@ import {
   RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { GoogleGenerativeAI } from "@google/generai";
+import { GoogleGenerativeAI } from "@google/genai";
 
 // --- Constants ---
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || (process.env.GEMINI_API_KEY as string) || "";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // --- Components ---
