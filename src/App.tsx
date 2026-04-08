@@ -938,19 +938,21 @@ const AIView: React.FC = () => {
       
       let text = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，AI 沒有回傳任何內容。";
 
-      // 最終修復邏輯：只提取 [ANSWER] 標記之後的內容
-      if (text.includes("[ANSWER]")) {
-        text = text.split("[ANSWER]").pop() || "";
-      } else {
-        // 備用過濾邏輯：過濾常見的內部推理標籤
-        text = text
-          .replace(/User says:[\s\S]*?(\n\n|$)/gi, '')
-          .replace(/Context:[\s\S]*?(\n\n|$)/gi, '')
-          .replace(/Role:[\s\S]*?(\n\n|$)/gi, '')
-          .replace(/Tone:[\s\S]*?(\n\n|$)/gi, '')
-          .replace(/The user said[\s\S]*?(\n\n|$)/gi, '')
-          .replace(/\*?(Identity|General Capabilities|Specific Use Cases|Category \d+|Introduction|Closing|Call to Action)\*?:[\s\S]*?(\n\n|$)/gi, '')
-          .trim();
+      // 強化過濾邏輯：針對 gemma-4-31b-it 常見的內部分析內容進行過濾
+      // 1. 移除常見的分析標記和內容
+      text = text
+        .replace(/\[ANSWER\]/gi, '') // 移除標記本身
+        .replace(/^".*?"\s*\(.*?\)\..*?(\n\n|$)/gim, '') // 移除如 "你好" (Hello). 這種開頭
+        .replace(/^(Friendly|Helpful|Professional|Acknowledge|Reiterate|Offer|Provide|Specific|General|Identity|Context|Role|Tone).*?:.*?(\n\n|$)/gim, '') // 移除標籤式分析
+        .replace(/^\s*\*.*?\*?\s*.*?(\n|$)/gm, '') // 移除 Markdown 列表項（通常是 AI 的步驟描述）
+        .replace(/The user is initiating[\s\S]*?(\n\n|$)/gi, '') // 移除特定的分析語句
+        .replace(/the persona of "亨波 AI 助手"[\s\S]*?(\n\n|$)/gi, '') // 移除對人設的分析
+        .replace(/<thought>[\s\S]*?<\/thought>/gi, '') // 移除 <thought> 標籤
+        .trim();
+
+      // 2. 如果過濾後內容為空，則保留原內容但嘗試截斷（防止過度過濾）
+      if (!text && result.candidates?.[0]?.content?.parts?.[0]?.text) {
+        text = result.candidates[0].content.parts[0].text;
       }
       text = text.trim();
 
