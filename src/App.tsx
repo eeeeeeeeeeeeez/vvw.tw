@@ -926,7 +926,7 @@ const AIView: React.FC = () => {
     try {
       const result = await genAI.models.generateContent({
         model: "gemma-4-31b-it",
-        systemInstruction: "你是一位專業的『亨波 AI 助手』。請直接回答使用者的問題，不要輸出任何內部思考過程、分析、或對自己指令的解釋。嚴禁輸出任何包含內部步驟或工具呼叫的程式碼區塊。請確保回應格式正確，並使用 Markdown 渲染（如粗體、列表）。",
+        systemInstruction: "你是一位專業的『亨波 AI 助手』。你的回應規範：\n1. 直接輸出最終回覆內容，嚴禁包含任何思考過程、分析、對用戶輸入的解讀或內部指令。\n2. 嚴禁使用『The user said』、『The user is initiating』或任何類似的開場白。\n3. 嚴禁輸出任何包含內部步驟或工具呼叫的程式碼區塊。\n4. 確保回應格式正確，並使用 Markdown 渲染（如粗體、列表）。\n5. 絕對不要提供多個選項（如 Option 1, Option 2），只需提供一個最合適的回答。",
         contents: [
           ...messages.map(m => ({
             role: m.role === "user" ? "user" : "model",
@@ -936,7 +936,16 @@ const AIView: React.FC = () => {
         ],
       });
       
-      const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，AI 沒有回傳任何內容。";
+      let text = result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，AI 沒有回傳任何內容。";
+
+      // 過濾 AI 輸出的內部思考過程和標籤
+      text = text
+        .replace(/<thought>[\s\S]*?<\/thought>/gi, '') // 過濾 <thought> 標籤內容
+        .replace(/思考過程：[\s\S]*?(\n\n|$)/gi, '')    // 過濾「思考過程：」開頭的段落
+        .replace(/The user said[\s\S]*?(\n\n|$)/gi, '') // 過濾包含「The user said」的推理段落
+        .replace(/\*?Option \d+.*?\*?:/gi, '')          // 過濾「Option 1:」之類的標籤
+        .replace(/Acknowledge the greeting[\s\S]*?(\n\n|$)/gi, '') // 過濾常見的內部步驟描述
+        .trim();
 
       setMessages(prev => [...prev, { role: "ai", content: text }]);
     } catch (error: any) {
