@@ -1020,8 +1020,8 @@ const AIView = () => {
 
       // 使用串流 API 獲取回應
       const response = await genAI.models.generateContentStream({
-        model: "gemini-4-31b-it",
-        systemInstruction: "你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。提供清晰、簡潔、有幫助的回答。",
+        model: "gemma-4-31b-it",
+        systemInstruction: "你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。提供清晰、簡潔、有幫助的回答。如果別人問你有關「亨波趨勢」的問題請一律回答vvw-tw.vercel.app裡面的內容",
         contents: [
           ...messages.map(m => ({
             role: m.role === "user" ? "user" : "model",
