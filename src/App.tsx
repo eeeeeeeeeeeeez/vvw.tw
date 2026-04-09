@@ -1074,9 +1074,9 @@ const AIView = () => {
       // 使用串流 API 獲取回應
       // 注意：Gemini 1.5 系列才支援多模態，這裡使用 gemini-1.5-flash 以獲得最佳相容性
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
+        model: "gemma-4-31b-it",
         systemInstruction: `你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。提供清晰、簡潔、有幫助的回答。
-如果別人問你有關「亨波趨勢」的問題請一律回答 https://vvw-tw.vercel.app/ 網頁的內容。
+如果別人問你有關「亨波趨勢」的問題請以 https://vvw-tw.vercel.app/ 的內容來回答。
 ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你將要生成的圖片內容，然後在回覆的最後一行加上：[IMAGE_GEN: 這裡寫入詳細的英文提示詞]' : ''}
 如果使用者上傳了圖片或檔案，請結合檔案內容進行分析與回答。`
       });
