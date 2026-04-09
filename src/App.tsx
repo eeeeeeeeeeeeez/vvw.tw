@@ -49,6 +49,7 @@ interface Message {
   content: string;
   id: string;
   timestamp: Date;
+  imageUrl?: string;
 }
 
 // --- Components ---
@@ -1018,12 +1019,17 @@ const AIView = () => {
         timestamp: new Date()
       }]);
 
+      // 檢查是否包含繪圖請求
+      const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
+      
       // 使用串流 API 獲取回應
       const response = await genAI.models.generateContentStream({
         model: "gemma-4-31b-it",
-        systemInstruction: "你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。提供清晰、簡潔、有幫助的回答。如果別人問你有關「亨波趨勢」的問題請一律回答https://vvw-tw.vercel.app/網頁的內容。",
+        systemInstruction: `你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。提供清晰、簡潔、有幫助的回答。
+如果別人問你有關「亨波趨勢」的問題請一律回答 https://vvw-tw.vercel.app/ 網頁的內容。
+${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你將要生成的圖片內容，然後在回覆的最後一行加上：[IMAGE_GEN: 這裡寫入詳細的英文提示詞]' : ''}`,
         contents: [
-          ...messages.map(m => ({
+          ...messages.slice(-10).map(m => ({ // 限制上下文長度
             role: m.role === "user" ? "user" : "model",
             parts: [{ text: m.content }],
           })),
@@ -1044,6 +1050,33 @@ const AIView = () => {
             ? { ...msg, content: fullText }
             : msg
         ));
+      }
+
+      // 檢查是否需要生成圖片
+      const imageTagMatch = fullText.match(/\[IMAGE_GEN:\s*(.*?)\]/);
+      if (imageTagMatch) {
+        const prompt = imageTagMatch[1].trim();
+        // 移除標記，避免顯示在 UI 中
+        const cleanedText = fullText.replace(/\[IMAGE_GEN:.*?\]/, "").trim();
+        
+        setMessages(prev => prev.map(msg => 
+          msg.id === aiMessageId 
+            ? { ...msg, content: cleanedText || "正在為您生成圖片..." }
+            : msg
+        ));
+
+        try {
+          // 使用 Pollinations.ai 生成圖片（這是一個免費且不需要 API Key 的服務，適合前端直接呼叫）
+          const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`;
+          
+          setMessages(prev => prev.map(msg => 
+            msg.id === aiMessageId 
+              ? { ...msg, imageUrl: imageUrl }
+              : msg
+          ));
+        } catch (imgError) {
+          console.error("Image Generation Error:", imgError);
+        }
       }
 
     } catch (error: any) {
@@ -1212,6 +1245,27 @@ const AIView = () => {
                       >
                         {msg.content}
                       </ReactMarkdown>
+                    </div>
+                  )}
+                  {msg.imageUrl && (
+                    <div className="mt-4 brutalist-border overflow-hidden bg-surface-low">
+                      <img 
+                        src={msg.imageUrl} 
+                        alt="AI Generated" 
+                        className="w-full h-auto object-contain max-h-[500px]"
+                        loading="lazy"
+                      />
+                      <div className="p-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest flex justify-between items-center">
+                        <span>AI Generated Image</span>
+                        <a 
+                          href={msg.imageUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="hover:text-secondary underline"
+                        >
+                          Open Original
+                        </a>
+                      </div>
                     </div>
                   )}
                 </div>
