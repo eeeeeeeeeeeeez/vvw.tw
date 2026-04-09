@@ -50,6 +50,7 @@ interface Message {
   id: string;
   timestamp: Date;
   imageUrl?: string;
+  attachments?: { name: string; type: string; preview?: string }[];
 }
 
 // --- Components ---
@@ -912,6 +913,8 @@ const AIView = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<{ name: string; type: string; data: string; preview?: string }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -993,20 +996,53 @@ const AIView = () => {
 
   const generateMessageId = () => `msg-${Date.now()}-${Math.random()}`;
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newFiles = await Promise.all(Array.from(files).map(async (file) => {
+      return new Promise<{ name: string; type: string; data: string; preview?: string }>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64 = e.target?.result as string;
+          const data = base64.split(',')[1];
+          const isImage = file.type.startsWith('image/');
+          resolve({
+            name: file.name,
+            type: file.type,
+            data: data,
+            preview: isImage ? base64 : undefined
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+    }));
+
+    setAttachedFiles(prev => [...prev, ...newFiles]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isTyping) return;
+    if ((!input.trim() && attachedFiles.length === 0) || isTyping) return;
 
     const userMsg = input.trim();
+    const currentAttachments = [...attachedFiles];
     const userMessageId = generateMessageId();
     const aiMessageId = generateMessageId();
     
     setInput("");
+    setAttachedFiles([]);
     setMessages(prev => [...prev, { 
       role: "user", 
-      content: userMsg, 
+      content: userMsg || (currentAttachments.length > 0 ? `[上傳了 ${currentAttachments.length} 個檔案]` : ""), 
       id: userMessageId,
-      timestamp: new Date()
+      timestamp: new Date(),
+      attachments: currentAttachments.map(f => ({ name: f.name, type: f.type, preview: f.preview }))
     }]);
     setIsTyping(true);
 
@@ -1022,18 +1058,36 @@ const AIView = () => {
       // 檢查是否包含繪圖請求
       const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
       
+      // 準備多模態內容
+      const userParts: any[] = [{ text: userMsg || "請分析這些檔案" }];
+      
+      // 加入目前上傳的檔案
+      currentAttachments.forEach(file => {
+        userParts.push({
+          inlineData: {
+            mimeType: file.type,
+            data: file.data
+          }
+        });
+      });
+
       // 使用串流 API 獲取回應
-      const response = await genAI.models.generateContentStream({
-        model: "gemma-4-31b-it",
+      // 注意：Gemini 1.5 系列才支援多模態，這裡使用 gemini-1.5-flash 以獲得最佳相容性
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
         systemInstruction: `你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。提供清晰、簡潔、有幫助的回答。
 如果別人問你有關「亨波趨勢」的問題請一律回答 https://vvw-tw.vercel.app/ 網頁的內容。
-${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你將要生成的圖片內容，然後在回覆的最後一行加上：[IMAGE_GEN: 這裡寫入詳細的英文提示詞]' : ''}`,
+${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你將要生成的圖片內容，然後在回覆的最後一行加上：[IMAGE_GEN: 這裡寫入詳細的英文提示詞]' : ''}
+如果使用者上傳了圖片或檔案，請結合檔案內容進行分析與回答。`
+      });
+
+      const response = await model.generateContentStream({
         contents: [
-          ...messages.slice(-10).map(m => ({ // 限制上下文長度
+          ...messages.slice(-10).map(m => ({
             role: m.role === "user" ? "user" : "model",
             parts: [{ text: m.content }],
           })),
-          { role: "user", parts: [{ text: userMsg }] }
+          { role: "user", parts: userParts }
         ],
       });
 
@@ -1208,9 +1262,27 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
               <div className={`inline-block text-base font-bold leading-relaxed tracking-tight ${
                 msg.role === 'user' ? 'text-primary bg-surface-low rounded px-3 py-2' : 'text-primary'
               }`}>
-                  {msg.role === 'user' ? (
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
-                  ) : (
+	                  {msg.role === 'user' ? (
+	                    <div className="space-y-3">
+                        <div className="whitespace-pre-wrap">{msg.content}</div>
+                        {msg.attachments && msg.attachments.length > 0 && (
+                          <div className="flex flex-wrap gap-2 justify-end mt-2">
+                            {msg.attachments.map((file, i) => (
+                              <div key={i} className="brutalist-border bg-white p-1 max-w-[120px]">
+                                {file.preview ? (
+                                  <img src={file.preview} alt={file.name} className="w-full h-20 object-cover" />
+                                ) : (
+                                  <div className="w-20 h-20 flex flex-col items-center justify-center bg-surface-low p-2">
+                                    <FileText size={24} className="text-primary mb-1" />
+                                    <span className="text-[8px] font-black truncate w-full text-center">{file.name}</span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+	                  ) : (
                     <div className="markdown-content prose prose-sm max-w-none">
                       <ReactMarkdown 
                         remarkPlugins={[remarkGfm]}
@@ -1309,30 +1381,74 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
           )}
         </div>
 
-        <form onSubmit={handleSendMessage} className="mt-8 relative flex gap-2 items-end">
-          <input 
-            type="text" 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-grow bg-white border-b-2 border-primary p-3 font-bold text-base focus:outline-none focus:border-secondary snap-transition"
-            placeholder="請輸入您的問題..."
-            disabled={isTyping}
-          />
-          <button 
-            type="button"
-            onClick={handleClearChat}
-            className="text-muted hover:text-secondary snap-transition p-2 flex-shrink-0"
-            title="清除對話"
-          >
-            <Trash2 size={18} />
-          </button>
-          <button 
-            disabled={isTyping || !input.trim()}
-            className="bg-primary text-white p-3 hover:bg-secondary snap-transition disabled:opacity-50 flex-shrink-0"
-          >
-            <Send size={20} />
-          </button>
-        </form>
+	        <form onSubmit={handleSendMessage} className="mt-8 space-y-4">
+          {attachedFiles.length > 0 && (
+            <div className="flex flex-wrap gap-3 p-4 bg-surface-low brutalist-border">
+              {attachedFiles.map((file, i) => (
+                <div key={i} className="relative group">
+                  <div className="brutalist-border bg-white p-1">
+                    {file.preview ? (
+                      <img src={file.preview} alt={file.name} className="w-20 h-20 object-cover" />
+                    ) : (
+                      <div className="w-20 h-20 flex flex-col items-center justify-center p-2">
+                        <FileText size={24} className="text-primary mb-1" />
+                        <span className="text-[8px] font-black truncate w-full text-center">{file.name}</span>
+                      </div>
+                    )}
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => removeAttachment(i)}
+                    className="absolute -top-2 -right-2 bg-secondary text-white rounded-full p-1 shadow-lg hover:scale-110 transition-transform"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="relative flex gap-2 items-end">
+            <input 
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              multiple
+              className="hidden"
+              accept="image/*,application/pdf,text/*"
+            />
+            <button 
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="text-primary hover:text-secondary snap-transition p-3 flex-shrink-0 brutalist-border bg-white"
+              title="上傳圖片或檔案"
+            >
+              <Network size={20} />
+            </button>
+            <input 
+              type="text" 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="flex-grow bg-white border-b-2 border-primary p-3 font-bold text-base focus:outline-none focus:border-secondary snap-transition"
+              placeholder="請輸入您的問題，或上傳檔案..."
+              disabled={isTyping}
+            />
+            <button 
+              type="button"
+              onClick={handleClearChat}
+              className="text-muted hover:text-secondary snap-transition p-2 flex-shrink-0"
+              title="清除對話"
+            >
+              <Trash2 size={18} />
+            </button>
+            <button 
+              disabled={isTyping || (!input.trim() && attachedFiles.length === 0)}
+              className="bg-primary text-white p-3 hover:bg-secondary snap-transition disabled:opacity-50 flex-shrink-0"
+            >
+              <Send size={20} />
+            </button>
+          </div>
+	        </form>
       </main>
     </motion.div>
   );
