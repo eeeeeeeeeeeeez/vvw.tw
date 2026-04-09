@@ -1103,44 +1103,45 @@ const AIView = () => {
       animate={{ opacity: 1 }} 
       className="pt-24 min-h-screen flex flex-col bg-white"
     >
-      <header className="px-8 py-12 border-b-2 border-primary bg-surface-low sticky top-24 z-40">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="bg-secondary p-3 text-white">
-              <Bot size={32} />
-            </div>
-            <div>
-              <h2 className="text-3xl font-black text-primary uppercase tracking-tighter leading-none">亨波 AI 助手</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span className="text-xs font-bold text-muted uppercase tracking-widest">系統已連線</span>
-              </div>
-            </div>
+      {/* 浮動控制列 */}
+      <div className="fixed top-32 right-8 z-50 flex flex-col gap-3">
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleClearChat}
+          className="w-12 h-12 bg-secondary text-white flex items-center justify-center hover:bg-primary snap-transition shadow-lg"
+          title="清除對話"
+        >
+          <Trash2 size={20} />
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsLoggedIn(false)}
+          className="w-12 h-12 bg-primary text-white flex items-center justify-center hover:bg-secondary snap-transition shadow-lg"
+          title="登出"
+        >
+          <X size={20} />
+        </motion.button>
+      </div>
+
+      <main className="flex-grow overflow-hidden flex flex-col w-full mx-auto px-4 sm:px-8 py-8 sm:py-12 max-w-7xl">
+        {/* AI 標題 */}
+        <div className="mb-8 flex items-center gap-3">
+          <div className="w-8 h-8 bg-secondary text-white flex items-center justify-center">
+            <Bot size={20} />
           </div>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={handleClearChat}
-              className="text-primary font-black uppercase tracking-widest border-b-2 border-primary hover:text-secondary hover:border-secondary snap-transition flex items-center gap-2"
-              title="清除對話"
-            >
-              <Trash2 size={20} />
-              <span className="hidden sm:inline">清除</span>
-            </button>
-            <button 
-              onClick={() => setIsLoggedIn(false)}
-              className="text-primary font-black uppercase tracking-widest border-b-2 border-primary hover:text-secondary hover:border-secondary snap-transition"
-            >
-              登出
-            </button>
+          <h2 className="text-2xl font-black text-primary uppercase tracking-tighter">亨波 AI 助手</h2>
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            <span className="text-xs font-bold text-muted uppercase tracking-widest hidden sm:inline">線上</span>
           </div>
         </div>
-      </header>
-
-      <main className="flex-grow overflow-hidden flex flex-col max-w-5xl w-full mx-auto px-8 py-12">
+        
         <div 
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex-grow overflow-y-auto space-y-8 pr-4 custom-scrollbar"
+          className="flex-grow overflow-y-auto space-y-6 pr-4 custom-scrollbar"
         >
           {messages.map((msg) => (
             <motion.div 
