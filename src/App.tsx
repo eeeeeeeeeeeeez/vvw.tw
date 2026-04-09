@@ -577,7 +577,6 @@ const AIView = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -637,7 +636,6 @@ const AIView = () => {
       timestamp: new Date()
     }]);
     setIsTyping(true);
-    setStreamingMessageId(aiMessageId);
 
     try {
       // 建立 AI 回應的初始訊息
@@ -676,21 +674,17 @@ const AIView = () => {
         ));
       }
 
-      setStreamingMessageId(null);
     } catch (error: any) {
       console.error("Gemini Error:", error);
       const errorDetail = error?.message || "未知錯誤";
-      const errorMessageId = generateMessageId();
       
-      setMessages(prev => [...prev, { 
-        role: "ai", 
-        content: `抱歉，目前 AI 服務暫時無法回應。請稍後重試。（錯誤代碼：${errorDetail}）`,
-        id: errorMessageId,
-        timestamp: new Date()
-      }]);
+      setMessages(prev => prev.map(msg => 
+        msg.id === aiMessageId 
+          ? { ...msg, content: `抱歉，目前 AI 服務暫時無法回應。請稍後重試。（錯誤代碼：${errorDetail}）` }
+          : msg
+      ));
     } finally {
       setIsTyping(false);
-      setStreamingMessageId(null);
     }
   };
 
