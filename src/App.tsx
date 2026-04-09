@@ -37,7 +37,7 @@ import remarkGfm from "remark-gfm";
 
 // --- Constants ---
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || ""; // 已移除洩漏的明文 Key，請在 Vercel 後台配置 VITE_GEMINI_API_KEY
-const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const genAI = new GoogleGenAI(GEMINI_API_KEY);
 
 // 從環境變數讀取管理員帳密（應在 .env.local 中設定）
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || "admin";
