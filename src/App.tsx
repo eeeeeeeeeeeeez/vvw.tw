@@ -1103,40 +1103,10 @@ const AIView = () => {
       animate={{ opacity: 1 }} 
       className="pt-24 min-h-screen flex flex-col bg-white"
     >
-      {/* 浮動控制列 */}
-      <div className="fixed top-32 right-8 z-50 flex flex-col gap-3">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleClearChat}
-          className="w-12 h-12 bg-secondary text-white flex items-center justify-center hover:bg-primary snap-transition shadow-lg"
-          title="清除對話"
-        >
-          <Trash2 size={20} />
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setIsLoggedIn(false)}
-          className="w-12 h-12 bg-primary text-white flex items-center justify-center hover:bg-secondary snap-transition shadow-lg"
-          title="登出"
-        >
-          <X size={20} />
-        </motion.button>
-      </div>
+
 
       <main className="flex-grow overflow-hidden flex flex-col w-full mx-auto px-4 sm:px-8 py-8 sm:py-12 max-w-7xl">
-        {/* AI 標題 */}
-        <div className="mb-8 flex items-center gap-3">
-          <div className="w-8 h-8 bg-secondary text-white flex items-center justify-center">
-            <Bot size={20} />
-          </div>
-          <h2 className="text-2xl font-black text-primary uppercase tracking-tighter">亨波 AI 助手</h2>
-          <div className="flex items-center gap-2 ml-auto">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            <span className="text-xs font-bold text-muted uppercase tracking-widest hidden sm:inline">線上</span>
-          </div>
-        </div>
+
         
         <div 
           ref={scrollRef}
@@ -1155,26 +1125,16 @@ const AIView = () => {
                   ? 'text-right' 
                   : 'text-left'
               }`}>
-                <div className={`flex items-center gap-2 mb-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`flex items-center gap-2 mb-2 text-xs ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'user' ? (
-                    <>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">YOU</span>
-                      <div className="w-6 h-6 bg-primary text-white flex items-center justify-center">
-                        <User size={12} />
-                      </div>
-                    </>
+                    <span className="font-bold text-muted uppercase tracking-widest">You</span>
                   ) : (
-                    <>
-                      <div className="w-6 h-6 bg-secondary text-white flex items-center justify-center">
-                        <Sparkles size={12} />
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">HENGBO AI</span>
-                    </>
+                    <span className="font-bold text-secondary uppercase tracking-widest">AI</span>
                   )}
                 </div>
-                <div className={`inline-block text-lg font-bold leading-relaxed tracking-tight ${
-                  msg.role === 'user' ? 'text-primary bg-surface-low rounded px-4 py-2' : 'text-primary'
-                }`}>
+              <div className={`inline-block text-base font-bold leading-relaxed tracking-tight ${
+                msg.role === 'user' ? 'text-primary bg-surface-low rounded px-3 py-2' : 'text-primary'
+              }`}>
                   {msg.role === 'user' ? (
                     <div className="whitespace-pre-wrap">{msg.content}</div>
                   ) : (
@@ -1234,7 +1194,7 @@ const AIView = () => {
                   </button>
                 )}
                 
-                {msg.role === 'ai' && <div className="w-12 h-1 bg-secondary mt-6 opacity-30" />}
+
               </div>
             </motion.div>
           ))}
@@ -1255,20 +1215,28 @@ const AIView = () => {
           )}
         </div>
 
-        <form onSubmit={handleSendMessage} className="mt-12 relative">
+        <form onSubmit={handleSendMessage} className="mt-8 relative flex gap-2 items-end">
           <input 
             type="text" 
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="w-full bg-white brutalist-border-heavy p-8 pr-24 font-bold text-xl focus:outline-none focus:border-secondary snap-transition"
+            className="flex-grow bg-white border-b-2 border-primary p-3 font-bold text-base focus:outline-none focus:border-secondary snap-transition"
             placeholder="請輸入您的問題..."
             disabled={isTyping}
           />
           <button 
-            disabled={isTyping || !input.trim()}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-primary text-white p-4 hover:bg-secondary snap-transition disabled:opacity-50"
+            type="button"
+            onClick={handleClearChat}
+            className="text-muted hover:text-secondary snap-transition p-2 flex-shrink-0"
+            title="清除對話"
           >
-            <Send size={24} />
+            <Trash2 size={18} />
+          </button>
+          <button 
+            disabled={isTyping || !input.trim()}
+            className="bg-primary text-white p-3 hover:bg-secondary snap-transition disabled:opacity-50 flex-shrink-0"
+          >
+            <Send size={20} />
           </button>
         </form>
       </main>
