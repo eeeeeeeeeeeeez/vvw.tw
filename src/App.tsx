@@ -915,6 +915,49 @@ const AIView = () => {
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // LocalStorage 金鑰
+  const STORAGE_KEY = "hengbo_ai_chat_history";
+
+  // 從 LocalStorage 載入對話記錄
+  useEffect(() => {
+    if (isLoggedIn) {
+      const savedMessages = localStorage.getItem(STORAGE_KEY);
+      if (savedMessages) {
+        try {
+          const parsedMessages = JSON.parse(savedMessages).map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }));
+          setMessages(parsedMessages);
+        } catch (error) {
+          console.error("Failed to load chat history:", error);
+          // 如果載入失敗，顯示歡迎訊息
+          setMessages([{ 
+            role: "ai", 
+            content: "您好！我是亨波 AI 助手。很高興為您服務，請問今天有什麼我可以幫您的嗎？",
+            id: `msg-${Date.now()}`,
+            timestamp: new Date()
+          }]);
+        }
+      } else {
+        // 如果沒有儲存的訊息，顯示歡迎訊息
+        setMessages([{ 
+          role: "ai", 
+          content: "您好！我是亨波 AI 助手。很高興為您服務，請問今天有什麼我可以幫您的嗎？",
+          id: `msg-${Date.now()}`,
+          timestamp: new Date()
+        }]);
+      }
+    }
+  }, [isLoggedIn]);
+
+  // 每當 messages 更新時，自動儲存到 LocalStorage
+  useEffect(() => {
+    if (isLoggedIn && messages.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    }
+  }, [messages, isLoggedIn]);
+
   // 自動滾動到最新訊息
   useEffect(() => {
     if (shouldAutoScroll && scrollRef.current) {
@@ -939,12 +982,7 @@ const AIView = () => {
     
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       setIsLoggedIn(true);
-      setMessages([{ 
-        role: "ai", 
-        content: "您好！我是亨波 AI 助手。很高興為您服務，請問今天有什麼我可以幫您的嗎？",
-        id: `msg-${Date.now()}`,
-        timestamp: new Date()
-      }]);
+      // 不在登入時初始化訊息，改由 useEffect 從 LocalStorage 載入
       setUsername("");
       setPassword("");
     } else {
@@ -1024,12 +1062,14 @@ const AIView = () => {
 
   const handleClearChat = () => {
     if (window.confirm("確定要清除所有對話記錄嗎？")) {
-      setMessages([{ 
-        role: "ai", 
+      const newMessage = { 
+        role: "ai" as const, 
         content: "對話記錄已清除。請問有什麼我可以幫您的嗎？",
         id: generateMessageId(),
         timestamp: new Date()
-      }]);
+      };
+      setMessages([newMessage]);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([newMessage]));
     }
   };
 
