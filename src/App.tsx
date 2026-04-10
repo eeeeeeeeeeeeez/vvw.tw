@@ -1132,10 +1132,10 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
           
           <div className="flex flex-col items-center mb-10 relative z-10">
             <motion.div 
-              whileHover={{ scale: 1.05, rotate: 5 }}
+              whileHover={{ scale: 1.05 }}
               className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg group"
             >
-              <Logo className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" variant="white" />
+              <Lock className="w-12 h-12 text-white group-hover:scale-110 transition-transform duration-300" />
             </motion.div>
             <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 助手</h2>
             <div className="flex items-center gap-2">
