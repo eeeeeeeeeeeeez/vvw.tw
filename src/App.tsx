@@ -1010,7 +1010,17 @@ const ContactView: React.FC = () => {
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const content = event.target?.result as string;
+      let content = event.target?.result as string;
+      
+      // 對於文字檔案，限制內容長度（約 50,000 個字元以確保 Token 在限制內）
+      if (!file.type.startsWith('image/')) {
+        const MAX_CHARS = 50000;
+        if (content.length > MAX_CHARS) {
+          const truncatedContent = content.substring(0, MAX_CHARS);
+          content = truncatedContent + `\n\n[注意：檔案內容已被截斷至 ${MAX_CHARS} 個字元以符合 AI 處理限制]`;
+        }
+      }
+      
       setSelectedFile({
         name: file.name,
         content: content,
@@ -1067,7 +1077,15 @@ const ContactView: React.FC = () => {
           // 注意：這裡簡化處理，實際圖片分析需要將 base64 傳給 Gemini 的 multi-modal 介面
           // 由於目前專案架構，我們先以文字描述方式告知 AI
         } else {
-          aiPrompt = `以下是使用者上傳的檔案內容 (${currentFile.name})：\n---\n${currentFile.content}\n---\n根據以上內容，回答使用者的問題：${userMsg}`;
+          // 再次檢查內容長度，確保不會超過 Token 限制
+          let fileContent = currentFile.content;
+          const MAX_PROMPT_CHARS = 100000; // 整個提示詞的最大字元數
+          
+          if (fileContent.length > MAX_PROMPT_CHARS) {
+            fileContent = fileContent.substring(0, MAX_PROMPT_CHARS) + "\n[檔案內容已截斷]";
+          }
+          
+          aiPrompt = `以下是使用者上傳的檔案內容 (${currentFile.name})：\n---\n${fileContent}\n---\n根據以上內容，回答使用者的問題：${userMsg}`;
         }
       }
 
