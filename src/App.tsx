@@ -1088,44 +1088,6 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
           { role: "user", parts: [{ text: aiPrompt }] }
         ],
       });
-    const userMessageId = generateMessageId();
-    const aiMessageId = generateMessageId();
-    
-    setInput("");
-    setMessages(prev => [...prev, { 
-      role: "user", 
-      content: userMsg, 
-      id: userMessageId,
-      timestamp: new Date()
-    }]);
-    setIsTyping(true);
-
-    try {
-      // 建立 AI 回應的初始訊息
-      setMessages(prev => [...prev, { 
-        role: "ai", 
-        content: "", 
-        id: aiMessageId,
-        timestamp: new Date()
-      }]);
-
-      // 檢查是否包含繪圖請求
-      const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
-      
-      // 使用串流 API 獲取回應
-      const response = await genAI.models.generateContentStream({
-        model: "gemma-4-31b-it",
-        systemInstruction: `你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。提供清晰、簡潔、有幫助的回答。
-如果別人問你有關「亨波趨勢」的問題請一律回答 https://vvw-tw.vercel.app/ 網頁的內容。
-${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你將要生成的圖片內容，然後在回覆的最後一行加上：[IMAGE_GEN: 這裡寫入詳細的英文提示詞]' : ''}`,
-        contents: [
-          ...messages.slice(-10).map(m => ({ // 限制上下文長度
-            role: m.role === "user" ? "user" : "model",
-            parts: [{ text: m.content }],
-          })),
-          { role: "user", parts: [{ text: userMsg }] }
-        ],
-      });
 
       let fullText = "";
 
