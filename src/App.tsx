@@ -1150,13 +1150,13 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
               <label className="font-black uppercase tracking-widest text-[10px] text-secondary ml-1">管理員帳號</label>
               <div className="relative group">
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors pointer-events-none" size={20} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors pointer-events-none" size={18} />
                 <input 
                   required
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition relative z-10" 
+                  className="w-full bg-surface-low border-2 border-primary/10 p-3 pl-10 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition relative z-10" 
                   placeholder="Username"
                   autoComplete="username"
                 />
@@ -1167,20 +1167,20 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
               <label className="font-black uppercase tracking-widest text-[10px] text-secondary ml-1">安全授權碼</label>
               <div className="relative group">
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors pointer-events-none" size={20} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors pointer-events-none" size={18} />
                 <input 
                   required
                   type={showPassword ? "text" : "password"} 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 pr-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition relative z-10" 
+                  className="w-full bg-surface-low border-2 border-primary/10 p-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition relative z-10" 
                   placeholder="Password"
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary transition-colors z-20"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary transition-colors z-20"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
