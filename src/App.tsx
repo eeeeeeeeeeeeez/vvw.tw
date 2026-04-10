@@ -1117,55 +1117,91 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
       <motion.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
-        className="min-h-screen flex items-center justify-center bg-surface-low px-8 pt-24"
+        className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24"
       >
-        <div className="w-full max-w-md bg-white brutalist-border-heavy p-12">
-          <div className="flex flex-col items-center mb-12">
-            <div className="w-20 h-20 bg-primary flex items-center justify-center mb-6">
-              <Lock size={40} className="text-white" />
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="w-full max-w-md bg-white border-2 border-primary shadow-[12px_12px_0px_0px_rgba(21,66,18,1)] p-8 md:p-12 relative overflow-hidden"
+        >
+          {/* Background Accent */}
+          <div className="absolute -top-12 -right-12 w-32 h-32 bg-secondary/5 rounded-full blur-3xl"></div>
+          
+          <div className="flex flex-col items-center mb-10 relative z-10">
+            <motion.div 
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg group"
+            >
+              <Logo className="w-16 h-16 group-hover:scale-110 transition-transform duration-300" variant="white" />
+            </motion.div>
+            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 助手</h2>
+            <div className="flex items-center gap-2">
+              <div className="h-[2px] w-8 bg-secondary"></div>
+              <p className="text-muted font-bold text-sm uppercase tracking-widest">系統安全驗證</p>
+              <div className="h-[2px] w-8 bg-secondary"></div>
             </div>
-            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter">亨波 AI 登入</h2>
-            <p className="text-muted font-bold mt-2">請輸入您的帳密以訪問 AI 助手</p>
           </div>
           
-          <form onSubmit={handleLogin} className="space-y-8">
+          <form onSubmit={handleLogin} className="space-y-6 relative z-10">
             <div className="space-y-2">
-              <label className="font-black uppercase tracking-widest text-xs text-secondary">帳號</label>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" size={20} />
+              <label className="font-black uppercase tracking-widest text-[10px] text-secondary ml-1">管理員帳號</label>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={20} />
                 <input 
                   required
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-surface-low border-b-4 border-primary p-4 pl-12 font-bold focus:outline-none focus:border-secondary snap-transition" 
+                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition" 
                   placeholder="Username"
                 />
               </div>
             </div>
             
             <div className="space-y-2">
-              <label className="font-black uppercase tracking-widest text-xs text-secondary">密碼</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" size={20} />
+              <label className="font-black uppercase tracking-widest text-[10px] text-secondary ml-1">安全授權碼</label>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={20} />
                 <input 
                   required
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-surface-low border-b-4 border-primary p-4 pl-12 font-bold focus:outline-none focus:border-secondary snap-transition" 
+                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition" 
                   placeholder="Password"
                 />
               </div>
             </div>
 
-            {loginError && <p className="text-red-600 font-bold text-sm uppercase">{loginError}</p>}
+            {loginError && (
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-secondary/10 border-l-4 border-secondary p-3"
+              >
+                <p className="text-secondary font-bold text-xs uppercase flex items-center gap-2">
+                  <X size={14} /> {loginError}
+                </p>
+              </motion.div>
+            )}
 
-            <button className="w-full bg-primary text-white py-6 font-black uppercase tracking-[0.3em] text-xl hover:bg-secondary snap-transition">
-              進入系統
-            </button>
+            <motion.button 
+              whileHover={{ scale: 1.02, backgroundColor: "#BB0014" }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
+            >
+              <span>授權並進入</span>
+              <ArrowRight size={20} />
+            </motion.button>
+            
+            <p className="text-center text-[10px] text-muted font-bold uppercase tracking-widest mt-6">
+              © 2026 HENGBO TREND AI SYSTEM
+            </p>
           </form>
-        </div>
+        </motion.div>
       </motion.div>
     );
   }
