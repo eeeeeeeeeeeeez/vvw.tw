@@ -1119,7 +1119,7 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
       <motion.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
-        className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24"
+        className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10"
       >
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
@@ -1145,18 +1145,18 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
             </div>
           </div>
           
-          <form onSubmit={handleLogin} className="space-y-6 relative z-10">
+          <form onSubmit={handleLogin} className="space-y-6 relative z-20">
             <div className="space-y-2">
               <label className="font-black uppercase tracking-widest text-[10px] text-secondary ml-1">管理員帳號</label>
               <div className="relative group">
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={20} />
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors pointer-events-none" size={20} />
                 <input 
                   required
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition" 
+                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition relative z-10" 
                   placeholder="Username"
                   autoComplete="username"
                 />
@@ -1166,21 +1166,21 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
             <div className="space-y-2">
               <label className="font-black uppercase tracking-widest text-[10px] text-secondary ml-1">安全授權碼</label>
               <div className="relative group">
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={20} />
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors pointer-events-none" size={20} />
                 <input 
                   required
                   type={showPassword ? "text" : "password"} 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 pr-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition" 
+                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 pr-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition relative z-10" 
                   placeholder="Password"
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary transition-colors z-20"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
