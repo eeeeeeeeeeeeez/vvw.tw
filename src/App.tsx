@@ -29,7 +29,8 @@ import {
   RefreshCw,
   Trash2,
   Copy,
-  Check
+  Check,
+  Paperclip
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
@@ -914,6 +915,8 @@ const ContactView: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<{ name: string, content: string, type: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -995,11 +998,96 @@ const ContactView: React.FC = () => {
 
   const generateMessageId = () => `msg-${Date.now()}-${Math.random()}`;
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 限制檔案大小 (例如 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("檔案太大了，請上傳小於 5MB 的檔案。");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      setSelectedFile({
+        name: file.name,
+        content: content,
+        type: file.type
+      });
+    };
+
+    if (file.type.startsWith('image/')) {
+      reader.readAsDataURL(file);
+    } else {
+      reader.readAsText(file);
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isTyping) return;
+    if ((!input.trim() && !selectedFile) || isTyping) return;
 
-    const userMsg = input.trim();
+    let userMsg = input.trim();
+    const currentFile = selectedFile;
+    
+    // 如果有檔案但沒有文字，自動加上提示
+    if (!userMsg && currentFile) {
+      userMsg = `請分析這份檔案：${currentFile.name}`;
+    }
+
+    const userMessageId = generateMessageId();
+    const aiMessageId = generateMessageId();
+    
+    setInput("");
+    setSelectedFile(null);
+    setMessages(prev => [...prev, { 
+      role: "user", 
+      content: userMsg, 
+      id: userMessageId,
+      timestamp: new Date()
+    }]);
+    setIsTyping(true);
+
+    try {
+      // 建立 AI 回應的初始訊息
+      setMessages(prev => [...prev, { 
+        role: "ai", 
+        content: "", 
+        id: aiMessageId,
+        timestamp: new Date()
+      }]);
+
+      // 構建發送給 AI 的內容
+      let aiPrompt = userMsg;
+      if (currentFile) {
+        if (currentFile.type.startsWith('image/')) {
+          aiPrompt = `[使用者上傳了圖片：${currentFile.name}]\n${userMsg}`;
+          // 注意：這裡簡化處理，實際圖片分析需要將 base64 傳給 Gemini 的 multi-modal 介面
+          // 由於目前專案架構，我們先以文字描述方式告知 AI
+        } else {
+          aiPrompt = `以下是使用者上傳的檔案內容 (${currentFile.name})：\n---\n${currentFile.content}\n---\n根據以上內容，回答使用者的問題：${userMsg}`;
+        }
+      }
+
+      // 檢查是否包含繪圖請求
+      const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
+      
+      // 使用串流 API 獲取回應
+      const response = await genAI.models.generateContentStream({
+        model: "gemma-4-31b-it",
+        systemInstruction: `你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。提供清晰、簡潔、有幫助的回答。
+如果別人問你有關「亨波趨勢」的問題請一律回答 https://vvw-tw.vercel.app/ 網頁的內容。
+${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你將要生成的圖片內容，然後在回覆的最後一行加上：[IMAGE_GEN: 這裡寫入詳細的英文提示詞]' : ''}`,
+        contents: [
+          ...messages.slice(-10).map(m => ({ // 限制上下文長度
+            role: m.role === "user" ? "user" : "model",
+            parts: [{ text: m.content }],
+          })),
+          { role: "user", parts: [{ text: aiPrompt }] }
+        ],
+      });
     const userMessageId = generateMessageId();
     const aiMessageId = generateMessageId();
     
@@ -1356,29 +1444,60 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
           )}
         </div>
 
-        <form onSubmit={handleSendMessage} className="mt-8 relative flex gap-2 items-end">
-          <input 
-            type="text" 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-grow bg-white border-b-2 border-primary p-3 font-bold text-base focus:outline-none focus:border-secondary snap-transition"
-            placeholder="請輸入您的問題..."
-            disabled={isTyping}
-          />
-          <button 
-            type="button"
-            onClick={handleClearChat}
-            className="text-muted hover:text-secondary snap-transition p-2 flex-shrink-0"
-            title="清除對話"
-          >
-            <Trash2 size={18} />
-          </button>
-          <button 
-            disabled={isTyping || !input.trim()}
-            className="bg-primary text-white p-3 hover:bg-secondary snap-transition disabled:opacity-50 flex-shrink-0"
-          >
-            <Send size={20} />
-          </button>
+        <form onSubmit={handleSendMessage} className="mt-8 flex flex-col gap-2">
+          {selectedFile && (
+            <div className="flex items-center gap-2 bg-surface-low p-2 rounded-t border-l-4 border-secondary animate-in fade-in slide-in-from-bottom-2">
+              <FileText size={16} className="text-secondary" />
+              <span className="text-xs font-bold text-primary truncate flex-grow">{selectedFile.name}</span>
+              <button 
+                type="button" 
+                onClick={() => setSelectedFile(null)}
+                className="text-muted hover:text-primary"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+          <div className="relative flex gap-2 items-end">
+            <input 
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              className="hidden"
+              accept=".txt,.md,.pdf,.doc,.docx,image/*"
+            />
+            <button 
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="text-muted hover:text-secondary snap-transition p-3 flex-shrink-0 border-b-2 border-transparent hover:border-secondary"
+              title="上傳檔案"
+              disabled={isTyping}
+            >
+              <Paperclip size={20} />
+            </button>
+            <input 
+              type="text" 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="flex-grow bg-white border-b-2 border-primary p-3 font-bold text-base focus:outline-none focus:border-secondary snap-transition"
+              placeholder={selectedFile ? "針對此檔案提問..." : "請輸入您的問題..."}
+              disabled={isTyping}
+            />
+            <button 
+              type="button"
+              onClick={handleClearChat}
+              className="text-muted hover:text-secondary snap-transition p-3 flex-shrink-0"
+              title="清除對話"
+            >
+              <Trash2 size={18} />
+            </button>
+            <button 
+              disabled={isTyping || (!input.trim() && !selectedFile)}
+              className="bg-primary text-white p-3 hover:bg-secondary snap-transition disabled:opacity-50 flex-shrink-0"
+            >
+              <Send size={20} />
+            </button>
+          </div>
         </form>
       </main>
     </motion.div>
