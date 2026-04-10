@@ -12,6 +12,7 @@ import {
   Layout, 
   Cpu, 
   Eye,
+  EyeOff,
   ChevronRight,
   Mail,
   Phone,
@@ -903,10 +904,11 @@ const ContactView: React.FC = () => {
 };
 
 // ========== 改進的 AIView 組件 ==========
-const AIView = () => {
+  const AIView = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
   
   const [messages, setMessages] = useState<Message[]>([]);
@@ -1148,7 +1150,7 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
               <label className="font-black uppercase tracking-widest text-[10px] text-secondary ml-1">管理員帳號</label>
               <div className="relative group">
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={20} />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={20} />
                 <input 
                   required
                   type="text" 
@@ -1156,6 +1158,7 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition" 
                   placeholder="Username"
+                  autoComplete="username"
                 />
               </div>
             </div>
@@ -1167,12 +1170,20 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={20} />
                 <input 
                   required
-                  type="password" 
+                  type={showPassword ? "text" : "password"} 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition" 
+                  className="w-full bg-surface-low border-2 border-primary/10 p-4 pl-12 pr-12 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition" 
                   placeholder="Password"
+                  autoComplete="current-password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40 hover:text-primary transition-colors"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
             </div>
 
