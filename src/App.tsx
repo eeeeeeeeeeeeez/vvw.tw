@@ -36,6 +36,10 @@ import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import * as pdfjs from "pdfjs-dist";
+
+// 設定 PDF.js Worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // --- Constants ---
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || ""; // 已移除洩漏的明文 Key，請在 Vercel 後台配置 VITE_GEMINI_API_KEY
@@ -998,39 +1002,69 @@ const ContactView: React.FC = () => {
 
   const generateMessageId = () => `msg-${Date.now()}-${Math.random()}`;
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // 限制檔案大小 (例如 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert("檔案太大了，請上傳小於 5MB 的檔案。");
+    if (file.size > 10 * 1024 * 1024) {
+      alert("檔案太大了，請上傳小於 10MB 的檔案。");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      let content = event.target?.result as string;
-      
-      // 對於文字檔案，限制內容長度（約 50,000 個字元以確保 Token 在限制內）
-      if (!file.type.startsWith('image/')) {
-        const MAX_CHARS = 50000;
-        if (content.length > MAX_CHARS) {
-          const truncatedContent = content.substring(0, MAX_CHARS);
-          content = truncatedContent + `\n\n[注意：檔案內容已被截斷至 ${MAX_CHARS} 個字元以符合 AI 處理限制]`;
+    if (file.type === "application/pdf") {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+        let fullText = "";
+        
+        // 限制讀取前 20 頁以避免 Token 超限
+        const numPages = Math.min(pdf.numPages, 20);
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item: any) => item.str).join(" ");
+          fullText += `[Page ${i}]\n${pageText}\n\n`;
         }
-      }
-      
-      setSelectedFile({
-        name: file.name,
-        content: content,
-        type: file.type
-      });
-    };
 
-    if (file.type.startsWith('image/')) {
+        if (pdf.numPages > 20) {
+          fullText += "\n\n[注意：僅提取了前 20 頁內容以符合處理限制]";
+        }
+
+        setSelectedFile({
+          name: file.name,
+          content: fullText,
+          type: file.type
+        });
+      } catch (error) {
+        console.error("PDF Parsing Error:", error);
+        alert("無法解析 PDF 檔案內容，請嘗試複製文字貼上。");
+      }
+    } else if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setSelectedFile({
+          name: file.name,
+          content: event.target?.result as string,
+          type: file.type
+        });
+      };
       reader.readAsDataURL(file);
     } else {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        let content = event.target?.result as string;
+        const MAX_CHARS = 50000;
+        if (content.length > MAX_CHARS) {
+          content = content.substring(0, MAX_CHARS) + `\n\n[注意：檔案內容已被截斷至 ${MAX_CHARS} 個字元]`;
+        }
+        setSelectedFile({
+          name: file.name,
+          content: content,
+          type: file.type
+        });
+      };
       reader.readAsText(file);
     }
   };
