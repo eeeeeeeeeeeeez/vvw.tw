@@ -1210,7 +1210,11 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
             </h2>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setSessions([])} className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" title="清除所有對話">
+            <button 
+              onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
+              className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" 
+              title="刪除當前對話"
+            >
               <Trash2 size={20} />
             </button>
           </div>
