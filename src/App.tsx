@@ -8,6 +8,19 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, useInView, useAnimation } from "framer-motion";
 import mammoth from "mammoth";
+import * as pdfjs from "pdfjs-dist";
+import { GoogleGenAI } from "@google/genai";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+// 設定 PDF.js Worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+// --- Constants ---
+const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || "";
+const genAI = new GoogleGenAI(GEMINI_API_KEY);
+const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || "admin";
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "hengbo2026";
 
 // --- Types ---
 interface ChatMessage {
@@ -1125,7 +1138,7 @@ const AIView = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === "admin" && password === "hengbo2026") {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       setIsLoggedIn(true);
       setLoginError("");
     } else {
@@ -1163,7 +1176,29 @@ const AIView = () => {
     setIsUploading(true);
     const reader = new FileReader();
 
-    if (file.type.startsWith("image/")) {
+    if (file.type === "application/pdf") {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+        let fullText = "";
+        const numPages = Math.min(pdf.numPages, 20);
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item: any) => item.str).join(" ");
+          fullText += `[Page ${i}]\n${pageText}\n\n`;
+        }
+        setSelectedFile({
+          name: file.name,
+          content: fullText,
+          type: "pdf"
+        });
+      } catch (err) {
+        alert("PDF 檔案解析失敗");
+      }
+      setIsUploading(false);
+    } else if (file.type.startsWith("image/")) {
       reader.onload = (event) => {
         setSelectedFile({
           name: file.name,
@@ -1244,39 +1279,60 @@ const AIView = () => {
     setIsTyping(true);
 
     try {
-      const response = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: session.messages.map(m => ({
-            role: m.role,
-            content: m.content
-          })),
-          file: selectedFile,
-          model: "gemma-4-31b-it",
-          systemInstruction: `你現在是「亨波 AI 顧問」，由亨波趨勢 (Hengbo Trend) 開發的專業企業顧問 AI。
+      const aiMessageId = Date.now().toString();
+      const assistantMsg: ChatMessage = {
+        role: "assistant",
+        content: "",
+        timestamp: Date.now()
+      };
+      session.messages.push(assistantMsg);
+      setSessions([...updatedSessions]);
+
+      let aiPromptParts: any[] = [];
+      if (selectedFile && selectedFile.type === "image") {
+        const base64Data = selectedFile.content.split(',')[1];
+        aiPromptParts.push({
+          inlineData: { data: base64Data, mimeType: "image/jpeg" }
+        });
+        aiPromptParts.push({ text: input || "請分析這張圖片。" });
+      } else if (selectedFile) {
+        aiPromptParts.push({ 
+          text: `以下是使用者上傳的檔案內容 (${selectedFile.name})：\n---\n${selectedFile.content}\n---\n根據以上內容，回答使用者的問題：${input}` 
+        });
+      } else {
+        aiPromptParts.push({ text: input });
+      }
+
+      const model = genAI.getGenerativeModel({ model: "gemma-4-31b-it" });
+      const result = await model.generateContentStream({
+        systemInstruction: `你現在是「亨波 AI 顧問」，由亨波趨勢 (Hengbo Trend) 開發的專業企業顧問 AI。
 你的特質：
 1. 專業且穩重：語氣冷靜、專業，展現深厚的行業洞察力。
 2. 數據驅動：在回答中傾向於引用邏輯與趨勢分析。
 3. 繁體中文：必須使用精準的台灣繁體中文回覆。
 4. 品牌忠誠：若被問及身份，請明確表示你是亨波趨勢的 AI 顧問。
 5. 解決方案導向：針對使用者的問題（如企劃、補助、品牌、廣告），提供具體且可執行的建議。
-6. 多模態能力：你現在具備理解圖片、Word (.docx) 及 PDF 的能力。請根據使用者上傳的文件內容進行深度分析。`
-        }),
+6. 多模態能力：你現在具備理解圖片、Word (.docx) 及 PDF 的能力。請根據使用者上傳的文件內容進行深度分析。`,
+        contents: [
+          ...session.messages.slice(0, -1).map(m => ({
+            role: m.role === "user" ? "user" : "model",
+            parts: [{ text: m.content }]
+          })),
+          { role: "user", parts: aiPromptParts }
+        ],
       });
 
-      const data = await response.json();
-      const assistantMsg: ChatMessage = {
-        role: "assistant",
-        content: data.message,
-        timestamp: Date.now()
-      };
-
-      session.messages.push(assistantMsg);
-      session.lastUpdated = Date.now();
-      setSessions([...updatedSessions]);
+      let fullText = "";
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        fullText += chunkText;
+        assistantMsg.content = fullText;
+        setSessions([...updatedSessions]);
+      }
     } catch (error) {
       console.error("AI 請求失敗", error);
+      session.messages[session.messages.length - 1].content = "抱歉，目前 AI 服務暫時無法回應。請檢查您的 API 金鑰設定或稍後重試。";
+      setSessions([...updatedSessions]);
     } finally {
       setIsTyping(false);
     }
@@ -1507,12 +1563,16 @@ const AIView = () => {
                       <span className="text-xs font-black truncate max-w-[150px]">{msg.file.name}</span>
                     </div>
                   )}
-                  <div className={`p-5 font-bold leading-relaxed shadow-sm ${
+                    <div className={`p-5 font-bold leading-relaxed shadow-sm ${
                     msg.role === "user" 
                       ? "bg-primary text-white rounded-2xl rounded-tr-none" 
                       : "bg-surface-low text-primary rounded-2xl rounded-tl-none border-2 border-primary/5"
                   }`}>
-                    <div className="whitespace-pre-wrap text-sm md:text-base">{msg.content}</div>
+                    <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                   <div className="text-[10px] font-black uppercase tracking-widest text-primary/30 px-2">
                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
