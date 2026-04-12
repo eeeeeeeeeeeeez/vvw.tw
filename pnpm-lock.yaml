@@ -29,9 +29,6 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.22.1
-      framer-motion:
-        specifier: ^12.38.0
-        version: 12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       lucide-react:
         specifier: ^0.546.0
         version: 0.546.0(react@19.2.5)
