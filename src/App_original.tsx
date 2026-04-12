@@ -1277,7 +1277,7 @@ ${isImageRequest ? '當使用者要求畫圖時，請先以專業顧問的角度
             <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 顧問</h2>
             <div className="flex items-center gap-2">
               <div className="h-[2px] w-8 bg-secondary"></div>
-              <p className="text-muted font-bold text-sm uppercase tracking-widest">企業級安全驗證</p>
+              <p className="text-muted font-bold text-sm uppercase tracking-widest">安全驗證</p>
               <div className="h-[2px] w-8 bg-secondary"></div>
             </div>
           </div>
