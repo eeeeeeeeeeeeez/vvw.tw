@@ -39,7 +39,8 @@ import {
   Zap,
   ShieldCheck,
   Clock,
-  ChevronDown
+  ChevronDown,
+  Palette
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
@@ -303,7 +304,7 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
       </div>
     </section>
 
-    {/* Why Choose Us - New Section */}
+    {/* Why Choose Us */}
     <section className="px-8 py-32 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -418,6 +419,13 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
               process: ["資格審查", "計畫撰寫", "送件申請", "審查輔導", "結案報支"]
             },
             { 
+              icon: <Palette size={64} />, 
+              title: "品牌設計", 
+              desc: "讓品牌不只被看到，更被記住與喜愛。將品牌靈魂轉化為視覺語彙，建立專業形象。",
+              features: ["視覺識別 (CIS)", "應用系統設計", "品牌故事轉化"],
+              process: ["品牌診斷", "視覺探索", "設計執行", "規範建立", "應用落地"]
+            },
+            { 
               icon: <TrendingUp size={64} />, 
               title: "廣告投放", 
               desc: "基於數據洞察的精準投放策略，極大化 Meta、Google、TikTok 等平台的轉型效益。",
@@ -491,7 +499,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             <div className="flex justify-between items-start">
               <Building2 size={120} className="group-hover:text-secondary snap-transition" />
               <div className="text-right">
-                <div className="font-black tracking-widest uppercase mb-2 text-xs">產業: 台灣中部製造業</div>
+                <div className="font-black tracking-widest uppercase mb-2 text-xs">產業: 傳統製造業</div>
                 <div className="font-black tracking-widest uppercase text-xs">服務: 補助申請與轉型顧問</div>
               </div>
             </div>
@@ -509,18 +517,18 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           {/* Case 2 */}
           <div className="col-span-12 md:col-span-5 bg-secondary brutalist-border border-primary group cursor-pointer snap-transition hover:bg-white hover:text-primary p-8 flex flex-col justify-between min-h-[450px]">
             <div className="flex justify-between items-start text-white group-hover:text-primary">
-              <Rocket size={120} className="group-hover:text-secondary snap-transition" />
+              <Palette size={120} className="group-hover:text-secondary snap-transition" />
               <div className="text-right">
                 <div className="font-black tracking-widest uppercase text-xs">產業: 新創美妝品牌</div>
                 <div className="font-black tracking-widest uppercase text-xs">服務: 品牌設計與廣告投放</div>
               </div>
             </div>
             <div>
-              <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none mb-6">DTC 品牌全球化策略</h2>
+              <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none mb-6">DTC 品牌視覺重塑</h2>
               <div className="space-y-4 mb-6 opacity-0 group-hover:opacity-100 snap-transition">
-                <p className="font-bold text-sm leading-relaxed">挑戰：品牌知名度侷限於本地，獲客成本過高。</p>
-                <p className="font-bold text-sm leading-relaxed">方案：重新定義品牌視覺語言，並執行跨國精準廣告投放。</p>
-                <p className="font-black text-white group-hover:text-secondary text-lg">量化成果：廣告 ROI 提升至 4.8，品牌認知度提升 65%。</p>
+                <p className="font-bold text-sm leading-relaxed">挑戰：品牌知名度侷限於本地，視覺形象過於傳統。</p>
+                <p className="font-bold text-sm leading-relaxed">方案：重新定義品牌視覺語言 (CIS)，並執行跨國精準廣告投放。</p>
+                <p className="font-black text-white group-hover:text-secondary text-lg">量化成果：廣告 ROI 提升至 4.8，品牌溢價提升 40%。</p>
               </div>
             </div>
           </div>
@@ -633,7 +641,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             </p>
           </div>
           
-          {/* Core Values - New Section */}
+          {/* Core Values */}
           <div className="pt-8 border-t-2 border-primary/10">
             <h3 className="text-xl font-black text-secondary uppercase mb-6 tracking-widest">我們的承諾</h3>
             <div className="grid grid-cols-1 gap-4">
@@ -814,7 +822,7 @@ const ContactView: React.FC = () => {
                 </div>
               </div>
 
-              {/* FAQ Section - New */}
+              {/* FAQ Section */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-black text-primary uppercase tracking-tight mb-8">常見問題 FAQ</h3>
                 {faqs.map((faq, i) => (
@@ -954,7 +962,7 @@ const ContactView: React.FC = () => {
   );
 };
 
-// ========== AIView 組件 (支援多對話側邊欄 & 手機端優化) ==========
+// ========== AIView 組件 ==========
 const AIView = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -974,17 +982,14 @@ const AIView = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
-  // LocalStorage 金鑰
   const SESSIONS_STORAGE_KEY = "hengbo_ai_sessions_v2";
 
-  // 當前選中的對話
   const currentSession = useMemo(() => 
     sessions.find(s => s.id === currentSessionId) || null
   , [sessions, currentSessionId]);
 
   const messages = currentSession?.messages || [];
 
-  // 初始化與載入
   useEffect(() => {
     if (isLoggedIn) {
       const savedSessions = localStorage.getItem(SESSIONS_STORAGE_KEY);
@@ -1011,7 +1016,6 @@ const AIView = () => {
     }
   }, [isLoggedIn]);
 
-  // 儲存變更
   useEffect(() => {
     if (isLoggedIn && sessions.length > 0) {
       localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessions));
@@ -1068,7 +1072,6 @@ const AIView = () => {
     }));
   };
 
-  // 自動滾動
   useEffect(() => {
     if (shouldAutoScroll && scrollRef.current) {
       setTimeout(() => {
@@ -1235,7 +1238,6 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
 
   return (
     <div className="pt-20 md:pt-24 h-screen flex bg-white overflow-hidden relative">
-      {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && window.innerWidth <= 768 && (
           <motion.div 
@@ -1248,7 +1250,6 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
       <AnimatePresence initial={false}>
         {isSidebarOpen && (
           <motion.aside 
@@ -1310,7 +1311,6 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
         )}
       </AnimatePresence>
 
-      {/* Main Chat Area */}
       <main className="flex-grow flex flex-col relative min-w-0 w-full">
         <header className="h-16 border-b-2 border-primary/5 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
           <div className="flex items-center gap-3 md:gap-4">
