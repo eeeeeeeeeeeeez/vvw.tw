@@ -112,6 +112,7 @@ const LoadingScreen = () => (
 );
 
 const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }> = ({ activeTab, setActiveTab }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const tabs = [
     { id: "home", label: "首頁" },
     { id: "services", label: "專業服務" },
@@ -120,20 +121,27 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
     { id: "ai", label: "亨波 AI" },
   ];
 
+  const handleTabClick = (id: string) => {
+    setActiveTab(id);
+    setIsOpen(false);
+  };
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b-2 border-primary flex justify-between items-center px-8 py-4 max-w-[1920px] mx-auto">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b-2 border-primary flex justify-between items-center px-6 md:px-8 py-4 max-w-[1920px] mx-auto">
       <div 
-        className="flex items-center gap-3 text-2xl font-black tracking-tighter text-primary uppercase cursor-pointer"
-        onClick={() => setActiveTab("home")}
+        className="flex items-center gap-3 text-xl md:text-2xl font-black tracking-tighter text-primary uppercase cursor-pointer"
+        onClick={() => handleTabClick("home")}
       >
-        <Logo className="w-10 h-10" />
+        <Logo className="w-8 h-8 md:w-10 md:h-10" />
         亨波趨勢
       </div>
+
+      {/* Desktop Menu */}
       <div className="hidden md:flex items-center gap-12">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabClick(tab.id)}
             className={`font-black uppercase tracking-tighter px-2 py-1 snap-transition ${
               activeTab === tab.id 
                 ? "text-secondary border-b-2 border-secondary" 
@@ -144,12 +152,57 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
           </button>
         ))}
       </div>
-      <button 
-        onClick={() => setActiveTab("contact")}
-        className="bg-primary text-white px-6 py-3 font-black uppercase tracking-widest hover:bg-secondary snap-transition"
-      >
-        立即諮詢
-      </button>
+
+      <div className="flex items-center gap-4">
+        <button 
+          onClick={() => handleTabClick("contact")}
+          className="hidden sm:block bg-primary text-white px-6 py-3 font-black uppercase tracking-widest hover:bg-secondary snap-transition text-sm"
+        >
+          立即諮詢
+        </button>
+        
+        {/* Mobile Menu Toggle */}
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden p-2 text-primary hover:bg-surface-low rounded-lg transition-colors"
+        >
+          {isOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-full left-0 right-0 bg-white border-b-4 border-primary shadow-2xl md:hidden overflow-hidden"
+          >
+            <div className="flex flex-col p-6 space-y-4">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab.id)}
+                  className={`text-left py-4 px-6 font-black uppercase tracking-widest text-lg border-2 ${
+                    activeTab === tab.id 
+                      ? "bg-primary text-white border-primary" 
+                      : "text-primary border-transparent hover:border-primary/10"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+              <button 
+                onClick={() => handleTabClick("contact")}
+                className="w-full bg-secondary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg"
+              >
+                立即諮詢
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };
@@ -365,7 +418,8 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
   </motion.div>
 );
 
-const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => (
+const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => {
+  return (
   <motion.div 
     initial={{ opacity: 0 }} 
     animate={{ opacity: 1 }} 
@@ -470,7 +524,8 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
       </div>
     </section>
   </motion.div>
-);
+  );
+};
 
 const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => (
   <motion.div 
@@ -787,7 +842,7 @@ const ContactView: React.FC = () => {
   );
 };
 
-// ========== AIView 組件 (支援多對話側邊欄) ==========
+// ========== AIView 組件 (支援多對話側邊欄 & 手機端優化) ==========
 const AIView = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
@@ -798,7 +853,7 @@ const AIView = () => {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
   
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -806,7 +861,6 @@ const AIView = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // LocalStorage 金鑰
   const SESSIONS_STORAGE_KEY = "hengbo_ai_sessions_v2";
@@ -867,6 +921,7 @@ const AIView = () => {
     };
     setSessions(prev => [newSession, ...prev]);
     setCurrentSessionId(newId);
+    if (window.innerWidth <= 768) setIsSidebarOpen(false);
     return newId;
   };
 
@@ -888,7 +943,6 @@ const AIView = () => {
   const updateSessionMessages = (sessionId: string, newMessages: Message[]) => {
     setSessions(prev => prev.map(s => {
       if (s.id === sessionId) {
-        // 如果是第一條使用者訊息，更新標題
         let newTitle = s.title;
         if (s.title === "新對話" || s.title === "未命名對話") {
           const firstUserMsg = newMessages.find(m => m.role === "user");
@@ -1068,17 +1122,35 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
   }
 
   return (
-    <div className="pt-24 h-screen flex bg-white overflow-hidden">
+    <div className="pt-20 md:pt-24 h-screen flex bg-white overflow-hidden relative">
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && window.innerWidth <= 768 && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-30 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <AnimatePresence initial={false}>
         {isSidebarOpen && (
           <motion.aside 
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 320, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            className="border-r-2 border-primary/10 flex flex-col bg-surface-low relative z-20"
+            initial={{ x: -320, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -320, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r-2 border-primary/10 flex flex-col bg-surface-low z-40 md:z-20 shadow-2xl md:shadow-none"
           >
             <div className="p-6 space-y-6">
+              <div className="flex items-center justify-between md:hidden mb-4">
+                <span className="font-black text-primary uppercase tracking-tighter">對話列表</span>
+                <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
+              </div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={18} />
                 <input 
@@ -1097,11 +1169,14 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
               </button>
             </div>
             
-            <div className="flex-grow overflow-y-auto px-3 space-y-1 custom-scrollbar">
+            <div className="flex-grow overflow-y-auto px-3 pb-6 space-y-1 custom-scrollbar">
               {filteredSessions.map(s => (
                 <div 
                   key={s.id}
-                  onClick={() => setCurrentSessionId(s.id)}
+                  onClick={() => {
+                    setCurrentSessionId(s.id);
+                    if (window.innerWidth <= 768) setIsSidebarOpen(false);
+                  }}
                   className={`group flex items-center justify-between p-4 cursor-pointer rounded-lg transition-all ${
                     currentSessionId === s.id ? 'bg-primary text-white shadow-lg' : 'hover:bg-primary/5 text-primary'
                   }`}
@@ -1124,13 +1199,13 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
       </AnimatePresence>
 
       {/* Main Chat Area */}
-      <main className="flex-grow flex flex-col relative min-w-0">
-        <header className="h-16 border-b-2 border-primary/5 flex items-center justify-between px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
-          <div className="flex items-center gap-4">
+      <main className="flex-grow flex flex-col relative min-w-0 w-full">
+        <header className="h-16 border-b-2 border-primary/5 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+          <div className="flex items-center gap-3 md:gap-4">
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors">
               <Menu size={24} />
             </button>
-            <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[200px] sm:max-w-md">
+            <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
               {currentSession?.title || "亨波 AI 顧問"}
             </h2>
           </div>
@@ -1141,14 +1216,14 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
           </div>
         </header>
 
-        <div ref={scrollRef} onScroll={handleScroll} className="flex-grow overflow-y-auto p-6 space-y-8 custom-scrollbar">
+        <div ref={scrollRef} onScroll={handleScroll} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 custom-scrollbar">
           {messages.map((msg) => (
             <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] space-y-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+              <div className={`max-w-[90%] md:max-w-[85%] space-y-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
                 <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'justify-end text-muted' : 'text-secondary'}`}>
                   {msg.role === 'user' ? <><User size={12} /> 使用者</> : <><Bot size={12} /> 亨波 AI 顧問</>}
                 </div>
-                <div className={`inline-block text-base font-bold leading-relaxed p-4 rounded-2xl shadow-sm ${
+                <div className={`inline-block text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 rounded-2xl shadow-sm ${
                   msg.role === 'user' ? 'bg-primary text-white rounded-tr-none' : 'bg-surface-low text-primary rounded-tl-none border border-primary/5'
                 }`}>
                   {msg.role === 'user' ? <div className="whitespace-pre-wrap">{msg.content}</div> : (
@@ -1158,7 +1233,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
                   )}
                   {msg.imageUrl && (
                     <div className="mt-4 rounded-xl overflow-hidden border-2 border-primary/10 bg-white">
-                      <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto max-h-[500px] object-contain" />
+                      <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain" />
                       <div className="p-3 bg-primary text-white text-[10px] font-black flex justify-between items-center">
                         <span>AI GENERATED CONCEPT</span>
                         <a href={msg.imageUrl} target="_blank" rel="noreferrer" className="underline hover:text-secondary">VIEW ORIGINAL</a>
@@ -1180,27 +1255,27 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
           )}
         </div>
 
-        <footer className="p-6 bg-white border-t-2 border-primary/5">
+        <footer className="p-4 md:p-6 bg-white border-t-2 border-primary/5">
           <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
             {selectedFile && (
               <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white rounded-lg flex items-center gap-3 shadow-xl animate-in slide-in-from-bottom-2">
                 <Paperclip size={16} />
-                <span className="text-xs font-black truncate max-w-[200px]">{selectedFile.name}</span>
+                <span className="text-xs font-black truncate max-w-[150px] md:max-w-[200px]">{selectedFile.name}</span>
                 <button type="button" onClick={() => setSelectedFile(null)} className="hover:text-primary transition-colors"><X size={16} /></button>
               </div>
             )}
-            <div className="flex items-end gap-3 bg-surface-low p-2 rounded-2xl border-2 border-transparent focus-within:border-primary transition-all">
-              <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={24} /></button>
+            <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 rounded-2xl border-2 border-transparent focus-within:border-primary transition-all">
+              <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 md:p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={24} /></button>
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
               <textarea 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(e); } }}
-                placeholder="輸入訊息或上傳檔案..."
-                className="flex-grow bg-transparent border-none focus:ring-0 py-3 font-bold text-primary resize-none max-h-32 custom-scrollbar"
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) { e.preventDefault(); handleSendMessage(e); } }}
+                placeholder="輸入訊息..."
+                className="flex-grow bg-transparent border-none focus:ring-0 py-3 font-bold text-primary resize-none max-h-32 custom-scrollbar text-sm md:text-base"
                 rows={1}
               />
-              <button disabled={(!input.trim() && !selectedFile) || isTyping} className="p-3 bg-primary text-white rounded-xl hover:bg-secondary transition-all disabled:opacity-30 shadow-lg">
+              <button disabled={(!input.trim() && !selectedFile) || isTyping} className="p-2 md:p-3 bg-primary text-white rounded-xl hover:bg-secondary transition-all disabled:opacity-30 shadow-lg">
                 <Send size={24} />
               </button>
             </div>
