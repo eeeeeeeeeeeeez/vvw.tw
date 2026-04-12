@@ -4,7 +4,7 @@ import {
   FileText, Rocket, Palette, TrendingUp, Network, BadgeCheck, 
   Check, Mail, Phone, MapPin, ChevronDown, Send, User, Bot,
   Search, Plus, Trash2, Layout, Image as ImageIcon, FileCode,
-  MessageSquare, LogIn, Eye, EyeOff, Paperclip, Loader2, Copy
+  MessageSquare, LogIn, Eye, EyeOff, Paperclip, Loader2
 } from "lucide-react";
 import { motion, AnimatePresence, useInView, useAnimation } from "framer-motion";
 import mammoth from "mammoth";
@@ -13,9 +13,8 @@ import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-// 設定 PDF.js Worker (優先使用 CDN，若失敗則回退)
-const PDF_WORKER_URL = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
-pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_URL;
+// 設定 PDF.js Worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // --- Constants ---
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || "";
@@ -1111,7 +1110,6 @@ const AIView = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [selectedFile, setSelectedFile] = useState<{ name: string, content: string, type: string } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1565,32 +1563,16 @@ const AIView = () => {
                       <span className="text-xs font-black truncate max-w-[150px]">{msg.file.name}</span>
                     </div>
                   )}
-                  <div className="relative group/msg">
                     <div className={`p-5 font-bold leading-relaxed shadow-sm ${
-                      msg.role === "user" 
-                        ? "bg-primary text-white rounded-2xl rounded-tr-none" 
-                        : "bg-surface-low text-primary rounded-2xl rounded-tl-none border-2 border-primary/5"
-                    }`}>
-                      <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {msg.content}
-                        </ReactMarkdown>
-                      </div>
+                    msg.role === "user" 
+                      ? "bg-primary text-white rounded-2xl rounded-tr-none" 
+                      : "bg-surface-low text-primary rounded-2xl rounded-tl-none border-2 border-primary/5"
+                  }`}>
+                    <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
-                    
-                    <button 
-                      onClick={() => {
-                        if (navigator.clipboard) {
-                          navigator.clipboard.writeText(msg.content);
-                          setCopiedId(`${idx}`);
-                          setTimeout(() => setCopiedId(null), 2000);
-                        }
-                      }}
-                      className={`absolute -bottom-6 ${msg.role === "user" ? "right-0" : "left-0"} p-1 text-primary/30 hover:text-secondary opacity-0 group-hover/msg:opacity-100 transition-opacity flex items-center gap-1`}
-                    >
-                      {copiedId === `${idx}` ? <Check size={12} /> : <Copy size={12} />}
-                      <span className="text-[10px] font-black uppercase">{copiedId === `${idx}` ? "已複製" : "複製內容"}</span>
-                    </button>
                   </div>
                   <div className="text-[10px] font-black uppercase tracking-widest text-primary/30 px-2">
                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
