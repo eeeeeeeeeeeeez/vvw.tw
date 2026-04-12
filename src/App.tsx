@@ -34,7 +34,12 @@ import {
   Plus,
   Search,
   MessageSquare,
-  MoreVertical
+  MoreVertical,
+  Target,
+  Zap,
+  ShieldCheck,
+  Clock,
+  ChevronDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
@@ -215,8 +220,9 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           <Logo className="w-12 h-12" variant="white" />
           <span className="text-4xl font-black block">亨波趨勢</span>
         </div>
-        <p className="font-bold text-sm tracking-widest uppercase opacity-70 max-w-lg">
-          © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. MASTERING TRENDS, MAXIMIZING IMPACT.
+        <p className="font-bold text-sm tracking-widest uppercase opacity-70 max-w-lg leading-relaxed">
+          © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. MASTERING TRENDS, MAXIMIZING IMPACT.<br/>
+          專業企劃、補助申請、品牌設計與廣告投放的一站式顧問夥伴。
         </p>
       </div>
       <div className="flex flex-col gap-8">
@@ -288,7 +294,30 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
             <div className="w-24 h-24 bg-white flex items-center justify-center brutalist-border">
               <Logo className="w-16 h-16" />
             </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-white font-black text-xl tracking-widest">HENGBO TREND</span>
+              <span className="text-white/60 font-bold text-xs uppercase tracking-[0.3em]">Strategic Consulting</span>
+            </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    {/* Why Choose Us - New Section */}
+    <section className="px-8 py-32 bg-white">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {[
+            { icon: <Target className="text-secondary" size={48} />, title: "精準策略", desc: "基於深度市場洞察與數據分析，為您的企業量身打造具備高度執行力的成長藍圖。" },
+            { icon: <Zap className="text-secondary" size={48} />, title: "高效執行", desc: "從企劃撰寫到資源對接，我們強調速度與品質的平衡，確保每一個專案都能如期達成目標。" },
+            { icon: <ShieldCheck className="text-secondary" size={48} />, title: "專業保障", desc: "擁有豐富的政府補助申請經驗與品牌行銷實績，是您在商場競爭中最堅實的後盾。" }
+          ].map((item, i) => (
+            <div key={i} className="p-8 border-4 border-primary hover:bg-surface-low transition-colors">
+              <div className="mb-6">{item.icon}</div>
+              <h3 className="text-2xl font-black text-primary mb-4 uppercase tracking-tight">{item.title}</h3>
+              <p className="font-bold text-muted leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -310,14 +339,14 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
             </div>
             <span className="text-secondary font-black text-2xl mb-8 block">01</span>
             <h3 className="text-[clamp(2rem,6vw,3rem)] font-black mb-6 uppercase">企劃撰寫</h3>
-            <p className="text-xl max-w-xl font-medium mb-8">從市場洞察到可執行藍圖，一份讓投資人與團隊都買單的企劃。</p>
+            <p className="text-xl max-w-xl font-medium mb-8 leading-relaxed">從市場洞察到可執行藍圖，一份讓投資人與團隊都買單的企劃。我們專注於邏輯架構與商業價值的深度挖掘。</p>
             <div className="w-16 h-2 bg-secondary"></div>
           </div>
           <div className="col-span-12 md:col-span-4 bg-secondary p-12 text-white brutalist-border border-secondary relative">
             <span className="text-white/50 font-black text-2xl mb-8 block">02</span>
             <h3 className="text-[clamp(1.5rem,5vw,2.25rem)] font-black mb-6 uppercase">補助申請</h3>
             <Rocket size={80} className="mb-8" />
-            <p className="font-bold mb-8">對接政府資源，極大化研發與轉型動能。</p>
+            <p className="font-bold mb-8 leading-relaxed">對接政府資源，極大化研發與轉型動能。我們提供從資格評估到結案報告的全程專業輔導。</p>
             <button onClick={() => setActiveTab("services")} className="bg-white text-primary px-6 py-3 font-black uppercase tracking-widest hover:bg-primary hover:text-white snap-transition">了解更多</button>
           </div>
         </div>
@@ -331,6 +360,7 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
           準備好<br/>
           <span className="text-secondary">引領趨勢</span>了嗎？
         </h2>
+        <p className="text-xl font-bold text-muted mb-12 uppercase tracking-widest">訂閱我們的趨勢週報，獲取最新的市場洞察與補助資訊。</p>
         <div className="flex flex-col md:flex-row gap-4">
           <input 
             type="email" 
@@ -377,39 +407,58 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
               icon: <FileText size={64} />, 
               title: "企劃撰寫", 
               desc: "包含商業計畫書 (BP)、融資企劃、品牌策略規劃等，為您的願景建立堅實的執行框架。",
-              features: ["市場深度調研", "財務預測模型", "競爭優勢分析"]
+              features: ["市場深度調研", "財務預測模型", "競爭優勢分析"],
+              process: ["需求訪談", "架構設計", "初稿撰寫", "優化調整", "最終交付"]
             },
             { 
               icon: <Rocket size={64} />, 
               title: "補助申請", 
               desc: "對接 SBIR、SIIR、CITD 等政府專案，從資格評估到結案報告，全程專業輔導。",
-              features: ["專案適配評估", "計畫書優化撰寫", "審查簡報輔導"]
+              features: ["專案適配評估", "計畫書優化撰寫", "審查簡報輔導"],
+              process: ["資格審查", "計畫撰寫", "送件申請", "審查輔導", "結案報支"]
             },
             { 
               icon: <TrendingUp size={64} />, 
               title: "廣告投放", 
               desc: "基於數據洞察的精準投放策略，極大化 Meta、Google、TikTok 等平台的轉型效益。",
-              features: ["受眾精準定位", "素材創意優化", "轉化率追蹤分析"]
+              features: ["受眾精準定位", "素材創意優化", "轉化率追蹤分析"],
+              process: ["目標設定", "受眾分析", "素材製作", "投放測試", "數據優化"]
             },
             { 
               icon: <Network size={64} />, 
               title: "資源對接", 
               desc: "協助企業對接創投、產業鏈上下游及政府資源，建立強大的成長生態系。",
-              features: ["創投媒合引薦", "跨界合作規劃", "政策資源整合"]
+              features: ["創投媒合引薦", "跨界合作規劃", "政策資源整合"],
+              process: ["資源盤點", "需求對接", "媒合洽談", "合作落地", "持續追蹤"]
             }
           ].map((service, idx) => (
             <div key={idx} className="group bg-white brutalist-border p-12 hover:bg-primary hover:text-white snap-transition">
               <div className="text-secondary group-hover:text-white mb-8 snap-transition">{service.icon}</div>
               <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{service.title}</h3>
-              <p className="text-xl font-bold mb-8 opacity-70 group-hover:opacity-100">{service.desc}</p>
-              <ul className="space-y-4">
-                {service.features.map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 font-black text-sm uppercase tracking-widest">
-                    <BadgeCheck size={20} className="text-secondary group-hover:text-white" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
+              <p className="text-xl font-bold mb-8 opacity-70 group-hover:opacity-100 leading-relaxed">{service.desc}</p>
+              
+              <div className="mb-8">
+                <span className="font-black text-xs uppercase tracking-widest text-secondary group-hover:text-white/60 mb-4 block">核心優勢</span>
+                <ul className="space-y-4">
+                  {service.features.map((f, i) => (
+                    <li key={i} className="flex items-center gap-3 font-black text-sm uppercase tracking-widest">
+                      <BadgeCheck size={20} className="text-secondary group-hover:text-white" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <span className="font-black text-xs uppercase tracking-widest text-secondary group-hover:text-white/60 mb-4 block">服務流程</span>
+                <div className="flex flex-wrap gap-2">
+                  {service.process.map((p, i) => (
+                    <span key={i} className="px-3 py-1 border-2 border-primary/10 group-hover:border-white/20 text-[10px] font-black uppercase tracking-tighter">
+                      {i + 1}. {p}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -438,7 +487,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
       <section className="px-4 md:px-8">
         <div className="grid grid-cols-12 gap-4 md:gap-8">
           {/* Case 1 */}
-          <div className="col-span-12 md:col-span-7 bg-surface-high brutalist-border group cursor-pointer snap-transition hover:bg-primary hover:text-white p-8 flex flex-col justify-between min-h-[400px]">
+          <div className="col-span-12 md:col-span-7 bg-surface-high brutalist-border group cursor-pointer snap-transition hover:bg-primary hover:text-white p-8 flex flex-col justify-between min-h-[450px]">
             <div className="flex justify-between items-start">
               <Building2 size={120} className="group-hover:text-secondary snap-transition" />
               <div className="text-right">
@@ -448,13 +497,17 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             </div>
             <div>
               <h2 className="text-[clamp(2rem,6vw,3.75rem)] font-black uppercase tracking-tighter leading-none mb-4">傳統機械廠數位升級</h2>
-              <p className="font-bold mb-4 opacity-0 group-hover:opacity-100 snap-transition">量化成果：補助申請成功，獲得 50 萬元，生產效率提升 30%。</p>
+              <div className="space-y-4 mb-6 opacity-0 group-hover:opacity-100 snap-transition">
+                <p className="font-bold text-sm leading-relaxed">挑戰：面臨數位轉型瓶頸，缺乏自動化數據追蹤系統。</p>
+                <p className="font-bold text-sm leading-relaxed">方案：協助申請政府數位轉型補助，並導入智慧生產監控系統。</p>
+                <p className="font-black text-secondary group-hover:text-white text-lg">量化成果：獲得 50 萬元補助，生產效率提升 30%。</p>
+              </div>
               <div className="w-16 h-2 bg-secondary group-hover:bg-white snap-transition"></div>
             </div>
           </div>
 
           {/* Case 2 */}
-          <div className="col-span-12 md:col-span-5 bg-secondary brutalist-border border-primary group cursor-pointer snap-transition hover:bg-white hover:text-primary p-8 flex flex-col justify-between min-h-[400px]">
+          <div className="col-span-12 md:col-span-5 bg-secondary brutalist-border border-primary group cursor-pointer snap-transition hover:bg-white hover:text-primary p-8 flex flex-col justify-between min-h-[450px]">
             <div className="flex justify-between items-start text-white group-hover:text-primary">
               <Rocket size={120} className="group-hover:text-secondary snap-transition" />
               <div className="text-right">
@@ -463,8 +516,12 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
               </div>
             </div>
             <div>
-              <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none">DTC 品牌全球化策略</h2>
-              <p className="font-bold mb-4 text-white group-hover:text-primary opacity-0 group-hover:opacity-100 snap-transition">量化成果：廣告 ROI 從 1.2 提升至 4.8，品牌認知度提升 65%。</p>
+              <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none mb-6">DTC 品牌全球化策略</h2>
+              <div className="space-y-4 mb-6 opacity-0 group-hover:opacity-100 snap-transition">
+                <p className="font-bold text-sm leading-relaxed">挑戰：品牌知名度侷限於本地，獲客成本過高。</p>
+                <p className="font-bold text-sm leading-relaxed">方案：重新定義品牌視覺語言，並執行跨國精準廣告投放。</p>
+                <p className="font-black text-white group-hover:text-secondary text-lg">量化成果：廣告 ROI 提升至 4.8，品牌認知度提升 65%。</p>
+              </div>
             </div>
           </div>
 
@@ -473,9 +530,14 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             <div>
               <Network size={80} className="mb-8" />
               <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter leading-none">連鎖餐飲集團 ESG 規劃</h2>
-              <p className="mt-4 font-bold opacity-60 group-hover:opacity-100">量化成果：成功對接政府淨零轉型補助，獲取 80 萬元資助。</p>
+              <div className="mt-6 space-y-4 opacity-60 group-hover:opacity-100">
+                <p className="font-bold text-sm">協助企業對接淨零轉型政策，規劃減碳路徑並申請相關補助。</p>
+                <p className="font-black text-secondary text-xl">獲取 80 萬元資助</p>
+              </div>
             </div>
-            <p className="font-bold uppercase tracking-widest text-sm opacity-60 group-hover:opacity-100">「專業且精準，讓我們在轉型路上少走許多冤枉路。」</p>
+            <p className="font-bold uppercase tracking-widest text-xs opacity-60 group-hover:opacity-100 border-t border-white/20 pt-4">
+              「專業且精準，讓我們在轉型路上少走許多冤枉路。」
+            </p>
           </div>
 
           {/* Case 4 */}
@@ -486,22 +548,14 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
               <div>
                 <div className="font-black tracking-widest uppercase mb-4 text-secondary group-hover:text-white">融資專案</div>
                 <h2 className="text-[clamp(2.5rem,8vw,4.5rem)] font-black uppercase tracking-tighter leading-tight">AI 醫療新創融資計畫</h2>
-                <p className="mt-4 max-w-md font-bold text-lg uppercase">量化成果：協助撰寫融資企劃書，成功獲得天使輪 1,500 萬投資。</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Case 5 */}
-          <div className="col-span-12 md:col-span-12 brutalist-border group cursor-pointer p-8 flex flex-col justify-between min-h-[300px] relative overflow-hidden bg-white hover:bg-primary hover:text-white snap-transition">
-            <div className="relative z-10 flex flex-col md:flex-row h-full justify-between items-center">
-              <div className="flex items-center gap-8">
-                <Globe size={80} className="text-secondary" />
-                <div>
-                  <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter">跨境電商整合行銷</h2>
-                  <p className="font-bold mt-2">量化成果：單月業績突破 300 萬，獲取客戶成本降低 40%。</p>
+                <div className="mt-6 space-y-4">
+                  <p className="font-bold text-lg leading-relaxed">協助撰寫具備高度說服力的融資企劃書，並進行路演輔導。</p>
+                  <div className="flex items-center gap-4">
+                    <div className="bg-primary text-white px-4 py-2 font-black text-2xl group-hover:bg-white group-hover:text-secondary">1,500 萬</div>
+                    <span className="font-black uppercase tracking-widest text-sm">天使輪投資達成</span>
+                  </div>
                 </div>
               </div>
-              <span className="text-secondary font-black text-3xl mt-8 md:mt-0">ROI 5.5x</span>
             </div>
           </div>
         </div>
@@ -558,6 +612,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
         <div>
           <h2 className="text-[clamp(4rem,12vw,8rem)] font-black text-white tracking-tighter leading-none mb-12">關於<br/>我們</h2>
           <div className="w-24 h-2 bg-secondary mb-8"></div>
+          <p className="text-white/60 font-bold text-lg uppercase tracking-[0.2em]">HENGBO TREND CONSULTING</p>
         </div>
         <div className="text-white opacity-20">
           <Building2 size={240} />
@@ -567,16 +622,37 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
         <div className="space-y-12">
           <div>
             <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">亨波趨勢：細節的執行者</h3>
-            <p className="text-lg leading-relaxed text-muted">
-              我們創立於2022年，代表市場上的一股新銳力量。我們摒棄冗餘，回歸本質。讓每一個細節，都經過嚴密的計畫與審核。
+            <p className="text-lg leading-relaxed text-muted font-medium">
+              我們創立於2022年，代表市場上的一股新銳力量。我們摒棄冗餘，回歸本質。讓每一個細節，都經過嚴密的計畫與審核。我們相信，卓越的策略來自於對細節的極致追求。
             </p>
           </div>
           <div>
             <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">創新與卓越</h3>
-            <p className="text-lg leading-relaxed text-muted">
+            <p className="text-lg leading-relaxed text-muted font-medium">
               在快速變遷的環境中，我們專注提供高品質、高效能的解決方案，協助客戶精準撰寫企劃與計畫書，並順利申請各項政府與企業補助資源，同時透過專業的數位廣告投放與高品質品牌設計，幫助品牌有效曝光，提升市場競爭力。
             </p>
+          </div>
+          
+          {/* Core Values - New Section */}
+          <div className="pt-8 border-t-2 border-primary/10">
+            <h3 className="text-xl font-black text-secondary uppercase mb-6 tracking-widest">我們的承諾</h3>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { title: "誠信透明", desc: "所有服務流程與收費標準公開透明，建立長期的信任夥伴關係。" },
+                { title: "結果導向", desc: "我們關注最終的量化成果，確保每一分投入都能產生實質價值。" },
+                { title: "持續創新", desc: "不斷優化顧問方法論，確保客戶始終站在市場趨勢的最前線。" }
+              ].map((v, i) => (
+                <div key={i} className="flex gap-4 items-start">
+                  <div className="bg-primary text-white p-1 rounded"><Check size={16} /></div>
+                  <div>
+                    <span className="font-black text-primary block text-sm uppercase">{v.title}</span>
+                    <p className="text-xs text-muted font-bold">{v.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-8 pt-12">
             <div className="border-t-4 border-primary pt-4">
               <div className="text-4xl font-black text-secondary">100+</div>
@@ -607,7 +683,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
                 {item.side === 'left' && (
                   <div className="bg-primary text-white p-8 inline-block w-full text-left md:text-right border-b-8 border-secondary">
                     <h4 className="text-2xl font-black mb-2">{item.title}</h4>
-                    <p className="opacity-80">{item.desc}</p>
+                    <p className="opacity-80 font-bold text-sm">{item.desc}</p>
                   </div>
                 )}
               </div>
@@ -618,7 +694,7 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
                 {item.side === 'right' && (
                   <div className="bg-white brutalist-border-heavy p-8 inline-block w-full border-b-8 border-secondary">
                     <h4 className="text-2xl font-black text-primary mb-2">{item.title}</h4>
-                    <p className="text-muted">{item.desc}</p>
+                    <p className="text-muted font-bold text-sm">{item.desc}</p>
                   </div>
                 )}
               </div>
@@ -657,6 +733,7 @@ const ContactView: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -688,6 +765,13 @@ const ContactView: React.FC = () => {
     setIsSubmitting(false);
   };
 
+  const faqs = [
+    { q: "諮詢服務是如何收費的？", a: "我們的初步諮詢是免費的。具體專案收費會根據企劃複雜度、補助申請規模或廣告預算而定，我們會在提供正式報價單前與您詳細討論。" },
+    { q: "補助申請的成功率高嗎？", a: "我們擁有超過 85% 的補助申請過件率。在正式接案前，我們會先進行資格評估，若過件機率較低，我們會誠實告知並提供優化建議。" },
+    { q: "企劃撰寫通常需要多久時間？", a: "一般商業企劃書約需 2-3 週，政府補助計畫書則視專案規模約需 4-6 週。我們會根據您的時程需求進行調整。" },
+    { q: "你們支援哪些廣告平台？", a: "我們支援 Meta (FB/IG)、Google Ads、TikTok、LINE Ads 等主流平台，並提供跨平台的整合投放策略。" }
+  ];
+
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -706,7 +790,7 @@ const ContactView: React.FC = () => {
                 為您的企業提供 world-class 的解決方案。
               </p>
 
-              <div className="space-y-12">
+              <div className="space-y-12 mb-24">
                 <div className="flex items-start gap-6 group">
                   <div className="bg-primary p-4 text-white group-hover:bg-secondary snap-transition">
                     <Phone size={32} />
@@ -728,6 +812,34 @@ const ContactView: React.FC = () => {
                     <p className="text-muted font-medium">24/7 全天候運營支持</p>
                   </div>
                 </div>
+              </div>
+
+              {/* FAQ Section - New */}
+              <div className="space-y-6">
+                <h3 className="text-2xl font-black text-primary uppercase tracking-tight mb-8">常見問題 FAQ</h3>
+                {faqs.map((faq, i) => (
+                  <div key={i} className="border-b-2 border-primary/10 pb-4">
+                    <button 
+                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                      className="w-full flex justify-between items-center text-left group"
+                    >
+                      <span className="font-black text-primary group-hover:text-secondary transition-colors text-sm">{faq.q}</span>
+                      <ChevronDown size={20} className={`text-primary transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                    </button>
+                    <AnimatePresence>
+                      {openFaq === i && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <p className="pt-4 text-sm font-bold text-muted leading-relaxed">{faq.a}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
               </div>
             </div>
 
