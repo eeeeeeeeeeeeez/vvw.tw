@@ -381,75 +381,77 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
         </h1>
       </div>
 
-      <div className="grid grid-cols-12 gap-4 md:gap-8">
-        {/* Case 1 */}
-        <div className="col-span-12 md:col-span-7 bg-surface-high brutalist-border group cursor-pointer snap-transition hover:bg-primary hover:text-white p-8 flex flex-col justify-between min-h-[400px]">
-          <div className="flex justify-between items-start">
-            <Building2 size={120} className="group-hover:text-secondary snap-transition" />
-            <div className="text-right">
-              <div className="font-black tracking-widest uppercase mb-2 text-xs">產業: 台灣中部製造業</div>
-              <div className="font-black tracking-widest uppercase text-xs">服務: 補助申請與轉型顧問</div>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-[clamp(2rem,6vw,3.75rem)] font-black uppercase tracking-tighter leading-none mb-4">傳統機械廠數位升級</h2>
-            <p className="font-bold mb-4 opacity-0 group-hover:opacity-100 snap-transition">量化成果：補助申請成功，獲得 50 萬元，生產效率提升 30%。</p>
-            <div className="w-16 h-2 bg-secondary group-hover:bg-white snap-transition"></div>
-          </div>
-        </div>
-
-        {/* Case 2 */}
-        <div className="col-span-12 md:col-span-5 bg-secondary brutalist-border border-primary group cursor-pointer snap-transition hover:bg-white hover:text-primary p-8 flex flex-col justify-between min-h-[400px]">
-          <div className="flex justify-between items-start text-white group-hover:text-primary">
-            <Rocket size={120} className="group-hover:text-secondary snap-transition" />
-            <div className="text-right">
-              <div className="font-black tracking-widest uppercase text-xs">產業: 新創美妝品牌</div>
-              <div className="font-black tracking-widest uppercase text-xs">服務: 品牌設計與廣告投放</div>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none">DTC 品牌全球化策略</h2>
-            <p className="font-bold mb-4 text-white group-hover:text-primary opacity-0 group-hover:opacity-100 snap-transition">量化成果：廣告 ROI 從 1.2 提升至 4.8，品牌認知度提升 65%。</p>
-          </div>
-        </div>
-
-        {/* Case 3 */}
-        <div className="col-span-12 md:col-span-4 bg-primary text-white brutalist-border group cursor-pointer snap-transition hover:bg-white hover:text-primary p-8 flex flex-col justify-between min-h-[500px]">
-          <div>
-            <Network size={80} className="mb-8" />
-            <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter leading-none">連鎖餐飲集團 ESG 規劃</h2>
-            <p className="mt-4 font-bold opacity-60 group-hover:opacity-100">量化成果：成功對接政府淨零轉型補助，獲取 80 萬元資助。</p>
-          </div>
-          <p className="font-bold uppercase tracking-widest text-sm opacity-60 group-hover:opacity-100">「專業且精準，讓我們在轉型路上少走許多冤枉路。」</p>
-        </div>
-
-        {/* Case 4 */}
-        <div className="col-span-12 md:col-span-8 bg-surface-low brutalist-border group cursor-pointer snap-transition hover:bg-secondary hover:text-white p-8 flex flex-col justify-between min-h-[500px] relative overflow-hidden">
-          <div className="absolute right-[-10%] top-[-10%] w-[400px] h-[400px] bg-primary opacity-5 group-hover:opacity-20 rotate-45 pointer-events-none"></div>
-          <div className="flex flex-col md:flex-row gap-8 z-10">
-            <Layout size={120} />
-            <div>
-              <div className="font-black tracking-widest uppercase mb-4 text-secondary group-hover:text-white">融資專案</div>
-              <h2 className="text-[clamp(2.5rem,8vw,4.5rem)] font-black uppercase tracking-tighter leading-tight">AI 醫療新創融資計畫</h2>
-              <p className="mt-4 max-w-md font-bold text-lg uppercase">量化成果：協助撰寫融資企劃書，成功獲得天使輪 1,500 萬投資。</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Case 5 */}
-        <div className="col-span-12 md:col-span-12 brutalist-border group cursor-pointer p-8 flex flex-col justify-between min-h-[300px] relative overflow-hidden bg-white hover:bg-primary hover:text-white snap-transition">
-          <div className="relative z-10 flex flex-col md:flex-row h-full justify-between items-center">
-            <div className="flex items-center gap-8">
-              <Globe size={80} className="text-secondary" />
-              <div>
-                <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter">跨境電商整合行銷</h2>
-                <p className="font-bold mt-2">量化成果：單月業績突破 300 萬，獲取客戶成本降低 40%。</p>
+      <section className="px-4 md:px-8">
+        <div className="grid grid-cols-12 gap-4 md:gap-8">
+          {/* Case 1 */}
+          <div className="col-span-12 md:col-span-7 bg-surface-high brutalist-border group cursor-pointer snap-transition hover:bg-primary hover:text-white p-8 flex flex-col justify-between min-h-[400px]">
+            <div className="flex justify-between items-start">
+              <Building2 size={120} className="group-hover:text-secondary snap-transition" />
+              <div className="text-right">
+                <div className="font-black tracking-widest uppercase mb-2 text-xs">產業: 台灣中部製造業</div>
+                <div className="font-black tracking-widest uppercase text-xs">服務: 補助申請與轉型顧問</div>
               </div>
             </div>
-            <span className="text-secondary font-black text-3xl mt-8 md:mt-0">ROI 5.5x</span>
+            <div>
+              <h2 className="text-[clamp(2rem,6vw,3.75rem)] font-black uppercase tracking-tighter leading-none mb-4">傳統機械廠數位升級</h2>
+              <p className="font-bold mb-4 opacity-0 group-hover:opacity-100 snap-transition">量化成果：補助申請成功，獲得 50 萬元，生產效率提升 30%。</p>
+              <div className="w-16 h-2 bg-secondary group-hover:bg-white snap-transition"></div>
+            </div>
+          </div>
+
+          {/* Case 2 */}
+          <div className="col-span-12 md:col-span-5 bg-secondary brutalist-border border-primary group cursor-pointer snap-transition hover:bg-white hover:text-primary p-8 flex flex-col justify-between min-h-[400px]">
+            <div className="flex justify-between items-start text-white group-hover:text-primary">
+              <Rocket size={120} className="group-hover:text-secondary snap-transition" />
+              <div className="text-right">
+                <div className="font-black tracking-widest uppercase text-xs">產業: 新創美妝品牌</div>
+                <div className="font-black tracking-widest uppercase text-xs">服務: 品牌設計與廣告投放</div>
+              </div>
+            </div>
+            <div>
+              <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none">DTC 品牌全球化策略</h2>
+              <p className="font-bold mb-4 text-white group-hover:text-primary opacity-0 group-hover:opacity-100 snap-transition">量化成果：廣告 ROI 從 1.2 提升至 4.8，品牌認知度提升 65%。</p>
+            </div>
+          </div>
+
+          {/* Case 3 */}
+          <div className="col-span-12 md:col-span-4 bg-primary text-white brutalist-border group cursor-pointer snap-transition hover:bg-white hover:text-primary p-8 flex flex-col justify-between min-h-[500px]">
+            <div>
+              <Network size={80} className="mb-8" />
+              <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter leading-none">連鎖餐飲集團 ESG 規劃</h2>
+              <p className="mt-4 font-bold opacity-60 group-hover:opacity-100">量化成果：成功對接政府淨零轉型補助，獲取 80 萬元資助。</p>
+            </div>
+            <p className="font-bold uppercase tracking-widest text-sm opacity-60 group-hover:opacity-100">「專業且精準，讓我們在轉型路上少走許多冤枉路。」</p>
+          </div>
+
+          {/* Case 4 */}
+          <div className="col-span-12 md:col-span-8 bg-surface-low brutalist-border group cursor-pointer snap-transition hover:bg-secondary hover:text-white p-8 flex flex-col justify-between min-h-[500px] relative overflow-hidden">
+            <div className="absolute right-[-10%] top-[-10%] w-[400px] h-[400px] bg-primary opacity-5 group-hover:opacity-20 rotate-45 pointer-events-none"></div>
+            <div className="flex flex-col md:flex-row gap-8 z-10">
+              <Layout size={120} />
+              <div>
+                <div className="font-black tracking-widest uppercase mb-4 text-secondary group-hover:text-white">融資專案</div>
+                <h2 className="text-[clamp(2.5rem,8vw,4.5rem)] font-black uppercase tracking-tighter leading-tight">AI 醫療新創融資計畫</h2>
+                <p className="mt-4 max-w-md font-bold text-lg uppercase">量化成果：協助撰寫融資企劃書，成功獲得天使輪 1,500 萬投資。</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Case 5 */}
+          <div className="col-span-12 md:col-span-12 brutalist-border group cursor-pointer p-8 flex flex-col justify-between min-h-[300px] relative overflow-hidden bg-white hover:bg-primary hover:text-white snap-transition">
+            <div className="relative z-10 flex flex-col md:flex-row h-full justify-between items-center">
+              <div className="flex items-center gap-8">
+                <Globe size={80} className="text-secondary" />
+                <div>
+                  <h2 className="text-[clamp(1.75rem,5vw,2.5rem)] font-black uppercase tracking-tighter">跨境電商整合行銷</h2>
+                  <p className="font-bold mt-2">量化成果：單月業績突破 300 萬，獲取客戶成本降低 40%。</p>
+                </div>
+              </div>
+              <span className="text-secondary font-black text-3xl mt-8 md:mt-0">ROI 5.5x</span>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
     </section>
 
     <section className="bg-primary py-40 px-8 relative overflow-hidden">
@@ -493,57 +495,142 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
           </p>
         </div>
       </div>
+      <div className="absolute top-0 right-0 w-1/3 h-full bg-primary opacity-5 -skew-x-12 translate-x-24"></div>
     </section>
 
-    <section className="px-8 py-32 bg-white">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-        {[
-          { title: "專業精準", desc: "拒絕模稜兩可，我們以數據為基礎，提供可執行的精準策略。" },
-          { title: "資源整合", desc: "打破資訊不對稱，為企業對接最合適的政府與民間資源。" },
-          { title: "價值共創", desc: "我們不只是服務提供者，更是您在商業戰場上並肩作戰的夥伴。" }
-        ].map((item, idx) => (
-          <div key={idx} className="p-12 brutalist-border bg-surface-low hover:bg-primary hover:text-white snap-transition">
-            <h3 className="text-3xl font-black mb-6 uppercase tracking-tighter">{item.title}</h3>
-            <p className="font-bold opacity-70 group-hover:opacity-100">{item.desc}</p>
+    <section className="flex flex-col md:flex-row w-full min-h-screen">
+      <div className="w-full md:w-1/2 bg-primary p-12 md:p-24 flex flex-col justify-between">
+        <div>
+          <h2 className="text-[clamp(4rem,12vw,8rem)] font-black text-white tracking-tighter leading-none mb-12">關於<br/>我們</h2>
+          <div className="w-24 h-2 bg-secondary mb-8"></div>
+        </div>
+        <div className="text-white opacity-20">
+          <Building2 size={240} />
+        </div>
+      </div>
+      <div className="w-full md:w-1/2 bg-white p-12 md:p-24 border-b-4 md:border-b-0 md:border-l-4 border-primary">
+        <div className="space-y-12">
+          <div>
+            <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">亨波趨勢：細節的執行者</h3>
+            <p className="text-lg leading-relaxed text-muted">
+              我們創立於2022年，代表市場上的一股新銳力量。我們摒棄冗餘，回歸本質。讓每一個細節，都經過嚴密的計畫與審核。
+            </p>
           </div>
-        ))}
+          <div>
+            <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">創新與卓越</h3>
+            <p className="text-lg leading-relaxed text-muted">
+              在快速變遷的環境中，我們專注提供高品質、高效能的解決方案，協助客戶精準撰寫企劃與計畫書，並順利申請各項政府與企業補助資源，同時透過專業的數位廣告投放與高品質品牌設計，幫助品牌有效曝光，提升市場競爭力。
+            </p>
+            </div>
+          <div className="grid grid-cols-2 gap-8 pt-12">
+            <div className="border-t-4 border-primary pt-4">
+              <div className="text-4xl font-black text-secondary">100+</div>
+              <div className="font-bold uppercase tracking-widest text-xs mt-2">累計諮詢客戶</div>
+            </div>
+            <div className="border-t-4 border-primary pt-4">
+              <div className="text-4xl font-black text-secondary">85%</div>
+              <div className="font-bold uppercase tracking-widest text-xs mt-2">補助申請過件率</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section className="px-8 py-32 bg-surface-high">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-[clamp(2.5rem,8vw,3.75rem)] font-black text-primary uppercase mb-24 text-center tracking-tighter underline decoration-secondary decoration-8 underline-offset-8">成長策略</h2>
+        <div className="relative flex flex-col gap-0">
+          <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-2 bg-primary hidden md:block"></div>
+          
+          {[
+            { year: "2024", title: "從邏輯架構到品牌轉型", desc: "強調數據洞察與故事行銷的完美結合，為企業建立具市場競爭力的核心價值。", side: "left" },
+            { year: "2025", title: "政策鏈結與資源整合開發", desc: "透過專業計畫書編製與專業諮詢，協助單位跨越財務門檻，實現公共服務與社會影響力。", side: "right" },
+            { year: "2026", title: "數據驅動與精準觸及", desc: "整合多社群平台資源與動態優化技術，在碎片的數位環境中精準捕捉目標客群與商機。", side: "left" }
+          ].map((item, idx) => (
+            <div key={item.year} className="relative flex flex-col md:flex-row items-center mb-32 group">
+              <div className={`w-full md:w-1/2 ${item.side === 'left' ? 'md:pr-16 text-right order-2 md:order-1' : 'order-2 md:order-1'}`}>
+                {item.side === 'left' && (
+                  <div className="bg-primary text-white p-8 inline-block w-full text-left md:text-right border-b-8 border-secondary">
+                    <h4 className="text-2xl font-black mb-2">{item.title}</h4>
+                    <p className="opacity-80">{item.desc}</p>
+                  </div>
+                )}
+              </div>
+              <div className={`z-10 bg-secondary text-white w-24 h-24 flex items-center justify-center font-black text-2xl order-1 md:order-2 mb-8 md:mb-0 ${item.side === 'right' ? 'bg-primary' : ''}`}>
+                {item.year}
+              </div>
+              <div className={`w-full md:w-1/2 ${item.side === 'right' ? 'md:pl-16 order-3' : 'order-3'}`}>
+                {item.side === 'right' && (
+                  <div className="bg-white brutalist-border-heavy p-8 inline-block w-full border-b-8 border-secondary">
+                    <h4 className="text-2xl font-black text-primary mb-2">{item.title}</h4>
+                    <p className="text-muted">{item.desc}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section className="bg-primary py-40 px-8 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
+        <h2 className="text-[clamp(5rem,20vw,20rem)] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">GO!</h2>
+        <h3 className="text-[clamp(3rem,12vw,6rem)] font-black text-white mb-12 tracking-tighter relative z-10 uppercase">準備好了嗎？</h3>
+        <div className="relative z-10">
+          <button 
+            onClick={() => setActiveTab("contact")}
+            className="bg-secondary text-white text-2xl font-black px-16 py-6 hover:bg-white hover:text-primary snap-transition flex items-center gap-4"
+          >
+            立即開始
+            <ArrowRight size={32} />
+          </button>
+        </div>
       </div>
     </section>
   </motion.div>
 );
 
 const ContactView: React.FC = () => {
-  const [formData, setFormData] = useState({
+  const [formState, setFormState] = useState({
     name: "",
-    organization: "",
+    org: "",
     email: "",
-    subject: "企劃撰寫",
+    subject: "企劃撰寫諮詢",
     message: ""
   });
-  const [status, setStatus] = useState<{ type: "success" | "error" | null, msg: string }>({ type: null, msg: "" });
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
+    setSubmitError("");
+    
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formState.name,
+          organization: formState.org,
+          email: formState.email,
+          subject: formState.subject,
+          message: formState.message,
+        }),
       });
       const json = await res.json();
       if (json.success) {
-        setStatus({ type: "success", msg: "諮詢已成功提交！我們將儘快與您聯繫。" });
-        setFormData({ name: "", organization: "", email: "", subject: "企劃撰寫", message: "" });
+        setIsSubmitted(true);
+        setFormState({ name: "", org: "", email: "", subject: "企劃撰寫諮詢", message: "" });
       } else {
-        setStatus({ type: "error", msg: json.error || "提交失敗，請稍後再試。" });
+        setSubmitError(json.error || "提交失敗，請稍後再試");
       }
     } catch {
-      setStatus({ type: "error", msg: "網路錯誤，請稍後再試。" });
+      setSubmitError("無法連接伺服器，請檢查網絡連接");
     }
-    setLoading(false);
-    setTimeout(() => setStatus({ type: null, msg: "" }), 5000);
+    setIsSubmitting(false);
   };
 
   return (
@@ -551,108 +638,148 @@ const ContactView: React.FC = () => {
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }}
-      className="pt-24 brutalist-grid min-h-screen"
+      className="pt-24 pb-32"
     >
-      <section className="px-8 py-32">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24">
-          <div>
-            <span className="font-black uppercase tracking-[0.4em] text-secondary mb-4 block">聯繫我們</span>
-            <h1 className="text-[clamp(3.5rem,10vw,6rem)] font-black tracking-tighter leading-none text-primary uppercase mb-12">
-              啟動您的<br/>
-              <span className="text-stroke">成長引擎</span>
-            </h1>
-            <div className="space-y-12">
-              <div className="flex items-start gap-6">
-                <div className="bg-primary p-4 text-white brutalist-border border-primary">
-                  <Mail size={32} />
+      <section className="px-8 py-24 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="lg:col-span-5">
+              <h1 className="text-[clamp(4rem,12vw,8rem)] font-black text-primary uppercase tracking-tighter leading-none mb-12">
+                聯繫<br/><span className="text-secondary">我們</span>
+              </h1>
+              <p className="text-xl font-bold text-muted mb-16 border-l-8 border-primary pl-6 uppercase tracking-tight">
+                為您的企業提供 world-class 的解決方案。
+              </p>
+
+              <div className="space-y-12">
+                <div className="flex items-start gap-6 group">
+                  <div className="bg-primary p-4 text-white group-hover:bg-secondary snap-transition">
+                    <Phone size={32} />
+                  </div>
+                  <div>
+                    <h3 className="font-black uppercase tracking-widest text-secondary mb-2">直連電話</h3>
+                    <p className="text-xl font-bold text-primary">+886-0966-748-817</p>
+                    <p className="text-muted font-medium">週一至週五：09:00 - 18:00</p>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-black uppercase tracking-widest text-xs text-secondary block mb-2">電子郵件</span>
-                  <p className="text-2xl font-black text-primary">hengbo.trend@gmail.com</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-6">
-                <div className="bg-primary p-4 text-white brutalist-border border-primary">
-                  <Phone size={32} />
-                </div>
-                <div>
-                  <span className="font-black uppercase tracking-widest text-xs text-secondary block mb-2">諮詢專線</span>
-                  <p className="text-2xl font-black text-primary">0909-518-518</p>
+
+                <div className="flex items-start gap-6 group">
+                  <div className="bg-primary p-4 text-white group-hover:bg-secondary snap-transition">
+                    <Mail size={32} />
+                  </div>
+                  <div>
+                    <h3 className="font-black uppercase tracking-widest text-secondary mb-2">電子郵件</h3>
+                    <p className="text-xl font-bold text-primary">tvivl.tw@gmail.com</p>
+                    <p className="text-muted font-medium">24/7 全天候運營支持</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-white brutalist-border p-8 md:p-12 shadow-[16px_16px_0px_0px_rgba(21,66,18,1)]">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <label className="font-black uppercase tracking-widest text-xs text-secondary">姓名 *</label>
-                  <input 
-                    required
-                    type="text" 
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition" 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="font-black uppercase tracking-widest text-xs text-secondary">公司/組織</label>
-                  <input 
-                    type="text" 
-                    value={formData.organization}
-                    onChange={(e) => setFormData({...formData, organization: e.target.value})}
-                    className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition" 
-                  />
-                </div>
+            <div className="lg:col-span-7">
+              <div className="bg-surface-low brutalist-border-heavy p-12 relative overflow-hidden">
+                <AnimatePresence mode="wait">
+                  {!isSubmitted ? (
+                    <motion.div
+                      key="form"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                    >
+                      <h2 className="text-4xl font-black text-primary uppercase mb-12 tracking-tight">諮詢申請</h2>
+                      <form className="space-y-8" onSubmit={handleSubmit}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-2">
+                            <label className="font-black uppercase tracking-widest text-xs text-secondary">姓名</label>
+                            <input 
+                              required
+                              type="text" 
+                              value={formState.name}
+                              onChange={(e) => setFormState({...formState, name: e.target.value})}
+                              className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition" 
+                              placeholder="您的姓名"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="font-black uppercase tracking-widest text-xs text-secondary">公司/機構</label>
+                            <input 
+                              type="text" 
+                              value={formState.org}
+                              onChange={(e) => setFormState({...formState, org: e.target.value})}
+                              className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition" 
+                              placeholder="公司名稱"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="font-black uppercase tracking-widest text-xs text-secondary">電子郵件</label>
+                          <input 
+                            required
+                            type="email" 
+                            value={formState.email}
+                            onChange={(e) => setFormState({...formState, email: e.target.value})}
+                            className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition" 
+                            placeholder="email@example.com"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="font-black uppercase tracking-widest text-xs text-secondary">諮詢主題</label>
+                          <select 
+                            value={formState.subject}
+                            onChange={(e) => setFormState({...formState, subject: e.target.value})}
+                            className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition appearance-none"
+                          >
+                            <option>企劃撰寫諮詢</option>
+                            <option>補助申請諮詢</option>
+                            <option>品牌設計諮詢</option>
+                            <option>廣告投放諮詢</option>
+                            <option>其他合作洽談</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="font-black uppercase tracking-widest text-xs text-secondary">訊息內容</label>
+                          <textarea 
+                            required
+                            rows={4}
+                            value={formState.message}
+                            onChange={(e) => setFormState({...formState, message: e.target.value})}
+                            className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition resize-none"
+                            placeholder="請描述您的需求..."
+                          ></textarea>
+                        </div>
+                        <button 
+                          disabled={isSubmitting}
+                          className="w-full bg-primary text-white py-6 font-black uppercase tracking-[0.3em] text-xl hover:bg-secondary snap-transition flex items-center justify-center gap-4 disabled:opacity-50"
+                        >
+                          {isSubmitting ? "提交中..." : "發送諮詢請求"}
+                          <ArrowRight size={24} />
+                        </button>
+                        {submitError && <p className="text-red-600 font-bold text-center mt-4">{submitError}</p>}
+                      </form>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="success"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="text-center py-12"
+                    >
+                      <div className="w-24 h-24 bg-secondary text-white flex items-center justify-center mx-auto mb-8 rounded-full">
+                        <BadgeCheck size={48} />
+                      </div>
+                      <h2 className="text-4xl font-black text-primary uppercase mb-4">提交成功</h2>
+                      <p className="text-xl font-bold text-muted mb-8">感謝您的諮詢，我們將儘快與您聯繫。</p>
+                      <button 
+                        onClick={() => setIsSubmitted(false)}
+                        className="bg-primary text-white px-8 py-4 font-black uppercase tracking-widest hover:bg-secondary snap-transition"
+                      >
+                        返回表單
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              <div className="space-y-2">
-                <label className="font-black uppercase tracking-widest text-xs text-secondary">電子郵件 *</label>
-                <input 
-                  required
-                  type="email" 
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition" 
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="font-black uppercase tracking-widest text-xs text-secondary">諮詢主題 *</label>
-                <select 
-                  value={formData.subject}
-                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                  className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition appearance-none"
-                >
-                  <option>企劃撰寫</option>
-                  <option>補助申請</option>
-                  <option>廣告投放</option>
-                  <option>資源對接</option>
-                  <option>其他諮詢</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="font-black uppercase tracking-widest text-xs text-secondary">訊息內容 *</label>
-                <textarea 
-                  required
-                  rows={4}
-                  value={formData.message}
-                  onChange={(e) => setFormData({...formData, message: e.target.value})}
-                  className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition resize-none"
-                ></textarea>
-              </div>
-              <button 
-                disabled={loading}
-                className="w-full bg-primary text-white py-6 font-black uppercase tracking-[0.3em] text-xl hover:bg-secondary snap-transition flex items-center justify-center gap-4 disabled:opacity-50"
-              >
-                {loading ? "提交中..." : "發送諮詢請求"}
-                <Send size={24} />
-              </button>
-              {status.type && (
-                <div className={`p-4 font-black uppercase tracking-widest text-center ${status.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                  {status.msg}
-                </div>
-              )}
-            </form>
+            </div>
           </div>
         </div>
       </section>
@@ -660,7 +787,7 @@ const ContactView: React.FC = () => {
   );
 };
 
-// ========== 改進的 AIView 組件 (支援多對話側邊欄) ==========
+// ========== AIView 組件 (支援多對話側邊欄) ==========
 const AIView = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
