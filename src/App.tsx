@@ -37,6 +37,7 @@ import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
+import mammoth from "mammoth";
 
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -1051,6 +1052,24 @@ const ContactView: React.FC = () => {
         });
       };
       reader.readAsDataURL(file);
+    } else if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        let content = result.value;
+        const MAX_CHARS = 50000;
+        if (content.length > MAX_CHARS) {
+          content = content.substring(0, MAX_CHARS) + `\n\n[注意：檔案內容已被截斷至 ${MAX_CHARS} 個字元]`;
+        }
+        setSelectedFile({
+          name: file.name,
+          content: content,
+          type: file.type
+        });
+      } catch (error) {
+        console.error("Word Parsing Error:", error);
+        alert("無法解析 Word 檔案內容，請嘗試複製文字貼上。");
+      }
     } else {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -1104,23 +1123,30 @@ const ContactView: React.FC = () => {
       }]);
 
       // 構建發送給 AI 的內容
-      let aiPrompt = userMsg;
-      if (currentFile) {
-        if (currentFile.type.startsWith('image/')) {
-          aiPrompt = `[使用者上傳了圖片：${currentFile.name}]\n${userMsg}`;
-          // 注意：這裡簡化處理，實際圖片分析需要將 base64 傳給 Gemini 的 multi-modal 介面
-          // 由於目前專案架構，我們先以文字描述方式告知 AI
-        } else {
-          // 再次檢查內容長度，確保不會超過 Token 限制
-          let fileContent = currentFile.content;
-          const MAX_PROMPT_CHARS = 100000; // 整個提示詞的最大字元數
-          
-          if (fileContent.length > MAX_PROMPT_CHARS) {
-            fileContent = fileContent.substring(0, MAX_PROMPT_CHARS) + "\n[檔案內容已截斷]";
+      let aiPromptParts: any[] = [];
+      
+      if (currentFile && currentFile.type.startsWith('image/')) {
+        // 處理圖片多模態輸入
+        const base64Data = currentFile.content.split(',')[1];
+        aiPromptParts.push({
+          inlineData: {
+            data: base64Data,
+            mimeType: currentFile.type
           }
-          
-          aiPrompt = `以下是使用者上傳的檔案內容 (${currentFile.name})：\n---\n${fileContent}\n---\n根據以上內容，回答使用者的問題：${userMsg}`;
+        });
+        aiPromptParts.push({ text: userMsg || "請分析這張圖片。" });
+      } else if (currentFile) {
+        // 處理文字檔案內容
+        let fileContent = currentFile.content;
+        const MAX_PROMPT_CHARS = 100000;
+        if (fileContent.length > MAX_PROMPT_CHARS) {
+          fileContent = fileContent.substring(0, MAX_PROMPT_CHARS) + "\n[檔案內容已截斷]";
         }
+        aiPromptParts.push({ 
+          text: `以下是使用者上傳的檔案內容 (${currentFile.name})：\n---\n${fileContent}\n---\n根據以上內容，回答使用者的問題：${userMsg}` 
+        });
+      } else {
+        aiPromptParts.push({ text: userMsg });
       }
 
       // 檢查是否包含繪圖請求
@@ -1137,7 +1163,7 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
             role: m.role === "user" ? "user" : "model",
             parts: [{ text: m.content }],
           })),
-          { role: "user", parts: [{ text: aiPrompt }] }
+          { role: "user", parts: aiPromptParts }
         ],
       });
 
