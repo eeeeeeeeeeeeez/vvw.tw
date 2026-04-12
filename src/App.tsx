@@ -29,13 +29,13 @@ interface ChatSession {
 
 // --- Components ---
 
-const Logo: React.FC<{ className?: string; variant?: "primary" | "white" }> = ({ className = "w-8 h-8", variant = "primary" }) => (
-  <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="100" height="100" fill={variant === "primary" ? "#000" : "#fff"} />
-    <path d="M20 20H40V80H20V20Z" fill={variant === "primary" ? "#fff" : "#000"} />
-    <path d="M60 20H80V80H60V20Z" fill={variant === "primary" ? "#fff" : "#000"} />
-    <rect x="40" y="45" width="20" height="10" fill={variant === "primary" ? "#fff" : "#000"} />
-  </svg>
+const Logo = ({ className = "w-8 h-8", variant = "default" }: { className?: string, variant?: "default" | "white" }) => (
+  <img 
+    src="/logo.png" 
+    alt="HENGBO TREND Logo"
+    className={`inline-block object-contain ${variant === "white" ? "brightness-0 invert" : ""} ${className}`}
+    referrerPolicy="no-referrer"
+  />
 );
 
 const LoadingScreen = () => (
@@ -52,7 +52,7 @@ const LoadingScreen = () => (
       transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
       className="mb-8"
     >
-      <Logo className="w-24 h-24" variant="white" />
+      <Logo className="w-32 h-32" variant="white" />
     </motion.div>
     <motion.div 
       initial={{ width: 0 }}
@@ -147,11 +147,9 @@ const Navbar: React.FC<{ activeTab: string; setActiveTab: (t: string) => void }>
         className="flex items-center gap-3 cursor-pointer group"
         onClick={() => handleTabClick("home")}
       >
-        <motion.div whileHover={{ rotate: 90 }} transition={{ type: "spring", stiffness: 300 }}>
-          <Logo className="w-10 h-10" />
-        </motion.div>
+        <Logo className="w-8 h-8 md:w-10 md:h-10" />
         <div className="flex flex-col">
-          <span className="text-2xl font-black tracking-tighter leading-none">亨波趨勢</span>
+          <span className="text-xl md:text-2xl font-black tracking-tighter text-primary uppercase">亨波趨勢</span>
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">Hengbo Trend</span>
         </div>
       </div>
