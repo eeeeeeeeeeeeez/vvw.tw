@@ -1215,16 +1215,33 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
+    const timer = setTimeout(() => setIsLoading(false), 1500);
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 500);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <div className="font-manrope text-primary selection:bg-secondary selection:text-white">
-      <AnimatePresence>{isLoading && <LoadingScreen />}</AnimatePresence>
+    <div className="font-manrope text-primary selection:bg-secondary selection:text-white min-h-screen">
+      <AnimatePresence>{isLoading && <LoadingScreen key="loading" />}</AnimatePresence>
       
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
       
@@ -1238,6 +1255,20 @@ export default function App() {
       </AnimatePresence>
 
       {activeTab !== "ai" && <Footer setActiveTab={setActiveTab} />}
+
+      <AnimatePresence>
+        {showScrollTop && activeTab !== "ai" && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            onClick={scrollToTop}
+            className="fixed bottom-8 right-8 z-50 bg-primary text-white p-4 brutalist-border-heavy hover:bg-secondary snap-transition"
+          >
+            <ArrowRight size={32} className="-rotate-90" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
