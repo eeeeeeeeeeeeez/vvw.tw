@@ -1155,9 +1155,18 @@ const ContactView: React.FC = () => {
       // 使用串流 API 獲取回應
       const response = await genAI.models.generateContentStream({
         model: "gemma-4-31b-it",
-        systemInstruction: `你是一位專業的『亨波 AI 助手』。請務必使用『繁體中文』直接回答使用者的問題。提供清晰、簡潔、有幫助的回答。
-如果別人問你有關「亨波趨勢」的問題請一律回答 https://vvw-tw.vercel.app/ 網頁的內容。
-${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你將要生成的圖片內容，然後在回覆的最後一行加上：[IMAGE_GEN: 這裡寫入詳細的英文提示詞]' : ''}`,
+        systemInstruction: `你是一位專業且充滿洞察力的『亨波 AI 顧問』，代表「亨波趨勢 (HENGBO TREND)」。
+
+你的核心特質：
+1. **專業顧問風範**：你的語氣應專業、穩重且富有啟發性，像是企業的高級戰略顧問。
+2. **繁體中文專家**：請務必使用優雅、精準的『繁體中文』回答。避免使用過於口語或非正式的詞彙。
+3. **數據與趨勢驅動**：在回答中展現對市場趨勢的敏銳度，強調數據支持與精準規劃。
+4. **品牌忠誠度**：如果使用者詢問有關「亨波趨勢」的服務、案例或聯繫方式，請引導他們參考官方網站：https://vvw-tw.vercel.app/。
+5. **多模態能力**：當使用者上傳圖片或文件時，請展現你強大的分析能力，深入解讀視覺細節或文件邏輯。
+
+${isImageRequest ? '當使用者要求畫圖時，請先以專業顧問的角度描述你將生成的視覺概念，然後在回覆的最後一行加上：[IMAGE_GEN: 這裡寫入詳細、高品質的英文提示詞]' : ''}
+
+請記住，你的目標是賦能企業，助其在競爭中取得絕對優勢。`,
         contents: [
           ...messages.slice(-10).map(m => ({ // 限制上下文長度
             role: m.role === "user" ? "user" : "model",
@@ -1265,27 +1274,27 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
             >
               <Lock className="w-12 h-12 text-white group-hover:scale-110 transition-transform duration-300" />
             </motion.div>
-            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 助手</h2>
+            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 顧問</h2>
             <div className="flex items-center gap-2">
               <div className="h-[2px] w-8 bg-secondary"></div>
-              <p className="text-muted font-bold text-sm uppercase tracking-widest">系統安全驗證</p>
+              <p className="text-muted font-bold text-sm uppercase tracking-widest">企業級安全驗證</p>
               <div className="h-[2px] w-8 bg-secondary"></div>
             </div>
           </div>
           
           <form onSubmit={handleLogin} className="space-y-6 relative z-20">
             <div className="space-y-2">
-              <label className="font-black uppercase tracking-widest text-[10px] text-secondary ml-1">管理員帳號</label>
+              <label className="font-black uppercase tracking-widest text-[10px] text-secondary ml-1">顧問帳號</label>
               <div className="relative group">
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
-                <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors pointer-events-none" size={16} />
+                <User className="absolute left-2.5 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors pointer-events-none" size={16} />
                 <input 
                   required
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full bg-surface-low border-2 border-primary/10 py-3 px-2 pl-7 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition relative z-10" 
-                  placeholder="Username"
+                  placeholder="Enter Consultant ID"
                   autoComplete="username"
                 />
               </div>
@@ -1302,7 +1311,7 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-surface-low border-2 border-primary/10 py-3 px-2 pl-7 pr-7 font-bold focus:outline-none focus:border-primary focus:bg-white snap-transition relative z-10" 
-                  placeholder="Password"
+                  placeholder="Enter Access Key"
                   autoComplete="current-password"
                 />
                 <button
@@ -1375,13 +1384,17 @@ ${isImageRequest ? '當使用者要求畫圖時，請先用繁體中文描述你
               }`}>
                 <div className={`flex items-center gap-2 mb-2 text-xs ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'user' ? (
-                    <span className="font-bold text-muted uppercase tracking-widest">You</span>
+                    <span className="font-bold text-muted uppercase tracking-widest flex items-center gap-1.5">
+                      <User size={12} /> 使用者
+                    </span>
                   ) : (
-                    <span className="font-bold text-secondary uppercase tracking-widest">AI</span>
+                    <span className="font-bold text-secondary uppercase tracking-widest flex items-center gap-1.5">
+                      <Bot size={12} /> 亨波 AI 顧問
+                    </span>
                   )}
                 </div>
               <div className={`inline-block text-base font-bold leading-relaxed tracking-tight ${
-                msg.role === 'user' ? 'text-primary bg-surface-low rounded px-3 py-2' : 'text-primary'
+                msg.role === 'user' ? 'text-primary bg-surface-low rounded-lg px-4 py-3 shadow-sm' : 'text-primary'
               }`}>
                   {msg.role === 'user' ? (
                     <div className="whitespace-pre-wrap">{msg.content}</div>
