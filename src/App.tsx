@@ -246,10 +246,19 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           <Logo className="w-12 h-12" variant="white" />
           <span className="text-4xl font-black block">亨波趨勢</span>
         </div>
-        <p className="font-bold text-sm tracking-widest uppercase opacity-70 max-w-lg leading-relaxed">
-          © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. MASTERING TRENDS, MAXIMIZING IMPACT.<br/>
-          專業企劃、補助申請、品牌設計與廣告投放的一站式顧問夥伴。
-        </p>
+        <div className="font-bold text-sm tracking-widest uppercase opacity-70 max-w-lg leading-relaxed">
+          <p className="mb-4">© 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. MASTERING TRENDS, MAXIMIZING IMPACT.</p>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Mail size={14} className="text-secondary" />
+              <span>tvivl.tw@gmail.com</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone size={14} className="text-secondary" />
+              <span>+886-0966-748-817</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-4">
@@ -924,7 +933,7 @@ const ContactView: React.FC = () => {
                     </div>
                     <div>
                       <span className="block font-black uppercase text-xs tracking-widest text-secondary">電子郵件</span>
-                      <span className="text-xl font-bold">contact@vvw.tw</span>
+                      <span className="text-xl font-bold">tvivl.tw@gmail.com</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-6 group">
@@ -933,16 +942,7 @@ const ContactView: React.FC = () => {
                     </div>
                     <div>
                       <span className="block font-black uppercase text-xs tracking-widest text-secondary">諮詢專線</span>
-                      <span className="text-xl font-bold">02-2345-6789</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-6 group">
-                    <div className="w-16 h-16 bg-primary text-white flex items-center justify-center group-hover:bg-secondary snap-transition">
-                      <MapPin size={32} />
-                    </div>
-                    <div>
-                      <span className="block font-black uppercase text-xs tracking-widest text-secondary">服務據點</span>
-                      <span className="text-xl font-bold">台北市信義區信義路五段7號</span>
+                      <span className="text-xl font-bold">+886-0966-748-817</span>
                     </div>
                   </div>
                 </div>
