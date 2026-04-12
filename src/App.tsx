@@ -936,35 +936,7 @@ const ContactView: React.FC = () => {
                   </div>
                 </div>
                 
-                {/* FAQ Section */}
-                <div className="mt-24">
-                  <h3 className="text-2xl font-black text-primary uppercase mb-8 tracking-tight">常見問題 FAQ</h3>
-                  <div className="space-y-4">
-                    {faqs.map((faq, i) => (
-                      <div key={i} className="border-b-2 border-primary/10 pb-4">
-                        <button 
-                          onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                          className="w-full flex justify-between items-center text-left py-2 group"
-                        >
-                          <span className="font-black text-primary group-hover:text-secondary snap-transition">{faq.q}</span>
-                          <ChevronDown size={20} className={`snap-transition ${openFaq === i ? "rotate-180" : ""}`} />
-                        </button>
-                        <AnimatePresence>
-                          {openFaq === i && (
-                            <motion.div 
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              className="overflow-hidden"
-                            >
-                              <p className="py-4 text-muted font-bold text-sm leading-relaxed">{faq.a}</p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+
               </div>
             </ScrollReveal>
 
@@ -1065,6 +1037,45 @@ const ContactView: React.FC = () => {
               </div>
             </ScrollReveal>
           </div>
+
+          {/* FAQ Section - Moved to bottom and full width */}
+          <ScrollReveal direction="up">
+            <div className="mt-32 pt-32 border-t-4 border-primary">
+              <div className="max-w-4xl mx-auto">
+                <span className="font-black uppercase tracking-[0.4em] text-secondary mb-4 block text-center">常見問題</span>
+                <h3 className="text-[clamp(2.5rem,6vw,4rem)] font-black text-primary uppercase mb-16 tracking-tighter text-center">FAQ</h3>
+                <div className="space-y-6">
+                  {faqs.map((faq, i) => (
+                    <div key={i} className="bg-white brutalist-border p-6 md:p-8 hover:bg-surface-low snap-transition">
+                      <button 
+                        onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                        className="w-full flex justify-between items-center text-left group"
+                      >
+                        <span className="text-lg md:text-xl font-black text-primary group-hover:text-secondary snap-transition pr-8">{faq.q}</span>
+                        <div className={`w-10 h-10 flex items-center justify-center bg-primary text-white snap-transition ${openFaq === i ? "rotate-180 bg-secondary" : ""}`}>
+                          <ChevronDown size={24} />
+                        </div>
+                      </button>
+                      <AnimatePresence>
+                        {openFaq === i && (
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pt-8 mt-8 border-t-2 border-primary/10">
+                              <p className="text-muted font-bold text-base md:text-lg leading-relaxed">{faq.a}</p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
     </motion.div>
