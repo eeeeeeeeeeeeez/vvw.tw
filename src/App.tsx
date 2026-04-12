@@ -1565,7 +1565,7 @@ const AIView = () => {
                       <span className="text-xs font-black truncate max-w-[150px]">{msg.file.name}</span>
                     </div>
                   )}
-                    <div className="relative group/msg">
+                  <div className="relative group/msg">
                     <div className={`p-5 font-bold leading-relaxed shadow-sm ${
                       msg.role === "user" 
                         ? "bg-primary text-white rounded-2xl rounded-tr-none" 
@@ -1580,9 +1580,11 @@ const AIView = () => {
                     
                     <button 
                       onClick={() => {
-                        navigator.clipboard.writeText(msg.content);
-                        setCopiedId(`${idx}`);
-                        setTimeout(() => setCopiedId(null), 2000);
+                        if (navigator.clipboard) {
+                          navigator.clipboard.writeText(msg.content);
+                          setCopiedId(`${idx}`);
+                          setTimeout(() => setCopiedId(null), 2000);
+                        }
                       }}
                       className={`absolute -bottom-6 ${msg.role === "user" ? "right-0" : "left-0"} p-1 text-primary/30 hover:text-secondary opacity-0 group-hover/msg:opacity-100 transition-opacity flex items-center gap-1`}
                     >
