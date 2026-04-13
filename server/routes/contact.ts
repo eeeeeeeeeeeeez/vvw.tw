@@ -40,8 +40,7 @@ router.post('/', async (req: Request, res: Response) => {
           status: 'pending',
         },
       ])
-      .select()
-      .single();
+      .select();
 
     if (error) {
       console.error('Supabase insert error:', JSON.stringify(error, null, 2));
