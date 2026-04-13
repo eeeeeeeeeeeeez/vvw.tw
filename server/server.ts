@@ -4,6 +4,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import contactRoutes from './routes/contact.js';
 import newsletterRoutes from './routes/newsletter.js';
+import proxyRoutes from './routes/proxy.js';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
@@ -26,6 +27,7 @@ app.use((req, _res, next) => {
 // API Routes
 app.use('/api/contact', contactRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/proxy', proxyRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

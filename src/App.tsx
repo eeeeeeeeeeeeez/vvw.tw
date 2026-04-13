@@ -1157,13 +1157,31 @@ const AIView = () => {
 
     try {
       let aiPromptParts: any[] = [];
+      
+      // 偵測 URL
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const urls = userMsg.match(urlRegex);
+      let fetchedContent = "";
+
+      if (urls && urls.length > 0 && !currentFile) {
+        try {
+          const fetchRes = await fetch(`/api/proxy/fetch-url?url=${encodeURIComponent(urls[0])}`);
+          const fetchJson = await fetchRes.json();
+          if (fetchJson.success) {
+            fetchedContent = `\n\n--- 網頁內容 (${fetchJson.title}) ---\n${fetchJson.textContent}\n--- 內容結束 ---\n`;
+          }
+        } catch (err) {
+          console.error("URL fetch failed", err);
+        }
+      }
+
       if (currentFile && currentFile.type.startsWith('image/')) {
         aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
-        aiPromptParts.push({ text: userMsg });
+        aiPromptParts.push({ text: userMsg + fetchedContent });
       } else if (currentFile) {
-        aiPromptParts.push({ text: `檔案內容 (${currentFile.name})：\n${currentFile.content.substring(0, 50000)}\n\n問題：${userMsg}` });
+        aiPromptParts.push({ text: `檔案內容 (${currentFile.name})：\n${currentFile.content.substring(0, 50000)}\n\n問題：${userMsg}${fetchedContent}` });
       } else {
-        aiPromptParts.push({ text: userMsg });
+        aiPromptParts.push({ text: userMsg + fetchedContent });
       }
 
       const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
@@ -1174,7 +1192,8 @@ const AIView = () => {
 1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
 2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
 3. **數據與趨勢驅動**：強調數據支持與精準規劃。
-4. **品牌忠誠度**：引導至 https://vvw-tw.vercel.app/。
+4. **網頁分析專家**：當用戶提供網址時，你會收到抓取後的網頁內容。請根據這些內容提供精確、具深度的分析與建議。
+5. **品牌忠誠度**：引導至 https://vvw-tw.vercel.app/。
 ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`,
         contents: [
           ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
