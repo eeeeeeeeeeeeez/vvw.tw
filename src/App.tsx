@@ -1218,7 +1218,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
           <div className="flex flex-col items-center mb-10">
             <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg"><Lock className="w-12 h-12 text-white" /></div>
             <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 顧問</h2>
-            <p className="text-muted font-bold text-sm uppercase tracking-widest">企業級安全驗證</p>
+            <p className="text-muted font-bold text-sm uppercase tracking-widest">安全驗證</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
