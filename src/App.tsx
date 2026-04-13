@@ -1232,6 +1232,17 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
             {loginError && <div className="bg-secondary/10 border-l-4 border-secondary p-3 text-secondary font-bold text-xs uppercase">{loginError}</div>}
             <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:bg-secondary transition-all flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
           </form>
+          <div className="mt-8 pt-8 border-t-2 border-primary/10 flex flex-col items-center gap-4">
+            <p className="text-primary/40 font-bold text-[10px] uppercase tracking-widest">還沒有顧問帳號嗎？</p>
+            <a 
+              href="https://lin.ee/ZegJcQj" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-full bg-white border-2 border-primary text-primary py-4 font-black uppercase tracking-widest text-sm hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 group"
+            >
+              取得帳號 <MessageSquare size={18} className="group-hover:scale-110 transition-transform" />
+            </a>
+          </div>
         </motion.div>
       </motion.div>
     );
