@@ -44,10 +44,10 @@ router.post('/', async (req: Request, res: Response) => {
       .single();
 
     if (error) {
-      console.error('Supabase insert error:', error);
+      console.error('Supabase insert error:', JSON.stringify(error, null, 2));
       res.status(500).json({
         success: false,
-        error: '提交失敗，請稍後再試',
+        error: `提交失敗: ${error.message || '請稍後再試'}`,
       });
       return;
     }

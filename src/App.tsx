@@ -750,6 +750,13 @@ const ContactView: React.FC = () => {
     setSubmitError("");
     
     try {
+      console.log("Submitting form to /api/contact...", {
+        name: formState.name,
+        organization: formState.org,
+        email: formState.email,
+        subject: formState.subject,
+        message: formState.message,
+      });
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -761,14 +768,17 @@ const ContactView: React.FC = () => {
           message: formState.message,
         }),
       });
+      console.log("Response status:", res.status);
       const json = await res.json();
+      console.log("Response JSON:", json);
       if (json.success) {
         setIsSubmitted(true);
         setFormState({ name: "", org: "", email: "", subject: "企劃撰寫諮詢", message: "" });
       } else {
         setSubmitError(json.error || "提交失敗，請稍後再試");
       }
-    } catch {
+    } catch (err) {
+      console.error("Form submission error:", err);
       setSubmitError("無法連接伺服器，請檢查網絡連接");
     }
     setIsSubmitting(false);
@@ -1251,7 +1261,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
             {loginError && <div className="bg-secondary/10 border-l-4 border-secondary p-3 text-secondary font-bold text-xs uppercase">{loginError}</div>}
             <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:bg-secondary transition-all flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
           </form>
-          <div className="mt-8 pt-8 border-t-2 border-primary/10 flex justify-center">
+          <div className="mt-8 pt-8 border-t-2 border-primary/10 flex flex-col items-center gap-4">
             <p className="text-primary/40 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
               還沒有顧問帳號嗎？
               <a 
@@ -1263,6 +1273,11 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
                 取得帳號
               </a>
             </p>
+            <div className="flex items-center gap-2 text-[10px] font-black text-primary/20 uppercase tracking-widest">
+              <span>© 2026</span>
+              <img src="/logo.png" alt="HENGBO TREND Logo" className="w-3 h-3 object-contain opacity-20" />
+              <span>HENGBO TREND. (v1.0.0-beta.2)</span>
+            </div>
           </div>
         </motion.div>
       </motion.div>
