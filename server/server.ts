@@ -2,12 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 
-// 在 Vercel 部署 ESM 專案時，對於 .ts 檔案的引用有時會因為 .js 副檔名而失效。
-// 這裡改為最通用的引用方式，由 Vercel 的編譯器 (esbuild/swc) 自動處理。
+// 在 Node.js ESM (type: module) 環境下，本地模組的引用必須加上副檔名（通常是 .js）。
+// 這是 Vercel 在部署 ESM 專案時最穩定的做法。
 
-import contactRoutes from './routes/contact';
-import newsletterRoutes from './routes/newsletter';
-import proxyRoutes from './routes/proxy';
+import contactRoutes from './routes/contact.js';
+import newsletterRoutes from './routes/newsletter.js';
+import proxyRoutes from './routes/proxy.js';
 
 const app = express();
 const PORT = parseInt(process.env.SERVER_PORT || '3001', 10);
@@ -39,7 +39,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// 在 Vercel 部署環境下，不要啟動 listen
+// 在 Vercel 環境下不啟動 listen，只需導出 app
 if (process.env.VERCEL !== '1') {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);

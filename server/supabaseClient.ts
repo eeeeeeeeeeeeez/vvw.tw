@@ -8,15 +8,11 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-// 備援：若未來您新增了 SUPABASE_SERVICE_ROLE_KEY，程式碼也會自動優先使用它以獲得更高權限
-const finalKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey;
-
-if (!supabaseUrl || !finalKey) {
+if (!supabaseUrl || !supabaseKey) {
   console.error('❌ Missing Supabase configuration in environment variables.');
-  console.error('Please ensure SUPABASE_URL and SUPABASE_ANON_KEY are set in Vercel.');
   throw new Error('Missing Supabase configuration');
 }
 
-export const supabase = createClient(supabaseUrl, finalKey);
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 console.log('✅ Supabase client initialized with Vercel environment variables.');
