@@ -1,8 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-
-// 嘗試載入 .env.local，在 Vercel 環境中環境變數會自動由系統注入 process.env
-dotenv.config({ path: '.env.local' });
 
 /**
  * 根據 Vercel 上的環境變數名稱進行對齊：
