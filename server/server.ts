@@ -1,13 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-
-// 在 Node.js ESM (type: module) 環境下，本地模組的引用必須加上副檔名（通常是 .js）。
-// 這是 Vercel 在部署 ESM 專案時最穩定的做法。
-
+import dotenv from 'dotenv';
 import contactRoutes from './routes/contact.js';
 import newsletterRoutes from './routes/newsletter.js';
-import proxyRoutes from './routes/proxy.js';
+
+// Load environment variables
+dotenv.config({ path: '.env.local' });
 
 const app = express();
 const PORT = parseInt(process.env.SERVER_PORT || '3001', 10);
@@ -16,10 +15,17 @@ const PORT = parseInt(process.env.SERVER_PORT || '3001', 10);
 app.use(cors());
 app.use(express.json());
 
+// Request logging
+app.use((req, _res, next) => {
+  if (req.path.startsWith('/api')) {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  }
+  next();
+});
+
 // API Routes
 app.use('/api/contact', contactRoutes);
 app.use('/api/newsletter', newsletterRoutes);
-app.use('/api/proxy', proxyRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -39,11 +45,27 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// 在 Vercel 環境下不啟動 listen，只需導出 app
-if (process.env.VERCEL !== '1') {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
-}
+// Start server
+app.listen(PORT, () => {
+  console.log('');
+  console.log('╔══════════════════════════════════════════╗');
+  console.log('║   🏗️  HENGBO TREND API SERVER            ║');
+  console.log('╠══════════════════════════════════════════╣');
+  console.log(`║   Port:    ${PORT}                          ║`);
+  console.log(`║   Mode:    ${process.env.NODE_ENV || 'development'}                  ║`);
+  console.log('║   Status:  OPERATIONAL ✅                ║');
+  console.log('╚══════════════════════════════════════════╝');
+  console.log('');
+  console.log('API Endpoints:');
+  console.log('  POST /api/contact              — Submit contact form');
+  console.log('  GET  /api/contact              — List all contacts');
+  console.log('  PATCH /api/contact/:id         — Update contact status');
+  console.log('  DELETE /api/contact/:id        — Delete contact');
+  console.log('  POST /api/newsletter/subscribe — Subscribe to newsletter');
+  console.log('  GET  /api/newsletter           — List all subscribers');
+  console.log('  DELETE /api/newsletter/:id     — Delete subscriber');
+  console.log('  GET  /api/health               — Health check');
+  console.log('');
+});
 
 export default app;
