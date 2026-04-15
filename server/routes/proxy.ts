@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import fetch from 'node-fetch';
-import { JSDOM } from 'jsdom';
 import Readability from '@mozilla/readability';
 
 const router = Router();
@@ -30,7 +29,15 @@ router.get('/fetch-url', async (req: Request, res: Response) => {
     }
 
     const html = await response.text();
+
+    /**
+     * 關鍵修復：在 Vercel 的 ESM 運行環境中，直接 import { JSDOM } from 'jsdom' 
+     * 有時會觸發 ERR_REQUIRE_ESM 錯誤。
+     * 這裡改用動態 import() 來安全地加載 jsdom，避開編譯階段的靜態引用衝突。
+     */
+    const { JSDOM } = await import('jsdom');
     const dom = new JSDOM(html, { url });
+    
     const reader = new Readability.default(dom.window.document);
     const article = reader.parse();
 
