@@ -48,6 +48,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
 import mammoth from "mammoth";
+import JSZip from "jszip";
 
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -281,191 +282,181 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
     <section className="relative px-8 py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-12 gap-0 relative">
         <div className="absolute -right-20 top-0 opacity-5 pointer-events-none select-none">
-          <Building2 size={600} className="text-primary" />
+          <Logo className="w-[40rem] h-[40rem]" />
         </div>
-        <div className="col-span-12 lg:col-span-10 z-10">
-          <h1 className="text-[clamp(3rem,12vw,8rem)] leading-[0.85] font-black text-primary uppercase tracking-tighter mb-12">
-            賦能企業<br/>
-            <span className="text-secondary">築造未來</span>
-          </h1>
-        </div>
-        <div className="col-span-12 lg:col-span-6 lg:ml-[16.6%] bg-primary p-12 relative z-20 border-r-8 border-secondary">
-          <p className="text-white text-[clamp(1.5rem,5vw,2.25rem)] font-bold tracking-[0.2em] mb-8">助力企業，引領趨勢</p>
-          <div className="w-full h-1 bg-secondary mb-8"></div>
-          <div className="flex gap-4">
-            <div className="w-24 h-24 bg-white flex items-center justify-center brutalist-border">
-              <Logo className="w-16 h-16" />
+        
+        <div className="col-span-12 md:col-span-10 z-10">
+          <motion.div 
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <div className="flex items-center gap-4 mb-8">
+              <span className="bg-primary text-white px-4 py-1 font-black uppercase tracking-[0.3em] text-sm">EST. 2022</span>
+              <div className="h-[2px] w-24 bg-primary"></div>
             </div>
-            <div className="flex flex-col justify-center">
-              <span className="text-white font-black text-xl tracking-widest">HENGBO TREND</span>
-              <span className="text-white/60 font-bold text-xs uppercase tracking-[0.3em]">Strategic Consulting</span>
+            <h1 className="text-[clamp(4rem,15vw,12rem)] font-black leading-[0.85] tracking-tighter text-primary uppercase mb-12">
+              Mastering<br/>
+              <span className="text-secondary">Trends</span><br/>
+              Impact
+            </h1>
+            <div className="max-w-2xl">
+              <p className="text-2xl md:text-3xl font-bold text-ink leading-tight mb-12">
+                專業企劃、補助申請、品牌設計與廣告投放。<br/>
+                我們不只是顧問，更是您在商業戰場上的戰略夥伴。
+              </p>
+              <div className="flex flex-wrap gap-6">
+                <button 
+                  onClick={() => setActiveTab("contact")}
+                  className="bg-primary text-white px-10 py-6 text-xl font-black uppercase tracking-widest hover:bg-secondary snap-transition flex items-center gap-4 shadow-[8px_8px_0px_0px_rgba(187,0,20,1)]"
+                >
+                  立即啟動專案
+                  <ArrowRight size={24} />
+                </button>
+                <button 
+                  onClick={() => setActiveTab("services")}
+                  className="bg-white border-4 border-primary text-primary px-10 py-6 text-xl font-black uppercase tracking-widest hover:bg-surface-low snap-transition"
+                >
+                  探索服務
+                </button>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
 
-    {/* Why Choose Us */}
+    {/* Marquee */}
+    <div className="bg-secondary border-y-4 border-primary py-6 overflow-hidden flex whitespace-nowrap">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="flex items-center gap-12 animate-marquee">
+          <span className="text-white text-4xl font-black uppercase tracking-tighter">Professional Strategy</span>
+          <Rocket className="text-white" size={40} />
+          <span className="text-white text-4xl font-black uppercase tracking-tighter">Brand Growth</span>
+          <TrendingUp className="text-white" size={40} />
+          <span className="text-white text-4xl font-black uppercase tracking-tighter">Government Grants</span>
+          <BadgeCheck className="text-white" size={40} />
+          <span className="text-white text-4xl font-black uppercase tracking-tighter">AI Consulting</span>
+          <Cpu className="text-white" size={40} />
+        </div>
+      ))}
+    </div>
+
+    {/* Features */}
     <section className="px-8 py-32 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-4 border-primary">
           {[
-            { icon: <Target className="text-secondary" size={48} />, title: "精準策略", desc: "基於深度市場洞察與數據分析，為您的企業量身打造具備高度執行力的成長藍圖。" },
-            { icon: <Zap className="text-secondary" size={48} />, title: "高效執行", desc: "從企劃撰寫到資源對接，我們強調速度與品質的平衡，確保每一個專案都能如期達成目標。" },
-            { icon: <ShieldCheck className="text-secondary" size={48} />, title: "專業保障", desc: "擁有豐富的政府補助申請經驗與品牌行銷實績，是您在商場競爭中最堅實的後盾。" }
-          ].map((item, i) => (
-            <div key={i} className="p-8 border-4 border-primary hover:bg-surface-low transition-colors">
-              <div className="mb-6">{item.icon}</div>
-              <h3 className="text-2xl font-black text-primary mb-4 uppercase tracking-tight">{item.title}</h3>
-              <p className="font-bold text-muted leading-relaxed">{item.desc}</p>
+            { icon: <FileText size={48} />, title: "專業企劃撰寫", desc: "從市場洞察到邏輯架構，為您量身打造具備高度說服力的商業企劃與融資計畫。" },
+            { icon: <BadgeCheck size={48} />, title: "政府補助申請", desc: "精準對接各類補助政策，提供一站式申請服務，極大化企業獲取外部資源的機率。" },
+            { icon: <Palette size={48} />, title: "品牌視覺設計", desc: "打破平庸，透過極具衝擊力的視覺語言，建立鮮明的品牌識別與市場競爭力。" }
+          ].map((f, i) => (
+            <div key={i} className={`p-12 group hover:bg-primary hover:text-white snap-transition ${i < 2 ? "md:border-r-4 border-primary" : ""} ${i > 0 ? "border-t-4 md:border-t-0 border-primary" : ""}`}>
+              <div className="text-secondary group-hover:text-white mb-8 snap-transition">{f.icon}</div>
+              <h3 className="text-3xl font-black mb-6 uppercase tracking-tight">{f.title}</h3>
+              <p className="font-bold text-lg leading-relaxed opacity-70 group-hover:opacity-100">{f.desc}</p>
             </div>
           ))}
         </div>
       </div>
     </section>
 
-    {/* Bento Grid */}
-    <section className="px-8 py-32 bg-surface-low border-t-2 border-primary">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
-          <h2 className="text-[clamp(3rem,10vw,4.5rem)] font-black uppercase tracking-tighter text-primary">策略<br/>精準度</h2>
-          <div className="max-w-md text-right">
-            <span className="font-black uppercase tracking-[0.3em] text-secondary block mb-4">核心服務能力</span>
-            <p className="font-bold text-muted">我們不只提供服務；我們透過數據驅動的精準規劃，協助您在市場競爭中取得絕對優勢。</p>
+    {/* CTA Section */}
+    <section className="px-8 py-32 bg-surface-low">
+      <div className="max-w-5xl mx-auto bg-white brutalist-border-heavy p-12 md:p-24 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-secondary -translate-y-16 translate-x-16 rotate-45"></div>
+        <div className="relative z-10">
+          <h2 className="text-5xl md:text-7xl font-black text-primary uppercase tracking-tighter mb-8">訂閱趨勢洞察</h2>
+          <p className="text-xl font-bold mb-12 max-w-xl">獲取最新的市場分析、補助資訊與品牌成長策略。每週一次，絕無垃圾郵件。</p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input 
+              type="email" 
+              placeholder="您的電子郵件地址" 
+              value={ctaEmail}
+              onChange={(e) => setCtaEmail(e.target.value)}
+              className="flex-1 bg-surface-low border-4 border-primary px-8 py-5 font-bold text-lg focus:outline-none focus:bg-white snap-transition"
+            />
+            <button 
+              onClick={handleSubscribe}
+              disabled={ctaLoading}
+              className="bg-primary text-white px-12 py-5 font-black uppercase tracking-widest hover:bg-secondary disabled:opacity-50 snap-transition text-lg"
+            >
+              {ctaLoading ? "處理中..." : "立即訂閱"}
+            </button>
           </div>
+          {ctaMsg && <p className="mt-4 font-black text-secondary uppercase tracking-widest text-sm">{ctaMsg}</p>}
         </div>
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-12 md:col-span-8 group bg-white brutalist-border p-12 hover:bg-primary hover:text-white snap-transition relative overflow-hidden">
-            <div className="absolute -right-8 -top-8 opacity-5 group-hover:opacity-20 snap-transition">
-              <FileText size={240} />
-            </div>
-            <span className="text-secondary font-black text-2xl mb-8 block">01</span>
-            <h3 className="text-[clamp(2rem,6vw,3rem)] font-black mb-6 uppercase">企劃撰寫</h3>
-            <p className="text-xl max-w-xl font-medium mb-8 leading-relaxed">從市場洞察到可執行藍圖，一份讓投資人與團隊都買單的企劃。我們專注於邏輯架構與商業價值的深度挖掘。</p>
-            <div className="w-16 h-2 bg-secondary"></div>
-          </div>
-          <div className="col-span-12 md:col-span-4 bg-secondary p-12 text-white brutalist-border border-secondary relative">
-            <span className="text-white/50 font-black text-2xl mb-8 block">02</span>
-            <h3 className="text-[clamp(1.5rem,5vw,2.25rem)] font-black mb-6 uppercase">補助申請</h3>
-            <Rocket size={80} className="mb-8" />
-            <p className="font-bold mb-8 leading-relaxed">對接政府資源，極大化研發與轉型動能。我們提供從資格評估到結案報告的全程專業輔導。</p>
-            <button onClick={() => setActiveTab("services")} className="bg-white text-primary px-6 py-3 font-black uppercase tracking-widest hover:bg-primary hover:text-white snap-transition">了解更多</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* CTA */}
-    <section className="px-8 py-40 bg-white">
-      <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-[clamp(2.5rem,8vw,5rem)] font-black text-primary uppercase tracking-tighter mb-12">
-          準備好<br/>
-          <span className="text-secondary">引領趨勢</span>了嗎？
-        </h2>
-        <p className="text-xl font-bold text-muted mb-12 uppercase tracking-widest">訂閱我們的趨勢週報，獲取最新的市場洞察與補助資訊。</p>
-        <div className="flex flex-col md:flex-row gap-4">
-          <input 
-            type="email" 
-            value={ctaEmail}
-            onChange={(e) => setCtaEmail(e.target.value)}
-            placeholder="您的電子郵件" 
-            className="flex-grow bg-surface-low border-4 border-primary p-6 font-black text-xl focus:outline-none focus:bg-white snap-transition"
-          />
-          <button 
-            onClick={handleSubscribe}
-            disabled={ctaLoading}
-            className="bg-primary text-white px-12 py-6 font-black text-xl uppercase tracking-widest hover:bg-secondary snap-transition disabled:opacity-50"
-          >
-            {ctaLoading ? "處理中..." : "立即訂閱"}
-          </button>
-        </div>
-        {ctaMsg && <p className="mt-4 font-black text-secondary uppercase tracking-widest">{ctaMsg}</p>}
       </div>
     </section>
   </motion.div>
   );
 };
 
-const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => (
+const ServicesView = () => (
   <motion.div 
     initial={{ opacity: 0 }} 
     animate={{ opacity: 1 }} 
     exit={{ opacity: 0 }}
     className="pt-24 brutalist-grid"
   >
-    <section className="px-8 py-32">
+    <section className="px-8 py-24">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-32">
-          <span className="font-black uppercase tracking-[0.4em] text-secondary mb-4 block">專業服務範疇</span>
-          <h1 className="text-[clamp(3.5rem,12vw,8rem)] font-black tracking-tighter leading-none text-primary uppercase">
-            全方位<br/>
-            <span className="text-stroke">顧問解決方案</span>
+        <div className="mb-24">
+          <h1 className="text-[clamp(4rem,12vw,10rem)] font-black text-primary leading-none tracking-tighter uppercase mb-8">
+            Our<br/>
+            <span className="text-secondary">Expertise</span>
           </h1>
+          <div className="w-32 h-4 bg-primary"></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+        <div className="grid grid-cols-1 gap-12">
           {[
-            { 
-              icon: <FileText size={64} />, 
-              title: "企劃撰寫", 
-              desc: "包含商業計畫書 (BP)、融資企劃、品牌策略規劃等，為您的願景建立堅實的執行框架。",
-              features: ["市場深度調研", "財務預測模型", "競爭優勢分析"],
-              process: ["需求訪談", "架構設計", "初稿撰寫", "優化調整", "最終交付"]
+            {
+              id: "01",
+              title: "專業企劃與計畫書撰寫",
+              desc: "我們深諳商業邏輯與溝通藝術。無論是創業計畫、融資簡報還是標案企劃，我們都能將您的核心價值轉化為極具說服力的文字與數據。",
+              tags: ["商業計畫書", "融資簡報", "標案企劃", "營運策略"],
+              icon: <FileText size={64} />
             },
-            { 
-              icon: <Rocket size={64} />, 
-              title: "補助申請", 
-              desc: "對接 SBIR、SIIR、CITD 等政府專案，從資格評估到結案報告，全程專業輔導。",
-              features: ["專案適配評估", "計畫書優化撰寫", "審查簡報輔導"],
-              process: ["資格審查", "計畫撰寫", "送件申請", "審查輔導", "結案報支"]
+            {
+              id: "02",
+              title: "政府補助與資源對接",
+              desc: "專精於 SBIR、SIIR、CITD 等各類政府補助專案。從資格評估、計畫書撰寫到結案輔導，協助企業有效降低研發與轉型成本。",
+              tags: ["SBIR/SIIR", "數位轉型補助", "研發投抵", "創業貸款"],
+              icon: <BadgeCheck size={64} />
             },
-            { 
-              icon: <Palette size={64} />, 
-              title: "品牌設計", 
-              desc: "讓品牌不只被看到，更被記住與喜愛。將品牌靈魂轉化為視覺語彙，建立專業形象。",
-              features: ["視覺識別 (CIS)", "應用系統設計", "品牌故事轉化"],
-              process: ["品牌診斷", "視覺探索", "設計執行", "規範建立", "應用落地"]
+            {
+              id: "03",
+              title: "品牌視覺與 CIS 建立",
+              desc: "拒絕套版，堅持原創。我們透過極具衝擊力的視覺語言，為品牌建立獨一無二的識別系統，讓您的企業在市場中脫穎而出。",
+              tags: ["標誌設計", "視覺識別系統", "包裝設計", "網站視覺"],
+              icon: <Palette size={64} />
             },
-            { 
-              icon: <TrendingUp size={64} />, 
-              title: "廣告投放", 
-              desc: "基於數據洞察的精準投放策略，極大化 Meta、Google、TikTok 等平台的轉型效益。",
-              features: ["受眾精準定位", "素材創意優化", "轉化率追蹤分析"],
-              process: ["目標設定", "受眾分析", "素材製作", "投放測試", "數據優化"]
-            },
-            { 
-              icon: <Network size={64} />, 
-              title: "資源對接", 
-              desc: "協助企業對接創投、產業鏈上下游及政府資源，建立強大的成長生態系。",
-              features: ["創投媒合引薦", "跨界合作規劃", "政策資源整合"],
-              process: ["資源盤點", "需求對接", "媒合洽談", "合作落地", "持續追蹤"]
+            {
+              id: "04",
+              title: "數位廣告與精準投放",
+              desc: "以數據為核心，執行跨平台的廣告策略。透過持續的 A/B 測試與動態優化，極大化每一分廣告預算的轉換效益。",
+              tags: ["Meta Ads", "Google Ads", "數據分析", "成效優化"],
+              icon: <TrendingUp size={64} />
             }
-          ].map((service, idx) => (
-            <div key={idx} className="group bg-white brutalist-border p-12 hover:bg-primary hover:text-white snap-transition">
-              <div className="text-secondary group-hover:text-white mb-8 snap-transition">{service.icon}</div>
-              <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{service.title}</h3>
-              <p className="text-xl font-bold mb-8 opacity-70 group-hover:opacity-100 leading-relaxed">{service.desc}</p>
-              
-              <div className="mb-8">
-                <span className="font-black text-xs uppercase tracking-widest text-secondary group-hover:text-white/60 mb-4 block">核心優勢</span>
-                <ul className="space-y-4">
-                  {service.features.map((f, i) => (
-                    <li key={i} className="flex items-center gap-3 font-black text-sm uppercase tracking-widest">
-                      <BadgeCheck size={20} className="text-secondary group-hover:text-white" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
+          ].map((s) => (
+            <div key={s.id} className="group bg-white brutalist-border-heavy p-12 flex flex-col md:flex-row gap-12 hover:bg-primary hover:text-white snap-transition">
+              <div className="flex flex-col justify-between">
+                <span className="text-6xl font-black text-secondary group-hover:text-white opacity-20 group-hover:opacity-100 snap-transition">{s.id}</span>
+                <div className="text-secondary group-hover:text-white snap-transition hidden md:block">{s.icon}</div>
               </div>
-
-              <div>
-                <span className="font-black text-xs uppercase tracking-widest text-secondary group-hover:text-white/60 mb-4 block">服務流程</span>
-                <div className="flex flex-wrap gap-2">
-                  {service.process.map((p, i) => (
-                    <span key={i} className="px-3 py-1 border-2 border-primary/10 group-hover:border-white/20 text-[10px] font-black uppercase tracking-tighter">
-                      {i + 1}. {p}
-                    </span>
+              <div className="flex-1">
+                <h3 className="text-4xl font-black uppercase tracking-tight mb-8">{s.title}</h3>
+                <p className="text-xl font-bold leading-relaxed mb-10 opacity-70 group-hover:opacity-100">{s.desc}</p>
+                <div className="flex flex-wrap gap-3">
+                  {s.tags.map(t => (
+                    <span key={t} className="border-2 border-primary group-hover:border-white px-4 py-1 font-black text-sm uppercase tracking-widest">{t}</span>
                   ))}
+                </div>
+              </div>
+              <div className="flex items-end">
+                <div className="w-16 h-16 bg-secondary flex items-center justify-center group-hover:bg-white group-hover:text-primary snap-transition">
+                  <ArrowRight size={32} />
                 </div>
               </div>
             </div>
@@ -476,27 +467,28 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
   </motion.div>
 );
 
-const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => {
-  return (
+const CasesView = () => (
   <motion.div 
     initial={{ opacity: 0 }} 
     animate={{ opacity: 1 }} 
     exit={{ opacity: 0 }}
     className="pt-24 brutalist-grid"
   >
-    <section className="px-8 py-32">
-      <div className="max-w-7xl mx-auto mb-24">
-        <span className="font-black uppercase tracking-[0.4em] text-secondary mb-4 block">實戰成果展示</span>
-        <h1 className="text-[clamp(3.5rem,12vw,8rem)] font-black tracking-tighter leading-none text-primary uppercase">
-          精選<br/>
-          <span className="text-stroke">成功案例</span>
-        </h1>
-      </div>
+    <section className="px-8 py-24">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
+          <div>
+            <h1 className="text-[clamp(4rem,12vw,10rem)] font-black text-primary leading-none tracking-tighter uppercase">Selected<br/>Works</h1>
+            <div className="w-48 h-4 bg-secondary mt-8"></div>
+          </div>
+          <p className="max-w-md text-xl font-bold text-muted uppercase tracking-widest leading-tight">
+            我們與各領域的領先企業合作，透過專業諮詢實現實質性的增長與突破。
+          </p>
+        </div>
 
-      <section className="px-4 md:px-8">
-        <div className="grid grid-cols-12 gap-4 md:gap-8">
+        <div className="grid grid-cols-12 gap-8">
           {/* Case 1 */}
-          <div className="col-span-12 md:col-span-7 bg-surface-high brutalist-border group cursor-pointer snap-transition hover:bg-primary hover:text-white p-8 flex flex-col justify-between min-h-[450px]">
+          <div className="col-span-12 md:col-span-7 bg-white brutalist-border border-primary group cursor-pointer snap-transition hover:bg-primary hover:text-white p-8 flex flex-col justify-between min-h-[450px]">
             <div className="flex justify-between items-start">
               <Building2 size={120} className="group-hover:text-secondary snap-transition" />
               <div className="text-right">
@@ -568,7 +560,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </section>
 
     <section className="bg-primary py-40 px-8 relative overflow-hidden">
@@ -587,8 +579,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
       </div>
     </section>
   </motion.div>
-  );
-};
+);
 
 const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => (
   <motion.div 
@@ -688,273 +679,135 @@ const AboutView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             { year: "2026", title: "數據驅動與精準觸及", desc: "整合多社群平台資源與動態優化技術，在碎片的數位環境中精準捕捉目標客群與商機。", side: "left" }
           ].map((item, idx) => (
             <div key={item.year} className="relative flex flex-col md:flex-row items-center mb-32 group">
-              <div className={`w-full md:w-1/2 ${item.side === 'left' ? 'md:pr-16 text-right order-2 md:order-1' : 'order-2 md:order-1'}`}>
-                {item.side === 'left' && (
-                  <div className="bg-primary text-white p-8 inline-block w-full text-left md:text-right border-b-8 border-secondary">
-                    <h4 className="text-2xl font-black mb-2">{item.title}</h4>
-                    <p className="opacity-80 font-bold text-sm">{item.desc}</p>
-                  </div>
-                )}
+              <div className={`w-full md:w-1/2 ${item.side === "right" ? "md:order-2 md:pl-16" : "md:pr-16 text-right"}`}>
+                <div className={`inline-block bg-primary text-white text-3xl font-black px-6 py-2 mb-6 group-hover:bg-secondary snap-transition`}>{item.year}</div>
+                <h3 className="text-3xl font-black text-primary uppercase mb-4 tracking-tight">{item.title}</h3>
+                <p className="text-lg font-bold text-muted leading-relaxed">{item.desc}</p>
               </div>
-              <div className={`z-10 bg-secondary text-white w-24 h-24 flex items-center justify-center font-black text-2xl order-1 md:order-2 mb-8 md:mb-0 ${item.side === 'right' ? 'bg-primary' : ''}`}>
-                {item.year}
-              </div>
-              <div className={`w-full md:w-1/2 ${item.side === 'right' ? 'md:pl-16 order-3' : 'order-3'}`}>
-                {item.side === 'right' && (
-                  <div className="bg-white brutalist-border-heavy p-8 inline-block w-full border-b-8 border-secondary">
-                    <h4 className="text-2xl font-black text-primary mb-2">{item.title}</h4>
-                    <p className="text-muted font-bold text-sm">{item.desc}</p>
-                  </div>
-                )}
-              </div>
+              <div className="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 bg-white border-4 border-primary rounded-full z-10 hidden md:block group-hover:bg-secondary snap-transition"></div>
+              <div className="w-full md:w-1/2"></div>
             </div>
           ))}
-        </div>
-      </div>
-    </section>
-
-    <section className="bg-primary py-40 px-8 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-        <h2 className="text-[clamp(5rem,20vw,20rem)] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">GO!</h2>
-        <h3 className="text-[clamp(3rem,12vw,6rem)] font-black text-white mb-12 tracking-tighter relative z-10 uppercase">準備好了嗎？</h3>
-        <div className="relative z-10">
-          <button 
-            onClick={() => setActiveTab("contact")}
-            className="bg-secondary text-white text-2xl font-black px-16 py-6 hover:bg-white hover:text-primary snap-transition flex items-center gap-4"
-          >
-            立即開始
-            <ArrowRight size={32} />
-          </button>
         </div>
       </div>
     </section>
   </motion.div>
 );
 
-const ContactView: React.FC = () => {
-  const [formState, setFormState] = useState({
-    name: "",
-    org: "",
-    email: "",
-    subject: "企劃撰寫諮詢",
-    message: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+const ContactView = () => {
+  const [formData, setFormData] = useState({ name: "", organization: "", email: "", subject: "", message: "" });
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitError("");
-    
+    setStatus("loading");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formState.name,
-          organization: formState.org,
-          email: formState.email,
-          subject: formState.subject,
-          message: formState.message,
-        }),
+        body: JSON.stringify(formData),
       });
       const json = await res.json();
       if (json.success) {
-        setIsSubmitted(true);
-        setFormState({ name: "", org: "", email: "", subject: "企劃撰寫諮詢", message: "" });
+        setStatus("success");
+        setFormData({ name: "", organization: "", email: "", subject: "", message: "" });
       } else {
-        setSubmitError(json.error || "提交失敗，請稍後再試");
+        setStatus("error");
+        setErrorMsg(json.error || "提交失敗");
       }
     } catch {
-      setSubmitError("無法連接伺服器，請檢查網絡連接");
+      setStatus("error");
+      setErrorMsg("伺服器連線失敗");
     }
-    setIsSubmitting(false);
   };
-
-  const faqs = [
-    { q: "諮詢服務是如何收費的？", a: "我們的初步諮詢是免費的。具體專案收費會根據企劃複雜度、補助申請規模或廣告預算而定，我們會在提供正式報價單前與您詳細討論。" },
-    { q: "補助申請的成功率高嗎？", a: "我們擁有超過 85% 的補助申請過件率。在正式接案前，我們會先進行資格評估，若過件機率較低，我們會誠實告知並提供優化建議。" },
-    { q: "企劃撰寫通常需要多久時間？", a: "一般商業企劃書約需 2-3 週，政府補助計畫書則視專案規模約需 4-6 週。我們會根據您的時程需求進行調整。" },
-    { q: "你們支援哪些廣告平台？", a: "我們支援 Meta (FB/IG)、Google Ads、TikTok、LINE Ads 等主流平台，並提供跨平台的整合投放策略。" }
-  ];
 
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }}
-      className="pt-24 pb-32"
+      className="pt-24 brutalist-grid min-h-screen"
     >
-      <section className="px-8 py-24 bg-white">
+      <section className="px-8 py-24">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            <div className="lg:col-span-5">
-              <h1 className="text-[clamp(4rem,12vw,8rem)] font-black text-primary uppercase tracking-tighter leading-none mb-12">
-                聯繫<br/><span className="text-secondary">我們</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+            <div>
+              <h1 className="text-[clamp(4rem,12vw,10rem)] font-black text-primary leading-none tracking-tighter uppercase mb-12">
+                Let's<br/>
+                <span className="text-secondary">Talk</span>
               </h1>
-              <p className="text-xl font-bold text-muted mb-16 border-l-8 border-primary pl-6 uppercase tracking-tight">
-                為您的企業提供 world-class 的解決方案。
-              </p>
-
-              <div className="space-y-12 mb-24">
-                <div className="flex items-start gap-6 group">
-                  <div className="bg-primary p-4 text-white group-hover:bg-secondary snap-transition">
-                    <Phone size={32} />
-                  </div>
+              <div className="space-y-12">
+                <div className="flex gap-6 items-start">
+                  <div className="bg-primary text-white p-4 brutalist-border"><Mail size={32} /></div>
                   <div>
-                    <h3 className="font-black uppercase tracking-widest text-secondary mb-2">直連電話</h3>
-                    <p className="text-xl font-bold text-primary">+886-0966-748-817</p>
-                    <p className="text-muted font-medium">週一至週五：09:00 - 18:00</p>
+                    <span className="font-black uppercase tracking-widest text-sm text-secondary block mb-2">電子郵件</span>
+                    <a href="mailto:contact@hengbo.tw" className="text-2xl font-black text-primary hover:text-secondary snap-transition">contact@hengbo.tw</a>
                   </div>
                 </div>
-
-                <div className="flex items-start gap-6 group">
-                  <div className="bg-primary p-4 text-white group-hover:bg-secondary snap-transition">
-                    <Mail size={32} />
-                  </div>
+                <div className="flex gap-6 items-start">
+                  <div className="bg-primary text-white p-4 brutalist-border"><Phone size={32} /></div>
                   <div>
-                    <h3 className="font-black uppercase tracking-widest text-secondary mb-2">電子郵件</h3>
-                    <p className="text-xl font-bold text-primary">tvivl.tw@gmail.com</p>
-                    <p className="text-muted font-medium">24/7 全天候運營支持</p>
+                    <span className="font-black uppercase tracking-widest text-sm text-secondary block mb-2">聯繫電話</span>
+                    <span className="text-2xl font-black text-primary">02-2345-6789</span>
                   </div>
                 </div>
-              </div>
-
-              {/* FAQ Section */}
-              <div className="space-y-6">
-                <h3 className="text-2xl font-black text-primary uppercase tracking-tight mb-8">常見問題 FAQ</h3>
-                {faqs.map((faq, i) => (
-                  <div key={i} className="border-b-2 border-primary/10 pb-4">
-                    <button 
-                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                      className="w-full flex justify-between items-center text-left group"
-                    >
-                      <span className="font-black text-primary group-hover:text-secondary transition-colors text-sm">{faq.q}</span>
-                      <ChevronDown size={20} className={`text-primary transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
-                    </button>
-                    <AnimatePresence>
-                      {openFaq === i && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
-                        >
-                          <p className="pt-4 text-sm font-bold text-muted leading-relaxed">{faq.a}</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                <div className="flex gap-6 items-start">
+                  <div className="bg-primary text-white p-4 brutalist-border"><MapPin size={32} /></div>
+                  <div>
+                    <span className="font-black uppercase tracking-widest text-sm text-secondary block mb-2">辦公地點</span>
+                    <span className="text-2xl font-black text-primary uppercase">Taipei, Taiwan</span>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
 
-            <div className="lg:col-span-7">
-              <div className="bg-surface-low brutalist-border-heavy p-12 relative overflow-hidden">
-                <AnimatePresence mode="wait">
-                  {!isSubmitted ? (
-                    <motion.div
-                      key="form"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                    >
-                      <h2 className="text-4xl font-black text-primary uppercase mb-12 tracking-tight">諮詢申請</h2>
-                      <form className="space-y-8" onSubmit={handleSubmit}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                          <div className="space-y-2">
-                            <label className="font-black uppercase tracking-widest text-xs text-secondary">姓名</label>
-                            <input 
-                              required
-                              type="text" 
-                              value={formState.name}
-                              onChange={(e) => setFormState({...formState, name: e.target.value})}
-                              className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition" 
-                              placeholder="您的姓名"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="font-black uppercase tracking-widest text-xs text-secondary">公司/機構</label>
-                            <input 
-                              type="text" 
-                              value={formState.org}
-                              onChange={(e) => setFormState({...formState, org: e.target.value})}
-                              className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition" 
-                              placeholder="公司名稱"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="font-black uppercase tracking-widest text-xs text-secondary">電子郵件</label>
-                          <input 
-                            required
-                            type="email" 
-                            value={formState.email}
-                            onChange={(e) => setFormState({...formState, email: e.target.value})}
-                            className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition" 
-                            placeholder="email@example.com"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="font-black uppercase tracking-widest text-xs text-secondary">諮詢主題</label>
-                          <select 
-                            value={formState.subject}
-                            onChange={(e) => setFormState({...formState, subject: e.target.value})}
-                            className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition appearance-none"
-                          >
-                            <option>企劃撰寫諮詢</option>
-                            <option>補助申請諮詢</option>
-                            <option>品牌設計諮詢</option>
-                            <option>廣告投放諮詢</option>
-                            <option>其他合作洽談</option>
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="font-black uppercase tracking-widest text-xs text-secondary">訊息內容</label>
-                          <textarea 
-                            required
-                            rows={4}
-                            value={formState.message}
-                            onChange={(e) => setFormState({...formState, message: e.target.value})}
-                            className="w-full bg-white border-b-4 border-primary p-4 font-bold focus:outline-none focus:border-secondary snap-transition resize-none"
-                            placeholder="請描述您的需求..."
-                          ></textarea>
-                        </div>
-                        <button 
-                          disabled={isSubmitting}
-                          className="w-full bg-primary text-white py-6 font-black uppercase tracking-[0.3em] text-xl hover:bg-secondary snap-transition flex items-center justify-center gap-4 disabled:opacity-50"
-                        >
-                          {isSubmitting ? "提交中..." : "發送諮詢請求"}
-                          <ArrowRight size={24} />
-                        </button>
-                        {submitError && <p className="text-red-600 font-bold text-center mt-4">{submitError}</p>}
-                      </form>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="success"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="text-center py-12"
-                    >
-                      <div className="w-24 h-24 bg-secondary text-white flex items-center justify-center mx-auto mb-8 rounded-full">
-                        <BadgeCheck size={48} />
-                      </div>
-                      <h2 className="text-4xl font-black text-primary uppercase mb-4">提交成功</h2>
-                      <p className="text-xl font-bold text-muted mb-8">感謝您的諮詢，我們將儘快與您聯繫。</p>
-                      <button 
-                        onClick={() => setIsSubmitted(false)}
-                        className="bg-primary text-white px-8 py-4 font-black uppercase tracking-widest hover:bg-secondary snap-transition"
-                      >
-                        返回表單
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+            <div className="bg-white brutalist-border-heavy p-8 md:p-12">
+              {status === "success" ? (
+                <div className="h-full flex flex-col items-center justify-center text-center py-12">
+                  <div className="w-24 h-24 bg-primary text-white flex items-center justify-center rounded-full mb-8"><Check size={48} /></div>
+                  <h2 className="text-4xl font-black text-primary uppercase mb-4">提交成功</h2>
+                  <p className="text-xl font-bold text-muted mb-8">我們已收到您的訊息，顧問將於 24 小時內與您聯繫。</p>
+                  <button onClick={() => setStatus("idle")} className="bg-secondary text-white px-12 py-4 font-black uppercase tracking-widest hover:bg-primary snap-transition">再次提交</button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                      <label className="font-black uppercase tracking-widest text-xs text-primary">您的姓名 *</label>
+                      <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-black uppercase tracking-widest text-xs text-primary">公司 / 組織</label>
+                      <input type="text" value={formData.organization} onChange={e => setFormData({...formData, organization: e.target.value})} className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="font-black uppercase tracking-widest text-xs text-primary">電子郵件 *</label>
+                    <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="font-black uppercase tracking-widest text-xs text-primary">諮詢主旨 *</label>
+                    <select required value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})} className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition">
+                      <option value="">請選擇諮詢項目</option>
+                      <option value="補助申請">政府補助申請諮詢</option>
+                      <option value="企劃撰寫">專業企劃/計畫書撰寫</option>
+                      <option value="品牌設計">品牌視覺/CIS 設計</option>
+                      <option value="廣告投放">數位廣告投放合作</option>
+                      <option value="其他">其他合作洽談</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="font-black uppercase tracking-widest text-xs text-primary">詳細訊息 *</label>
+                    <textarea required rows={5} value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} className="w-full bg-surface-low border-4 border-primary p-4 font-bold focus:outline-none focus:bg-white snap-transition" placeholder="請描述您的需求..." />
+                  </div>
+                  {status === "error" && <div className="bg-secondary/10 border-l-4 border-secondary p-4 text-secondary font-bold uppercase text-sm">{errorMsg}</div>}
+                  <button disabled={status === "loading"} className="w-full bg-primary text-white py-6 font-black uppercase tracking-[0.3em] text-xl shadow-[8px_8px_0px_0px_rgba(187,0,20,1)] hover:bg-secondary disabled:opacity-50 snap-transition flex items-center justify-center gap-4">
+                    {status === "loading" ? "提交中..." : "發送諮詢請求"}
+                    <Send size={24} />
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>
@@ -963,40 +816,35 @@ const ContactView: React.FC = () => {
   );
 };
 
-// ========== AIView 組件 ==========
 const AIView = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
-  
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
-  
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedFile, setSelectedFile] = useState<{ name: string, content: string, type: string } | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const SESSIONS_STORAGE_KEY = "hengbo_ai_sessions_v2";
-
-  const currentSession = useMemo(() => 
-    sessions.find(s => s.id === currentSessionId) || null
-  , [sessions, currentSessionId]);
-
+  const currentSession = sessions.find(s => s.id === currentSessionId);
   const messages = currentSession?.messages || [];
+
+  const SESSIONS_STORAGE_KEY = "hengbo_ai_sessions_v1";
 
   useEffect(() => {
     if (isLoggedIn) {
-      const savedSessions = localStorage.getItem(SESSIONS_STORAGE_KEY);
-      if (savedSessions) {
+      const saved = localStorage.getItem(SESSIONS_STORAGE_KEY);
+      if (saved) {
         try {
-          const parsed = JSON.parse(savedSessions).map((s: any) => ({
+          const parsed = JSON.parse(saved).map((s: any) => ({
             ...s,
             lastUpdated: new Date(s.lastUpdated),
             messages: s.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }))
@@ -1099,6 +947,40 @@ const AIView = () => {
     }
   };
 
+  const parsePptx = async (file: File): Promise<string> => {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const zip = await JSZip.loadAsync(arrayBuffer);
+      let fullText = "";
+      
+      const slideFiles = Object.keys(zip.files).filter(name => name.startsWith("ppt/slides/slide") && name.endsWith(".xml"));
+      
+      slideFiles.sort((a, b) => {
+        const matchA = a.match(/\d+/);
+        const matchB = b.match(/\d+/);
+        const numA = parseInt(matchA ? matchA[0] : "0");
+        const numB = parseInt(matchB ? matchB[0] : "0");
+        return numA - numB;
+      });
+
+      for (let i = 0; i < slideFiles.length; i++) {
+        const fileObj = zip.file(slideFiles[i]);
+        if (fileObj) {
+          const content = await fileObj.async("string");
+          const matches = content.match(/<a:t>([^<]*)<\/a:t>/g);
+          if (matches) {
+            const slideText = matches.map(m => m.replace(/<a:t>|<\/a:t>/g, "")).join(" ");
+            fullText += `[Slide ${i + 1}]\n${slideText}\n\n`;
+          }
+        }
+      }
+      return fullText || "無法從投影片中提取文字。";
+    } catch (e) {
+      console.error("PPTX 解析失敗", e);
+      throw new Error("PPTX 解析失敗");
+    }
+  };
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -1129,6 +1011,11 @@ const AIView = () => {
         const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
         setSelectedFile({ name: file.name, content: result.value, type: file.type });
       } catch (e) { alert("Word 解析失敗。"); }
+    } else if (file.type === "application/vnd.openxmlformats-officedocument.presentationml.presentation" || file.name.endsWith(".pptx")) {
+      try {
+        const text = await parsePptx(file);
+        setSelectedFile({ name: file.name, content: text, type: "application/vnd.openxmlformats-officedocument.presentationml.presentation" });
+      } catch (e) { alert("PowerPoint 解析失敗。"); }
     } else {
       const reader = new FileReader();
       reader.onload = (ev) => setSelectedFile({ name: file.name, content: ev.target?.result as string, type: file.type });
@@ -1233,17 +1120,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
             <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:bg-secondary transition-all flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
           </form>
           <div className="mt-8 pt-8 border-t-2 border-primary/10 flex justify-center">
-            <p className="text-primary/40 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
-              還沒有顧問帳號嗎？
-              <a 
-                href="https://lin.ee/ZegJcQj" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:text-secondary transition-colors underline underline-offset-4 decoration-2"
-              >
-                取得帳號
-              </a>
-            </p>
+            <p className="text-primary/40 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2"><ShieldCheck size={12} /> 端對端加密連線中</p>
           </div>
         </motion.div>
       </motion.div>
@@ -1251,229 +1128,235 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
   }
 
   return (
-    <div className="pt-20 md:pt-24 h-screen flex bg-white overflow-hidden relative">
+    <div className="flex h-screen bg-surface-low pt-24 overflow-hidden relative z-10">
+      {/* Sidebar */}
       <AnimatePresence>
-        {isSidebarOpen && window.innerWidth <= 768 && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-30 md:hidden"
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence initial={false}>
         {isSidebarOpen && (
-          <motion.aside 
-            initial={{ x: -320, opacity: 0 }}
+          <motion.div 
+            initial={{ x: -300, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -320, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r-2 border-primary/10 flex flex-col bg-surface-low z-40 md:z-20 shadow-2xl md:shadow-none"
+            exit={{ x: -300, opacity: 0 }}
+            className="w-80 bg-white border-r-2 border-primary flex flex-col z-20 absolute md:relative h-[calc(100vh-6rem)]"
           >
-            <div className="p-6 space-y-6">
-              <div className="flex items-center justify-between md:hidden mb-4">
-                <span className="font-black text-primary uppercase tracking-tighter">對話列表</span>
-                <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={18} />
-                <input 
-                  type="text" 
-                  placeholder="搜尋對話..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white border-2 border-primary/10 py-3 pl-10 pr-4 font-bold focus:outline-none focus:border-primary text-sm"
-                />
-              </div>
+            <div className="p-4 border-b-2 border-primary/10">
               <button 
                 onClick={createNewSession}
-                className="w-full bg-primary text-white py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-secondary transition-all shadow-md"
+                className="w-full bg-primary text-white py-3 font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:bg-secondary snap-transition"
               >
-                <Plus size={20} /> 新對話
+                <Plus size={18} /> 開啟新諮詢
               </button>
             </div>
-            
-            <div className="flex-grow overflow-y-auto px-3 pb-6 space-y-1 custom-scrollbar">
-              {filteredSessions.map(s => (
+            <div className="p-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} />
+                <input 
+                  type="text" 
+                  placeholder="搜尋對話內容..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-surface-low border-2 border-primary/10 py-2 pl-10 pr-4 text-sm font-bold focus:outline-none focus:border-primary"
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {filteredSessions.map(session => (
                 <div 
-                  key={s.id}
+                  key={session.id}
                   onClick={() => {
-                    setCurrentSessionId(s.id);
+                    setCurrentSessionId(session.id);
                     if (window.innerWidth <= 768) setIsSidebarOpen(false);
                   }}
-                  className={`group flex items-center justify-between p-4 cursor-pointer rounded-lg transition-all ${
-                    currentSessionId === s.id ? 'bg-primary text-white shadow-lg' : 'hover:bg-primary/5 text-primary'
-                  }`}
+                  className={`p-4 cursor-pointer border-b border-primary/5 flex items-center justify-between group snap-transition ${currentSessionId === session.id ? "bg-primary text-white" : "hover:bg-surface-high"}`}
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
-                    <MessageSquare size={18} className={currentSessionId === s.id ? 'text-white' : 'text-secondary'} />
-                    <span className="font-bold text-sm truncate">{s.title}</span>
+                    <MessageSquare size={18} className={currentSessionId === session.id ? "text-white" : "text-primary/40"} />
+                    <div className="overflow-hidden">
+                      <p className="font-black text-sm truncate uppercase tracking-tight">{session.title}</p>
+                      <p className={`text-[10px] font-bold uppercase opacity-60 ${currentSessionId === session.id ? "text-white" : "text-primary"}`}>{session.lastUpdated.toLocaleDateString()}</p>
+                    </div>
                   </div>
                   <button 
-                    onClick={(e) => deleteSession(s.id, e)}
-                    className={`opacity-0 group-hover:opacity-100 p-1 hover:bg-white/20 rounded transition-opacity ${currentSessionId === s.id ? 'text-white' : 'text-primary/40'}`}
+                    onClick={(e) => deleteSession(session.id, e)}
+                    className={`opacity-0 group-hover:opacity-100 p-1 hover:text-secondary snap-transition ${currentSessionId === session.id ? "text-white" : "text-primary/40"}`}
                   >
                     <Trash2 size={14} />
                   </button>
                 </div>
               ))}
             </div>
-          </motion.aside>
+          </motion.div>
         )}
       </AnimatePresence>
 
-      <main className="flex-grow flex flex-col relative min-w-0 w-full">
-        <header className="h-16 border-b-2 border-primary/5 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
-          <div className="flex items-center gap-3 md:gap-4">
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors">
-              <Menu size={24} />
-            </button>
-            <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
-              {currentSession?.title || "亨波 AI 顧問"}
-            </h2>
-          </div>
-          <div className="flex items-center gap-2">
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col min-w-0 bg-white relative">
+        {/* Chat Header */}
+        <div className="h-16 border-b-2 border-primary flex items-center justify-between px-6 shrink-0">
+          <div className="flex items-center gap-4">
             <button 
-              onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
-              className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" 
-              title="刪除當前對話"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 text-primary hover:bg-surface-low rounded-lg transition-colors"
             >
-              <Trash2 size={20} />
+              <Menu size={20} />
             </button>
+            <div className="flex flex-col">
+              <h3 className="font-black text-primary uppercase tracking-tighter truncate max-w-[200px] md:max-w-md">
+                {currentSession?.title || "亨波 AI 顧問"}
+              </h3>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+                <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">顧問連線中</span>
+              </div>
+            </div>
           </div>
-        </header>
+          <div className="flex items-center gap-3">
+             <button className="p-2 text-primary/40 hover:text-primary snap-transition"><HelpCircle size={20} /></button>
+             <button className="p-2 text-primary/40 hover:text-primary snap-transition"><MoreVertical size={20} /></button>
+          </div>
+        </div>
 
-        <div ref={scrollRef} onScroll={handleScroll} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 custom-scrollbar">
-          {messages.map((msg) => (
-            <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[90%] md:max-w-[85%] space-y-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
-                <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'justify-end text-muted' : 'text-secondary'}`}>
-                  {msg.role === 'user' ? <><User size={12} /> 使用者</> : <><Bot size={12} /> 亨波 AI 顧問</>}
+        {/* Messages */}
+        <div 
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar bg-surface-low"
+        >
+          {messages.map((msg, idx) => (
+            <motion.div 
+              key={msg.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+            >
+              <div className={`flex gap-4 max-w-[85%] md:max-w-[70%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+                <div className={`w-10 h-10 shrink-0 flex items-center justify-center brutalist-border ${msg.role === "user" ? "bg-secondary text-white" : "bg-primary text-white"}`}>
+                  {msg.role === "user" ? <User size={20} /> : <Bot size={20} />}
                 </div>
-                <div className={`inline-block text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 rounded-2xl shadow-sm ${
-                  msg.role === 'user' ? 'bg-primary text-white rounded-tr-none' : 'bg-surface-low text-primary rounded-tl-none border border-primary/5'
-                }`}>
-                  {msg.role === 'user' ? <div className="whitespace-pre-wrap">{msg.content}</div> : (
-                    <div className="markdown-content prose prose-sm max-w-none">
+                <div className="space-y-2">
+                  <div className={`p-5 brutalist-border shadow-[4px_4px_0px_0px_rgba(21,66,18,1)] ${msg.role === "user" ? "bg-white" : "bg-white"}`}>
+                    <div className="markdown-content font-bold leading-relaxed">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                     </div>
-                  )}
-                  {msg.imageUrl && (
-                    <div className="mt-4 rounded-xl overflow-hidden border-2 border-primary/10 bg-white">
-                      <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain" />
-                      <div className="p-3 bg-primary text-white text-[10px] font-black flex justify-between items-center">
-                        <span>AI GENERATED CONCEPT</span>
-                        <a href={msg.imageUrl} target="_blank" rel="noreferrer" className="underline hover:text-secondary">VIEW ORIGINAL</a>
+                    {msg.imageUrl && (
+                      <div className="mt-4 border-2 border-primary overflow-hidden">
+                        <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto" />
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  <div className={`flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-primary/40 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    <span>{msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    {msg.role === "ai" && (
+                      <button 
+                        onClick={() => { navigator.clipboard.writeText(msg.content); alert("已複製到剪貼簿"); }}
+                        className="hover:text-primary snap-transition flex items-center gap-1"
+                      >
+                        <Copy size={10} /> 複製
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </motion.div>
           ))}
           {isTyping && (
             <div className="flex justify-start">
-              <div className="bg-surface-low p-4 rounded-2xl rounded-tl-none flex gap-1">
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-2 h-2 bg-secondary rounded-full" />
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-2 h-2 bg-secondary rounded-full" />
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-2 h-2 bg-secondary rounded-full" />
+              <div className="flex gap-4">
+                <div className="w-10 h-10 shrink-0 flex items-center justify-center brutalist-border bg-primary text-white">
+                  <Bot size={20} />
+                </div>
+                <div className="p-5 brutalist-border bg-white shadow-[4px_4px_0px_0px_rgba(21,66,18,1)] flex gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        <footer className="p-4 md:p-6 bg-white border-t-2 border-primary/5">
-          <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
+        {/* Input Area */}
+        <div className="p-6 border-t-2 border-primary bg-white shrink-0">
+          <form onSubmit={handleSendMessage} className="max-w-5xl mx-auto space-y-4">
             {selectedFile && (
-              <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white rounded-lg flex items-center gap-3 shadow-xl animate-in slide-in-from-bottom-2">
-                <Paperclip size={16} />
-                <span className="text-xs font-black truncate max-w-[150px] md:max-w-[200px]">{selectedFile.name}</span>
-                <button type="button" onClick={() => setSelectedFile(null)} className="hover:text-primary transition-colors"><X size={16} /></button>
+              <div className="flex items-center gap-3 bg-surface-low p-3 brutalist-border inline-flex">
+                <FileText size={16} className="text-secondary" />
+                <span className="text-xs font-black uppercase truncate max-w-[200px]">{selectedFile.name}</span>
+                <button type="button" onClick={() => setSelectedFile(null)} className="text-primary/40 hover:text-secondary"><X size={16} /></button>
               </div>
             )}
-            <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 rounded-2xl border-2 border-transparent focus-within:border-primary transition-all">
-              <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 md:p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={24} /></button>
-              <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
-              <textarea 
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) { e.preventDefault(); handleSendMessage(e); } }}
-                placeholder="輸入訊息..."
-                className="flex-grow bg-transparent border-none focus:ring-0 py-3 font-bold text-primary resize-none max-h-32 custom-scrollbar text-sm md:text-base"
-                rows={1}
-              />
-              <button disabled={(!input.trim() && !selectedFile) || isTyping} className="p-2 md:p-3 bg-primary text-white rounded-xl hover:bg-secondary transition-all disabled:opacity-30 shadow-lg">
-                <Send size={24} />
+            <div className="flex gap-4">
+              <div className="flex-1 relative">
+                <input 
+                  type="text" 
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={selectedFile ? "針對檔案內容提問..." : "輸入訊息諮詢 AI 顧問..."}
+                  className="w-full bg-surface-low border-4 border-primary p-5 font-bold text-lg focus:outline-none focus:bg-white snap-transition pr-12"
+                />
+                <button 
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40 hover:text-secondary snap-transition"
+                >
+                  <Paperclip size={24} />
+                </button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.pptx,.txt,image/*"
+                />
+              </div>
+              <button 
+                type="submit"
+                disabled={(!input.trim() && !selectedFile) || isTyping}
+                className="bg-primary text-white px-8 py-5 font-black uppercase tracking-widest hover:bg-secondary disabled:opacity-50 snap-transition flex items-center justify-center gap-3 shadow-[6px_6px_0px_0px_rgba(187,0,20,1)]"
+              >
+                發送 <Send size={20} />
               </button>
             </div>
+            <p className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] text-center">
+              HENGBO AI MAY PROVIDE INACCURATE INFO. VERIFY IMPORTANT DATA.
+            </p>
           </form>
-        </footer>
-      </main>
+        </div>
+      </div>
     </div>
   );
 };
 
-// --- Main App ---
-
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
+    const timer = setTimeout(() => setIsLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [activeTab]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 500);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
-    <div className="font-manrope text-primary selection:bg-secondary selection:text-white min-h-screen">
-      <AnimatePresence>{isLoading && <LoadingScreen key="loading" />}</AnimatePresence>
-      
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-      
+    <div className="min-h-screen bg-surface selection:bg-secondary selection:text-white">
       <AnimatePresence mode="wait">
-        {activeTab === "home" && <HomeView key="home" setActiveTab={setActiveTab} />}
-        {activeTab === "services" && <ServicesView key="services" setActiveTab={setActiveTab} />}
-        {activeTab === "cases" && <CasesView key="cases" setActiveTab={setActiveTab} />}
-        {activeTab === "about" && <AboutView key="about" setActiveTab={setActiveTab} />}
-        {activeTab === "contact" && <ContactView key="contact" />}
-        {activeTab === "ai" && <AIView key="ai" />}
+        {isLoading && <LoadingScreen key="loader" />}
       </AnimatePresence>
-
-      {activeTab !== "ai" && <Footer setActiveTab={setActiveTab} />}
-
-      <AnimatePresence>
-        {showScrollTop && activeTab !== "ai" && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            onClick={scrollToTop}
-            className="fixed bottom-8 right-8 z-50 bg-primary text-white p-4 brutalist-border-heavy hover:bg-secondary snap-transition"
-          >
-            <ArrowRight size={32} className="-rotate-90" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      
+      {!isLoading && (
+        <>
+          <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+          <main className="max-w-[1920px] mx-auto">
+            <AnimatePresence mode="wait">
+              {activeTab === "home" && <HomeView key="home" setActiveTab={setActiveTab} />}
+              {activeTab === "services" && <ServicesView key="services" />}
+              {activeTab === "cases" && <CasesView key="cases" />}
+              {activeTab === "about" && <AboutView key="about" setActiveTab={setActiveTab} />}
+              {activeTab === "contact" && <ContactView key="contact" />}
+              {activeTab === "ai" && <AIView key="ai" />}
+            </AnimatePresence>
+          </main>
+          {activeTab !== "ai" && <Footer setActiveTab={setActiveTab} />}
+        </>
+      )}
     </div>
   );
 }
