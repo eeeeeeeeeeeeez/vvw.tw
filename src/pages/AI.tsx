@@ -5,7 +5,7 @@ import {
   X, Menu, Eye, EyeOff, Lock, ArrowRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
@@ -17,7 +17,7 @@ import { Navbar } from "../components/Navbar";
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export const AI: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -218,7 +218,7 @@ export const AI: React.FC = () => {
       }
 
       const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
-      const model = (genAI as any).getGenerativeModel({
+      const model = genAI.getGenerativeModel({
         model: "gemini-1.5-flash",
         systemInstruction: `你是一位專業且充滿洞察力的『亨波 AI 顧問』，代表「亨波趨勢 (HENGBO TREND)」。
 你的核心特質：
@@ -229,7 +229,7 @@ export const AI: React.FC = () => {
 ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`,
       });
 
-      const response = await model.generateContentStream({
+      const result = await model.generateContentStream({
         contents: [
           ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
           { role: "user", parts: aiPromptParts }
@@ -237,8 +237,9 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
       });
 
       let fullText = "";
-      for await (const chunk of response) {
-        fullText += chunk.text || "";
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        fullText += chunkText;
         setSessions(prev => prev.map(s => s.id === currentSessionId ? {
           ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
         } : s));
