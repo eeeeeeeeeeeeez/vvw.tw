@@ -60,27 +60,29 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Start server
-app.listen(PORT, () => {
-  console.log('');
-  console.log('╔══════════════════════════════════════════╗');
-  console.log('║   🏗️  HENGBO TREND API SERVER            ║');
-  console.log('╠══════════════════════════════════════════╣');
-  console.log(`║   Port:    ${PORT}                          ║`);
-  console.log(`║   Mode:    ${process.env.NODE_ENV || 'development'}                  ║`);
-  console.log('║   Status:  OPERATIONAL ✅                ║');
-  console.log('╚══════════════════════════════════════════╝');
-  console.log('');
-  console.log('API Endpoints:');
-  console.log('  POST /api/contact              — Submit contact form');
-  console.log('  GET  /api/contact              — List all contacts');
-  console.log('  PATCH /api/contact/:id         — Update contact status');
-  console.log('  DELETE /api/contact/:id        — Delete contact');
-  console.log('  POST /api/newsletter/subscribe — Subscribe to newsletter');
-  console.log('  GET  /api/newsletter           — List all subscribers');
-  console.log('  DELETE /api/newsletter/:id     — Delete subscriber');
-  console.log('  GET  /api/health               — Health check');
-  console.log('');
-});
+// Start server (only if not running on Vercel)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log('');
+    console.log('╔══════════════════════════════════════════╗');
+    console.log('║   🏗️  HENGBO TREND API SERVER            ║');
+    console.log('╠══════════════════════════════════════════╣');
+    console.log(`║   Port:    ${PORT}                          ║`);
+    console.log(`║   Mode:    ${process.env.NODE_ENV || 'development'}                  ║`);
+    console.log('║   Status:  OPERATIONAL ✅                ║');
+    console.log('╚══════════════════════════════════════════╝');
+    console.log('');
+    console.log('API Endpoints:');
+    console.log('  POST /api/contact              — Submit contact form');
+    console.log('  GET  /api/contact              — List all contacts');
+    console.log('  PATCH /api/contact/:id         — Update contact status');
+    console.log('  DELETE /api/contact/:id        — Delete contact');
+    console.log('  POST /api/newsletter/subscribe — Subscribe to newsletter');
+    console.log('  GET  /api/newsletter           — List all subscribers');
+    console.log('  DELETE /api/newsletter/:id     — Delete subscriber');
+    console.log('  GET  /api/health               — Health check');
+    console.log('');
+  });
+}
 
 export default app;
