@@ -12,6 +12,7 @@ import * as pdfjs from "pdfjs-dist";
 import mammoth from "mammoth";
 import { Message, ChatSession, SelectedFile } from "../types";
 import { GEMINI_API_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, SESSIONS_STORAGE_KEY } from "../constants";
+import { Navbar } from "../components/Navbar";
 
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -272,242 +273,211 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
 
   if (!isLoggedIn) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10">
-        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md bg-white border-2 border-primary shadow-[12px_12px_0px_0px_rgba(21,66,18,1)] p-8 md:p-12">
-          <div className="flex flex-col items-center mb-10">
-            <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg"><Lock className="w-12 h-12 text-white" /></div>
-            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 顧問</h2>
-            <p className="text-muted font-bold text-sm uppercase tracking-widest">安全驗證 1.0.0-beta.2</p>
-          </div>
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <label className="font-black uppercase tracking-widest text-[10px] text-secondary">顧問帳號</label>
-              <div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 font-bold focus:outline-none focus:border-primary" placeholder="Consultant ID" /></div>
+      <>
+        <Navbar />
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10">
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md bg-white border-2 border-primary shadow-[12px_12px_0px_0px_rgba(21,66,18,1)] p-8 md:p-12">
+            <div className="flex flex-col items-center mb-10">
+              <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg"><Lock className="w-12 h-12 text-white" /></div>
+              <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 顧問</h2>
+              <p className="text-muted font-bold text-sm uppercase tracking-widest">安全驗證 1.0.0-beta.2</p>
             </div>
-            <div className="space-y-2">
-              <label className="font-black uppercase tracking-widest text-[10px] text-secondary">安全授權碼</label>
-              <div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary" placeholder="Access Key" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div className="space-y-2">
+                <label className="font-black uppercase tracking-widest text-[10px] text-secondary">顧問帳號</label>
+                <div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 font-bold focus:outline-none focus:border-primary" placeholder="Consultant ID" /></div>
+              </div>
+              <div className="space-y-2">
+                <label className="font-black uppercase tracking-widest text-[10px] text-secondary">安全授權碼</label>
+                <div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary" placeholder="Access Key" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
+              </div>
+              {loginError && <div className="bg-secondary/10 border-l-4 border-secondary p-3 text-secondary font-bold text-xs uppercase">{loginError}</div>}
+              <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:bg-secondary transition-all flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
+            </form>
+            <div className="mt-8 pt-8 border-t-2 border-primary/10 flex justify-center">
+              <p className="text-primary/40 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
+                還沒有顧問帳號嗎？
+                <a 
+                  href="https://lin.ee/ZegJcQj" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-secondary transition-colors underline underline-offset-4 decoration-2"
+                >
+                  取得帳號
+                </a>
+              </p>
             </div>
-            {loginError && <div className="bg-secondary/10 border-l-4 border-secondary p-3 text-secondary font-bold text-xs uppercase">{loginError}</div>}
-            <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:bg-secondary transition-all flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
-          </form>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      </>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-80px)] flex bg-white overflow-hidden brutalist-grid">
-      {/* Sidebar */}
-      <AnimatePresence mode="wait">
-        {isSidebarOpen && (
-          <motion.aside 
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 320, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            className="h-full bg-surface-low border-r-4 border-primary flex flex-col z-40"
-          >
-            <div className="p-6 border-b-2 border-primary/10">
-              <button 
-                onClick={createNewSession}
-                className="w-full bg-primary text-white py-4 font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-secondary snap-transition shadow-[4px_4px_0px_0px_rgba(21,66,18,1)]"
-              >
-                <Plus size={20} /> 開啟新對話
-              </button>
-            </div>
-            
-            <div className="p-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} />
-                <input 
-                  type="text" 
-                  placeholder="搜尋對話內容..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white border-2 border-primary/10 py-2 pl-10 pr-4 font-bold text-sm focus:outline-none focus:border-primary"
-                />
-              </div>
-            </div>
+    <>
+      <Navbar />
+      <div className="pt-20 md:pt-24 h-screen flex bg-white overflow-hidden relative">
+        <AnimatePresence>
+          {isSidebarOpen && window.innerWidth <= 768 && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-30 md:hidden"
+            />
+          )}
+        </AnimatePresence>
 
-            <div className="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-2">
-              {filteredSessions.map(session => (
-                <button
-                  key={session.id}
-                  onClick={() => {
-                    setCurrentSessionId(session.id);
-                    if (window.innerWidth <= 768) setIsSidebarOpen(false);
-                  }}
-                  className={`w-full text-left p-4 border-2 snap-transition group relative ${
-                    currentSessionId === session.id 
-                      ? "bg-primary text-white border-primary shadow-[4px_4px_0px_0px_rgba(215,255,42,1)]" 
-                      : "bg-white text-primary border-primary/10 hover:border-primary"
-                  }`}
+        <AnimatePresence initial={false}>
+          {isSidebarOpen && (
+            <motion.aside 
+              initial={{ x: -320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -320, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r-2 border-primary/10 flex flex-col bg-surface-low z-40 md:z-20 shadow-2xl md:shadow-none"
+            >
+              <div className="p-6 space-y-6">
+                <div className="flex items-center justify-between md:hidden mb-4">
+                  <span className="font-black text-primary uppercase tracking-tighter">對話列表</span>
+                  <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={18} />
+                  <input 
+                    type="text" 
+                    placeholder="搜尋對話..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-white border-2 border-primary/10 py-3 pl-10 pr-4 font-bold focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <button 
+                  onClick={createNewSession}
+                  className="w-full bg-primary text-white py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-secondary transition-all shadow-md"
                 >
-                  <div className="flex items-center gap-3 mb-1">
-                    <MessageSquare size={16} className={currentSessionId === session.id ? "text-secondary" : "text-primary/40"} />
-                    <span className="font-black truncate text-sm uppercase tracking-tight pr-6">{session.title}</span>
-                  </div>
-                  <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest">
-                    {session.messages.length} 則訊息 · {new Date(session.lastUpdated).toLocaleDateString()}
-                  </div>
-                  <button 
-                    onClick={(e) => deleteSession(session.id, e)}
-                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 opacity-0 group-hover:opacity-100 snap-transition ${
-                      currentSessionId === session.id ? "text-white hover:text-secondary" : "text-primary/40 hover:text-secondary"
+                  <Plus size={20} /> 新對話
+                </button>
+              </div>
+              
+              <div className="flex-grow overflow-y-auto px-3 pb-6 space-y-1 custom-scrollbar">
+                {filteredSessions.map(s => (
+                  <div 
+                    key={s.id}
+                    onClick={() => {
+                      setCurrentSessionId(s.id);
+                      if (window.innerWidth <= 768) setIsSidebarOpen(false);
+                    }}
+                    className={`group flex items-center justify-between p-4 cursor-pointer rounded-lg transition-all ${
+                      currentSessionId === s.id ? 'bg-primary text-white shadow-lg' : 'hover:bg-primary/5 text-primary'
                     }`}
                   >
-                    <Trash2 size={16} />
-                  </button>
-                </button>
-              ))}
-            </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <MessageSquare size={18} className={currentSessionId === s.id ? 'text-white' : 'text-secondary'} />
+                      <span className="font-bold text-sm truncate">{s.title}</span>
+                    </div>
+                    <button 
+                      onClick={(e) => deleteSession(s.id, e)}
+                      className={`opacity-0 group-hover:opacity-100 p-1 hover:bg-white/20 rounded transition-opacity ${currentSessionId === s.id ? 'text-white' : 'text-primary/40'}`}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
 
-      {/* Main Chat Area */}
-      <main className="flex-grow flex flex-col relative h-full">
-        <header className="bg-white border-b-2 border-primary/10 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-primary hover:bg-surface-low rounded-lg transition-colors">
-              {isSidebarOpen ? <Menu size={24} /> : <Menu size={24} />}
-            </button>
-            <div>
-              <h2 className="font-black text-primary uppercase tracking-tighter flex items-center gap-2">
-                <Sparkles size={18} className="text-secondary" />
+        <main className="flex-grow flex flex-col relative min-w-0 w-full">
+          <header className="h-16 border-b-2 border-primary/5 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+            <div className="flex items-center gap-3 md:gap-4">
+              <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors">
+                <Menu size={24} />
+              </button>
+              <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
                 {currentSession?.title || "亨波 AI 顧問"}
               </h2>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
-                <span className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em]">System Operational</span>
-              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => window.location.reload()} className="p-2 text-primary/40 hover:text-primary snap-transition"><RefreshCw size={20} /></button>
-            <button className="p-2 text-primary/40 hover:text-primary snap-transition"><MoreVertical size={20} /></button>
-          </div>
-        </header>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
+                className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" 
+                title="刪除當前對話"
+              >
+                <Trash2 size={20} />
+              </button>
+            </div>
+          </header>
 
-        <div 
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className="flex-grow overflow-y-auto p-6 space-y-8 custom-scrollbar bg-surface-low/30"
-        >
-          {messages.map((msg) => (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              key={msg.id} 
-              className={`flex gap-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
-            >
-              <div className={`w-10 h-10 shrink-0 flex items-center justify-center brutalist-border ${
-                msg.role === "user" ? "bg-secondary text-white" : "bg-primary text-white"
-              }`}>
-                {msg.role === "user" ? <User size={20} /> : <Bot size={20} />}
-              </div>
-              <div className={`max-w-[85%] space-y-2 ${msg.role === "user" ? "items-end" : ""}`}>
-                <div className={`p-6 brutalist-border relative group ${
-                  msg.role === "user" ? "bg-white text-primary" : "bg-primary text-white shadow-[8px_8px_0px_0px_rgba(215,255,42,1)]"
-                }`}>
-                  <div className="prose prose-sm max-w-none prose-headings:font-black prose-headings:uppercase prose-p:font-bold prose-p:leading-relaxed">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+          <div ref={scrollRef} onScroll={handleScroll} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 custom-scrollbar">
+            {messages.map((msg) => (
+              <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[90%] md:max-w-[85%] space-y-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                  <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'justify-end text-muted' : 'text-secondary'}`}>
+                    {msg.role === 'user' ? <><User size={12} /> 使用者</> : <><Bot size={12} /> 亨波 AI 顧問</>}
                   </div>
-                  {msg.imageUrl && (
-                    <div className="mt-4 brutalist-border overflow-hidden">
-                      <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto" />
-                    </div>
-                  )}
-                  <button 
-                    onClick={() => copyToClipboard(msg.content, msg.id)}
-                    className={`absolute -bottom-10 right-0 p-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 snap-transition ${
-                      msg.role === "user" ? "text-primary/40 hover:text-primary" : "text-primary/40 hover:text-primary"
-                    }`}
-                  >
-                    {copiedId === msg.id ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy Message</>}
-                  </button>
+                  <div className={`inline-block text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 rounded-2xl shadow-sm ${
+                    msg.role === 'user' ? 'bg-primary text-white rounded-tr-none' : 'bg-surface-low text-primary rounded-tl-none border border-primary/5'
+                  }`}>
+                    {msg.role === 'user' ? <div className="whitespace-pre-wrap">{msg.content}</div> : (
+                      <div className="markdown-content prose prose-sm max-w-none">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                      </div>
+                    )}
+                    {msg.imageUrl && (
+                      <div className="mt-4 rounded-xl overflow-hidden border-2 border-primary/10 bg-white">
+                        <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain" />
+                        <div className="p-3 bg-primary text-white text-[10px] font-black flex justify-between items-center">
+                          <span>AI GENERATED CONCEPT</span>
+                          <a href={msg.imageUrl} target="_blank" rel="noreferrer" className="underline hover:text-secondary">VIEW ORIGINAL</a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-[10px] font-black text-primary/30 uppercase tracking-widest">
-                  {msg.role === "user" ? "Consultant" : "Hengbo AI"} · {new Date(msg.timestamp).toLocaleTimeString()}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-          {isTyping && (
-            <div className="flex gap-4">
-              <div className="w-10 h-10 bg-primary text-white flex items-center justify-center brutalist-border">
-                <Bot size={20} />
-              </div>
-              <div className="bg-primary text-white p-6 brutalist-border shadow-[8px_8px_0px_0px_rgba(215,255,42,1)]">
-                <div className="flex gap-2">
-                  <div className="w-2 h-2 bg-secondary rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-secondary rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                  <div className="w-2 h-2 bg-secondary rounded-full animate-bounce [animation-delay:0.4s]"></div>
+              </motion.div>
+            ))}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-surface-low p-4 rounded-2xl rounded-tl-none flex gap-1">
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-2 h-2 bg-secondary rounded-full" />
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-2 h-2 bg-secondary rounded-full" />
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-2 h-2 bg-secondary rounded-full" />
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        <footer className="p-6 bg-white border-t-2 border-primary/10">
-          <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
-            <AnimatePresence>
+          <footer className="p-4 md:p-6 bg-white border-t-2 border-primary/5">
+            <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
               {selectedFile && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white font-black text-xs uppercase tracking-widest flex items-center gap-3 brutalist-border shadow-lg"
-                >
-                  <Paperclip size={14} /> {selectedFile.name}
-                  <button onClick={() => setSelectedFile(null)} className="hover:text-primary"><X size={14} /></button>
-                </motion.div>
+                <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white rounded-lg flex items-center gap-3 shadow-xl animate-in slide-in-from-bottom-2">
+                  <Paperclip size={16} />
+                  <span className="text-xs font-black truncate max-w-[150px] md:max-w-[200px]">{selectedFile.name}</span>
+                  <button type="button" onClick={() => setSelectedFile(null)} className="hover:text-primary transition-colors"><X size={16} /></button>
+                </div>
               )}
-            </AnimatePresence>
-            <div className="flex gap-4 items-end">
-              <div className="flex-grow relative">
+              <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 rounded-2xl border-2 border-transparent focus-within:border-primary transition-all">
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 md:p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={24} /></button>
+                <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
                 <textarea 
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage(e as any);
-                    }
-                  }}
-                  placeholder="輸入您的問題，或上傳檔案進行分析..."
-                  className="w-full bg-surface-low border-4 border-primary p-6 pr-32 font-bold text-lg focus:outline-none focus:bg-white snap-transition resize-none min-h-[80px] max-h-[200px]"
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) { e.preventDefault(); handleSendMessage(e); } }}
+                  placeholder="輸入訊息..."
+                  className="flex-grow bg-transparent border-none focus:ring-0 py-3 font-bold text-primary resize-none max-h-32 custom-scrollbar text-sm md:text-base"
+                  rows={1}
                 />
-                <div className="absolute right-4 bottom-4 flex gap-2">
-                  <button 
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-3 text-primary/40 hover:text-secondary snap-transition"
-                  >
-                    <Paperclip size={24} />
-                  </button>
-                  <button 
-                    disabled={(!input.trim() && !selectedFile) || isTyping}
-                    className="bg-primary text-white p-3 hover:bg-secondary snap-transition disabled:opacity-20"
-                  >
-                    <Send size={24} />
-                  </button>
-                </div>
+                <button disabled={(!input.trim() && !selectedFile) || isTyping} className="p-2 md:p-3 bg-primary text-white rounded-xl hover:bg-secondary transition-all disabled:opacity-30 shadow-lg">
+                  <Send size={24} />
+                </button>
               </div>
-            </div>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileSelect} 
-              className="hidden" 
-              accept=".pdf,.docx,.txt,image/*"
-            />
-          </form>
-          <p className="text-center mt-4 text-[10px] font-black text-primary/30 uppercase tracking-[0.3em]">
-            Hengbo AI may produce inaccurate information about people, places, or facts.
-          </p>
-        </footer>
-      </main>
-    </div>
+            </form>
+          </footer>
+        </main>
+      </div>
+    </>
   );
 };
