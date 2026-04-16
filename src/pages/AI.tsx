@@ -5,19 +5,16 @@ import {
   X, Menu, Eye, EyeOff, Lock, ArrowRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
 import mammoth from "mammoth";
 import { Message, ChatSession, SelectedFile } from "../types";
-import { GEMINI_API_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, SESSIONS_STORAGE_KEY } from "../constants";
+import { ADMIN_USERNAME, ADMIN_PASSWORD, SESSIONS_STORAGE_KEY } from "../constants";
 import { Navbar } from "../components/Navbar";
 
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export const AI: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -207,42 +204,51 @@ export const AI: React.FC = () => {
     setIsTyping(true);
 
     try {
-      let aiPromptParts: any[] = [];
-      if (currentFile && currentFile.type.startsWith('image/')) {
-        aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
-        aiPromptParts.push({ text: userMsg });
-      } else if (currentFile) {
-        aiPromptParts.push({ text: `檔案內容 (${currentFile.name})：\n${currentFile.content.substring(0, 50000)}\n\n問題：${userMsg}` });
-      } else {
-        aiPromptParts.push({ text: userMsg });
-      }
-
-      const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
-      const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-flash",
-        systemInstruction: `你是一位專業且充滿洞察力的『亨波 AI 顧問』，代表「亨波趨勢 (HENGBO TREND)」。
-你的核心特質：
-1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
-2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
-3. **數據與趨勢驅動**：強調數據支持與精準規劃。
-4. **品牌忠誠度**：引導至 https://vvw-tw.vercel.app/。
-${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`,
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: messages.slice(-10),
+          userMsg,
+          fileData: currentFile ? {
+            name: currentFile.name,
+            type: currentFile.type,
+            content: currentFile.content
+          } : null
+        })
       });
 
-      const result = await model.generateContentStream({
-        contents: [
-          ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
-          { role: "user", parts: aiPromptParts }
-        ],
-      });
+      if (!response.ok) throw new Error('伺服器回應錯誤');
 
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
       let fullText = "";
-      for await (const chunk of result.stream) {
-        const chunkText = chunk.text();
-        fullText += chunkText;
-        setSessions(prev => prev.map(s => s.id === currentSessionId ? {
-          ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
-        } : s));
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6);
+              if (dataStr === '[DONE]') break;
+              
+              try {
+                const data = JSON.parse(dataStr);
+                if (data.text) {
+                  fullText += data.text;
+                  setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+                    ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
+                  } : s));
+                }
+              } catch (e) { /* 忽略不完整的 JSON */ }
+            }
+          }
+        }
       }
 
       const imgMatch = fullText.match(/\[IMAGE_GEN:\s*(.*?)\]/);
