@@ -4,7 +4,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import contactRoutes from './routes/contact.js';
 import newsletterRoutes from './routes/newsletter.js';
-import aiRoutes from './routes/ai.js';
+import aiRoutes from './routes/ai_v2.js';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
@@ -28,6 +28,19 @@ app.use((req, _res, next) => {
 app.use('/api/contact', contactRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/ai', aiRoutes);
+
+// AI 服務健康檢查
+app.get('/api/ai/status', (_req, res) => {
+  res.json({
+    service: 'AI Agent',
+    status: 'operational',
+    features: {
+      streaming: '✅ 已啟用',
+      tool_calling: '✅ 已啟用',
+      search: process.env.GOOGLE_SEARCH_API_KEY ? '✅ 已配置' : '❌ 未配置'
+    }
+  });
+});
 
 // Health check
 app.get('/api/health', (_req, res) => {
