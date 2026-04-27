@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { supabase } from '../supabaseClient.js';
+import { supabase } from '../supabaseClient.ts';
 
 const router = Router();
 
