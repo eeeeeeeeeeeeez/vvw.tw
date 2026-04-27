@@ -33,7 +33,7 @@ import {
   Paperclip
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
@@ -44,7 +44,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 // --- Constants ---
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || ""; // 已移除洩漏的明文 Key，請在 Vercel 後台配置 VITE_GEMINI_API_KEY
-const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // 從環境變數讀取管理員帳密（應在 .env.local 中設定）
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || "admin";
