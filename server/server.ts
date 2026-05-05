@@ -2,9 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
-import contactRoutes from './routes/contact.ts';
-import newsletterRoutes from './routes/newsletter.ts';
-import aiRoutes from './routes/ai_v2.ts';
+import contactRoutes from './routes/contact.js';
+import newsletterRoutes from './routes/newsletter.js';
+import aiRoutes from './routes/ai_v2.js';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });

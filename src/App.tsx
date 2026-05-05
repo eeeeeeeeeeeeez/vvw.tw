@@ -43,7 +43,7 @@ import {
   Palette
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
@@ -54,7 +54,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 // --- Constants ---
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || ""; 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // 從環境變數讀取管理員帳密
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || "admin";
