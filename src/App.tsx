@@ -215,16 +215,29 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
 };
 
 const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => (
-  <footer className="bg-primary border-t-4 border-secondary w-full px-8 py-24 mt-24">
-    <div className="max-w-7xl mx-auto flex flex-col gap-12 text-white">
-      <div className="w-full mb-8">
-        <img 
-          src="/footer_logo.png" 
-          alt="Hengbo Trend Footer Logo" 
-          className="w-full max-w-4xl mx-auto h-auto object-contain"
-        />
+  <>
+    {/* Brand Showcase Area - Beige background to match image */}
+    <div className="w-full bg-[#fdfdf3] py-24 border-t-4 border-primary mt-24">
+      <div className="max-w-4xl mx-auto px-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="relative group"
+        >
+          <img 
+            src="/footer_logo.png" 
+            alt="Hengbo Trend Branding" 
+            className="w-full h-auto object-contain drop-shadow-xl"
+          />
+          <div className="absolute inset-0 border-2 border-primary/5 group-hover:border-primary/20 transition-colors pointer-events-none" />
+        </motion.div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+    </div>
+
+    {/* Main Footer - Dark Green */}
+    <footer className="bg-primary border-t-4 border-secondary w-full px-8 py-24">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-white">
         <div className="col-span-1 md:col-span-2">
           <div className="flex items-center gap-4 mb-8">
             <Logo className="w-12 h-12" variant="white" />
@@ -251,8 +264,8 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           </div>
         </div>
       </div>
-    </div>
-  </footer>
+    </footer>
+  </>
 );
 
 // --- Pages ---
