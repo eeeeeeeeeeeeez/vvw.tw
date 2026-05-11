@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { supabase } from '../supabaseClient.js';
+import { sendEmail } from '../mailHelper.js';
 
 const router = Router();
+const TARGET_EMAIL = 'tvivl.tw@gmail.com';
 
 // POST /api/contact — 提交諮詢表單
 router.post('/', async (req: Request, res: Response) => {
@@ -27,38 +28,40 @@ router.post('/', async (req: Request, res: Response) => {
       return;
     }
 
-    // Insert into Supabase
-    const { data, error } = await supabase
-      .from('contact_submissions')
-      .insert([
-        {
-          name,
-          organization: organization || null,
-          email,
-          subject,
-          message,
-          status: 'pending',
-        },
-      ])
-      .select()
-      .single();
+    const mailSubject = `[諮詢申請] ${subject} - ${name}`;
+    const mailText = `
+姓名: ${name}
+所屬組織: ${organization || '無'}
+電子郵件: ${email}
+諮詢項目: ${subject}
+需求說明:
+${message}
+    `;
+    const mailHtml = `
+      <h2>新諮詢申請</h2>
+      <p><strong>姓名:</strong> ${name}</p>
+      <p><strong>所屬組織:</strong> ${organization || '無'}</p>
+      <p><strong>電子郵件:</strong> ${email}</p>
+      <p><strong>諮詢項目:</strong> ${subject}</p>
+      <p><strong>需求說明:</strong></p>
+      <p style="white-space: pre-wrap;">${message}</p>
+    `;
 
-    if (error) {
-      console.error('Supabase insert error:', error);
+    const result = await sendEmail(TARGET_EMAIL, mailSubject, mailText, mailHtml);
+
+    if (result.success) {
+      console.log(`✅ New contact submission from: ${name} <${email}> sent to ${TARGET_EMAIL}`);
+      res.status(201).json({
+        success: true,
+        message: '諮詢已成功提交！我們將在 24 小時內與您聯繫。',
+      });
+    } else {
+      console.error('Email sending failed:', result.error);
       res.status(500).json({
         success: false,
         error: '提交失敗，請稍後再試',
       });
-      return;
     }
-
-    console.log(`✅ New contact submission from: ${name} <${email}>`);
-
-    res.status(201).json({
-      success: true,
-      message: '諮詢已成功提交！我們將在 24 小時內與您聯繫。',
-      data,
-    });
   } catch (err) {
     console.error('Contact submission error:', err);
     res.status(500).json({
@@ -68,82 +71,9 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/contact — 獲取所有諮詢記錄（管理後台用）
+// GET /api/contact — 獲取所有諮詢記錄（已改為不支援，因為不存資料庫）
 router.get('/', async (_req: Request, res: Response) => {
-  try {
-    const { data, error } = await supabase
-      .from('contact_submissions')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Supabase query error:', error);
-      res.status(500).json({ success: false, error: '查詢失敗' });
-      return;
-    }
-
-    res.json({ success: true, data });
-  } catch (err) {
-    console.error('Contact fetch error:', err);
-    res.status(500).json({ success: false, error: '伺服器內部錯誤' });
-  }
-});
-
-// PATCH /api/contact/:id — 更新諮詢狀態（管理後台用）
-router.patch('/:id', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    if (!status || !['pending', 'processing', 'completed', 'archived'].includes(status)) {
-      res.status(400).json({
-        success: false,
-        error: '無效的狀態值',
-      });
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from('contact_submissions')
-      .update({ status })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase update error:', error);
-      res.status(500).json({ success: false, error: '更新失敗' });
-      return;
-    }
-
-    res.json({ success: true, data });
-  } catch (err) {
-    console.error('Contact update error:', err);
-    res.status(500).json({ success: false, error: '伺服器內部錯誤' });
-  }
-});
-
-// DELETE /api/contact/:id — 刪除諮詢記錄（管理後台用）
-router.delete('/:id', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    const { error } = await supabase
-      .from('contact_submissions')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      console.error('Supabase delete error:', error);
-      res.status(500).json({ success: false, error: '刪除失敗' });
-      return;
-    }
-
-    res.json({ success: true, message: '已刪除' });
-  } catch (err) {
-    console.error('Contact delete error:', err);
-    res.status(500).json({ success: false, error: '伺服器內部錯誤' });
-  }
+  res.status(501).json({ success: false, error: '此功能已停用，請查看管理員信箱。' });
 });
 
 export default router;
