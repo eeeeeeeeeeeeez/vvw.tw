@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/genai";
 import fetch from 'node-fetch';
 
 const router = Router();
