@@ -5,13 +5,11 @@
       "source": "/api/(.*)",
       "destination": "/api/index.ts"
     }
-  ]
-}
-{
+  ],
   "redirects": [
     {
       "source": "/(.*)",
-      "destination": "https://vvw-tw.vercel.app/",
+      "destination": "https://您的新網站網址.com/$1",
       "permanent": true
     }
   ]
