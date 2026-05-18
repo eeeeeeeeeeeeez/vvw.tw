@@ -9,7 +9,7 @@
   "redirects": [
     {
       "source": "/(.*)",
-      "destination": "https://vvw-tw.vercel.app/",
+      "destination": "https://grv.ccwu.cc/",
       "permanent": true
     }
   ]
