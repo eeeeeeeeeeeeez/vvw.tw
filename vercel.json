@@ -5,12 +5,5 @@
       "source": "/api/(.*)",
       "destination": "/api/index.ts"
     }
-  ],
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "destination": "https://grv.ccwu.cc/",
-      "permanent": true
-    }
   ]
 }
