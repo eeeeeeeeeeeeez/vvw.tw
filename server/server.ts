@@ -1,13 +1,13 @@
+import dotenv from 'dotenv';
+// 必須在所有路由載入前初始化環境變數
+dotenv.config({ path: '.env.local' });
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import dotenv from 'dotenv';
 import contactRoutes from './routes/contact.js';
 import newsletterRoutes from './routes/newsletter.js';
 import aiRoutes from './routes/ai_v2.js';
-
-// Load environment variables
-dotenv.config({ path: '.env.local' });
 
 const app = express();
 const PORT = parseInt(process.env.SERVER_PORT || '3001', 10);
@@ -37,7 +37,8 @@ app.get('/api/ai/status', (_req, res) => {
     features: {
       streaming: '✅ 已啟用',
       tool_calling: '✅ 已啟用',
-      search: process.env.GOOGLE_SEARCH_API_KEY ? '✅ 已配置' : '❌ 未配置'
+      search: process.env.GOOGLE_SEARCH_API_KEY ? '✅ 已配置' : '❌ 未配置',
+      env_loaded: !!process.env.GEMINI_API_KEY
     }
   });
 });
@@ -60,28 +61,10 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Start server (only if not running on Vercel)
+// Start server
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   app.listen(PORT, () => {
-    console.log('');
-    console.log('╔══════════════════════════════════════════╗');
-    console.log('║   🏗️  HENGBO TREND API SERVER            ║');
-    console.log('╠══════════════════════════════════════════╣');
-    console.log(`║   Port:    ${PORT}                          ║`);
-    console.log(`║   Mode:    ${process.env.NODE_ENV || 'development'}                  ║`);
-    console.log('║   Status:  OPERATIONAL ✅                ║');
-    console.log('╚══════════════════════════════════════════╝');
-    console.log('');
-    console.log('API Endpoints:');
-    console.log('  POST /api/contact              — Submit contact form');
-    console.log('  GET  /api/contact              — List all contacts');
-    console.log('  PATCH /api/contact/:id         — Update contact status');
-    console.log('  DELETE /api/contact/:id        — Delete contact');
-    console.log('  POST /api/newsletter/subscribe — Subscribe to newsletter');
-    console.log('  GET  /api/newsletter           — List all subscribers');
-    console.log('  DELETE /api/newsletter/:id     — Delete subscriber');
-    console.log('  GET  /api/health               — Health check');
-    console.log('');
+    console.log(`[Server] Running on port ${PORT}`);
   });
 }
 
