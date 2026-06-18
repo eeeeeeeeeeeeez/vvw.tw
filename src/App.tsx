@@ -1168,7 +1168,7 @@ const AIView = () => {
 
       const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
       const response = await genAI.models.generateContentStream({
-        model: "gemini-3-flash",
+        model: "gemini-3.1-flash",
         systemInstruction: `你是一位專業且充滿洞察力的『亨波 AI 顧問』，代表「亨波趨勢 (HENGBO TREND)」。
 你的核心特質：
 1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
