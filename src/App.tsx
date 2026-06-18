@@ -817,7 +817,7 @@ const ContactView: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-black uppercase tracking-widest text-secondary mb-2">電子郵件</h3>
-                    <p className="text-xl font-bold text-primary">tvivl.tw@gmail.com</p>
+                    <p className="text-xl font-bold text-primary">1@grv.ccwu.cc</p>
                     <p className="text-muted font-medium">24/7 全天候運營支持</p>
                   </div>
                 </div>
