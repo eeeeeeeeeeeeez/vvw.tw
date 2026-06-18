@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Plus, Search, MessageSquare, Trash2, Send, Paperclip, 
   Sparkles, Bot, User, RefreshCw, Copy, Check, MoreVertical,
-  X, Menu, Eye, EyeOff, Lock, ArrowRight
+  X, Menu, Eye, EyeOff, Lock, ArrowRight, Brain
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import ReactMarkdown from "react-markdown";
@@ -32,6 +32,8 @@ export const AI: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [thinkingLevel, setThinkingLevel] = useState<'minimal' | 'low' | 'medium' | 'high'>('medium');
+  const [showThinkingMenu, setShowThinkingMenu] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -210,6 +212,7 @@ export const AI: React.FC = () => {
         body: JSON.stringify({
           messages: messages.slice(-10),
           userMsg,
+          thinkingLevel,
           fileData: currentFile ? {
             name: currentFile.name,
             type: currentFile.type,
@@ -408,6 +411,51 @@ export const AI: React.FC = () => {
               </h2>
             </div>
             <div className="flex items-center gap-2">
+              <div className="relative">
+                <button 
+                  onClick={() => setShowThinkingMenu(!showThinkingMenu)}
+                  className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors flex items-center gap-1 text-xs md:text-sm font-bold uppercase tracking-wider"
+                  title="調整思考等級"
+                >
+                  <Brain size={18} />
+                  <span className="hidden sm:inline">{thinkingLevel}</span>
+                </button>
+                <AnimatePresence>
+                  {showThinkingMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 mt-2 w-48 bg-white border-2 border-primary/10 rounded-lg shadow-xl z-50"
+                    >
+                      {[
+                        { level: 'minimal' as const, label: '最少思考', desc: '最快、最粗簡' },
+                        { level: 'low' as const, label: '輕量思考', desc: '平衡效能' },
+                        { level: 'medium' as const, label: '中等思考', desc: '推薦選項' },
+                        { level: 'high' as const, label: '深度思考', desc: '最精確、最慢' }
+                      ].map(({ level, label, desc }) => (
+                        <button
+                          key={level}
+                          onClick={() => {
+                            setThinkingLevel(level);
+                            setShowThinkingMenu(false);
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm font-bold border-b border-primary/5 last:border-b-0 transition-all ${
+                            thinkingLevel === level
+                              ? 'bg-primary text-white'
+                              : 'hover:bg-surface-low text-primary'
+                          }`}
+                        >
+                          <div className="uppercase tracking-wider">{label}</div>
+                          <div className={`text-[10px] font-normal ${
+                            thinkingLevel === level ? 'text-white/70' : 'text-muted'
+                          }`}>{desc}</div>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
               <button 
                 onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
                 className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" 

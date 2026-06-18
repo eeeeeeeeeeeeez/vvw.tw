@@ -117,10 +117,16 @@ const tools = [
  * - 改進的系統提示詞，強調年份與最新資訊
  */
 router.post('/chat', async (req: Request, res: Response) => {
-  const { messages, userMsg, fileData } = req.body;
+  const { messages, userMsg, fileData, thinkingLevel = 'medium' } = req.body;
 
   try {
     const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
+    
+    // 驗證思考等級參數
+    const validThinkingLevels = ['minimal', 'low', 'medium', 'high'];
+    const selectedThinkingLevel = validThinkingLevels.includes(thinkingLevel) ? thinkingLevel : 'medium';
+    
+    console.log(`🧠 使用思考等級: ${selectedThinkingLevel}`);
     
     // 改進的系統提示詞：強調時間敏感性與搜尋能力
     const model = genAI.getGenerativeModel({
@@ -180,7 +186,11 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
 
     console.log(`\n📨 用戶提問: "${userMsg}"`);
     
-    const result = await chat.sendMessageStream(promptParts);
+    // 建構 thinkingConfig 物件
+    const thinkingConfig: any = {};
+    if (selectedThinkingLevel !== 'minimal') {
+      thinkingConfig.type = selectedThinkingLevel;
+    }
     
     // 設定串流回傳
     res.setHeader('Content-Type', 'text/event-stream');
@@ -199,7 +209,10 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
           parts: [{ text: m.content }],
         })),
         { role: "user", parts: promptParts }
-      ]
+      ],
+      generationConfig: {
+        ...(Object.keys(thinkingConfig).length > 0 && { thinkingConfig })
+      }
     });
 
     let toolCallCount = 0;
@@ -242,7 +255,10 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
           { role: "user", parts: promptParts },
           { role: "model", parts: finalContentParts },
           { role: "user", parts: toolResults }
-        ]
+        ],
+        generationConfig: {
+          ...(Object.keys(thinkingConfig).length > 0 && { thinkingConfig })
+        }
       });
 
       finalContentParts = response.response.candidates?.[0]?.content?.parts || [];
@@ -258,7 +274,10 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
         { role: "user", parts: promptParts },
         // 如果有工具調用過程，也需要加入歷史中
         ...(toolCallCount > 0 ? [{ role: "model", parts: finalContentParts }] : [])
-      ]
+      ],
+      generationConfig: {
+        ...(Object.keys(thinkingConfig).length > 0 && { thinkingConfig })
+      }
     });
 
     for await (const chunk of finalResult.stream) {
