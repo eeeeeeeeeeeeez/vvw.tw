@@ -124,7 +124,7 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
     { id: "services", label: "專業服務" },
     { id: "cases", label: "精選案例" },
     { id: "about", label: "關於我們" },
-    { id: "ai", label: "亨波 AI" },
+    { id: "ai", label: "Hengbo AI" },
   ];
 
   const handleTabClick = (id: string) => {
@@ -234,7 +234,7 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           <button onClick={() => { setActiveTab("cases"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">精選案例</button>
           <button onClick={() => { setActiveTab("about"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">關於我們</button>
           <button onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">聯繫我們</button>
-          <button onClick={() => { setActiveTab("ai"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">亨波 AI</button>
+          <button onClick={() => { setActiveTab("ai"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">Hengbo AI</button>
         </div>
         <div className="flex flex-col gap-4">
           <span className="text-secondary font-black tracking-widest uppercase">社群連結</span>
@@ -1030,7 +1030,7 @@ const AIView = () => {
       title: "新對話",
       messages: [{ 
         role: "ai", 
-        content: "您好！我是亨波 AI 顧問。很高興為您服務，請問今天有什麼我可以幫您的嗎？",
+        content: "您好！我是Hengbo AI很高興為您服務，請問今天有什麼我可以幫您的嗎？",
         id: `msg-${Date.now()}`,
         timestamp: new Date()
       }],
@@ -1169,7 +1169,7 @@ const AIView = () => {
       const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
       const response = await genAI.models.generateContentStream({
         model: "gemini-3.1-flash-lite",
-        systemInstruction: `你是一位專業且充滿洞察力的『亨波 AI 顧問』，代表「亨波趨勢 (HENGBO TREND)」。
+        systemInstruction: `你是一位專業且充滿洞察力的『Hengbo AI』，代表「亨波趨勢 (HENGBO TREND)」。
 你的核心特質：
 1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
 2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
@@ -1217,8 +1217,8 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md bg-white border-2 border-primary shadow-[12px_12px_0px_0px_rgba(21,66,18,1)] p-8 md:p-12">
           <div className="flex flex-col items-center mb-10">
             <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg"><Lock className="w-12 h-12 text-white" /></div>
-            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 顧問</h2>
-            <p className="text-muted font-bold text-sm uppercase tracking-widest">安全驗證 1.0.0-beta.2</p>
+            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">Hengbo AI</h2>
+            <p className="text-muted font-bold text-sm uppercase tracking-widest">基於tvivl-1.5-beta</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
