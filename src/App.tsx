@@ -1169,7 +1169,7 @@ const AIView = () => {
       const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
       const response = await genAI.models.generateContentStream({
         model: "gemini-3.1-flash-lite",
-        systemInstruction: `你是一位專業且充滿洞察力的『Hengbo AI』，代表「亨波趨勢 (HENGBO TREND)」。
+        systemInstruction: `你是一位專業且充滿洞察力的『Hengbo AI顧問』，代表「亨波趨勢 (HENGBO TREND)」。
 你的核心特質：
 1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
 2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
@@ -1332,7 +1332,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
               <Menu size={24} />
             </button>
             <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
-              {currentSession?.title || "亨波 AI 顧問"}
+              {currentSession?.title || "Hengbo AI"}
             </h2>
           </div>
           <div className="flex items-center gap-2">
@@ -1351,7 +1351,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
             <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[90%] md:max-w-[85%] space-y-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
                 <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'justify-end text-muted' : 'text-secondary'}`}>
-                  {msg.role === 'user' ? <><User size={12} /> 使用者</> : <><Bot size={12} /> 亨波 AI 顧問</>}
+                  {msg.role === 'user' ? <><User size={12} /> 使用者</> : <><Bot size={12} /> Hengbo AI</>}
                 </div>
                 <div className={`inline-block text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 rounded-2xl shadow-sm ${
                   msg.role === 'user' ? 'bg-primary text-white rounded-tr-none' : 'bg-surface-low text-primary rounded-tl-none border border-primary/5'
