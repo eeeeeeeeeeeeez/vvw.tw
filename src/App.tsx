@@ -24,7 +24,6 @@ import {
   Leaf,
   Lock,
   User,
-  Bot,
   Sparkles,
   RefreshCw,
   Trash2,
@@ -1058,7 +1057,7 @@ const AIView = () => {
       title: "新對話",
       messages: [{ 
         role: "ai", 
-        content: "您好！我是Hengbo AI很高興為您服務，請問今天有什麼我可以幫您的嗎？",
+        content: "您好，我是亨波 AI 顧問。請問需要協助什麼？",
         id: `msg-${Date.now()}`,
         timestamp: new Date()
       }],
@@ -1182,7 +1181,7 @@ const AIView = () => {
     // Antigravity Agent（Pre-GA）目前無正式文件支援圖片分析，先擋掉並提示改用 Flash 模型
     if (aiModel === "antigravity" && currentFile && currentFile.type.startsWith('image/')) {
       setSessions(prev => prev.map(s => s.id === currentSessionId ? {
-        ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: "Antigravity Agent（預覽版）目前不支援圖片分析，請切換回「Flash 模式」再上傳圖片。" } : m)
+        ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: "Agent 模式（預覽版）目前不支援圖片分析，請切換回「Flash 模式」再上傳圖片。" } : m)
       } : s));
       setInput("");
       setSelectedFile(null);
@@ -1194,13 +1193,14 @@ const AIView = () => {
     setIsTyping(true);
 
     const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
-    const systemInstruction = `你是一位專業且充滿洞察力的『Hengbo AI顧問』，代表「亨波趨勢 (HENGBO TREND)」。
-你的核心特質：
-1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
-2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
-3. **數據與趨勢驅動**：強調數據支持與精準規劃。
-4. **品牌忠誠度**：引導至 https://vvw-tw.vercel.app/。
-${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`;
+    const systemInstruction = `你是「亨波趨勢」的 AI 顧問，服務對象是企業客戶與內部顧問人員。
+
+# 語氣與風格
+- 專業、穩重、精簡，用詞正式但不生硬，不說客套話與贅語
+- 先給結論與可執行的建議，需要時才補充推理過程或理由
+- 一律使用精準的繁體中文，強調數據與趨勢依據
+- 僅在情境相關時，可提及亨波趨勢 https://vvw-tw.vercel.app/ 的相關服務，避免生硬置入
+${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`;
 
     try {
       let fullText = "";
@@ -1287,21 +1287,21 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="brutalist-grid min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10">
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md bg-white border-2 border-primary shadow-[12px_12px_0px_0px_rgba(21,66,18,1)] p-8 md:p-12">
           <div className="flex flex-col items-center mb-10">
-            <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg"><Lock className="w-12 h-12 text-white" /></div>
-            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">Hengbo AI</h2>
-            <p className="text-muted font-bold text-sm uppercase tracking-widest">基於tvivl-1.5-beta的AI顧問</p>
+            <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6"><i className="fa-solid fa-disease text-white text-5xl"></i></div>
+            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 顧問</h2>
+            <p className="text-muted font-bold text-sm uppercase tracking-widest">顧問專用系統</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
               <label className="font-black uppercase tracking-widest text-[10px] text-secondary">顧問帳號</label>
-              <div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 font-bold focus:outline-none focus:border-primary" placeholder="Consultant ID" /></div>
+              <div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 font-bold focus:outline-none focus:border-primary" placeholder="請輸入帳號" /></div>
             </div>
             <div className="space-y-2">
-              <label className="font-black uppercase tracking-widest text-[10px] text-secondary">安全授權碼</label>
-              <div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary" placeholder="Access Key" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
+              <label className="font-black uppercase tracking-widest text-[10px] text-secondary">登入密碼</label>
+              <div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary" placeholder="請輸入密碼" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
             </div>
             {loginError && <div className="bg-secondary/10 border-l-4 border-secondary p-3 text-secondary font-bold text-xs uppercase">{loginError}</div>}
-            <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:bg-secondary transition-all flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
+            <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg hover:bg-secondary snap-transition flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
           </form>
           <div className="mt-8 pt-8 border-t-2 border-primary/10 flex justify-center">
             <p className="text-primary/40 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
@@ -1330,7 +1330,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-30 md:hidden"
+            className="fixed inset-0 bg-primary/40 z-30 md:hidden"
           />
         )}
       </AnimatePresence>
@@ -1341,13 +1341,13 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
             initial={{ x: -320, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -320, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r-2 border-primary/10 flex flex-col bg-surface-low z-40 md:z-20 shadow-2xl md:shadow-none"
+            transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
+            className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r-2 border-primary flex flex-col bg-surface-low z-40 md:z-20"
           >
             <div className="p-6 space-y-6">
               <div className="flex items-center justify-between md:hidden mb-4">
                 <span className="font-black text-primary uppercase tracking-tighter">對話列表</span>
-                <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
+                <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5"><X size={24} /></button>
               </div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={18} />
@@ -1375,8 +1375,8 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
                     setCurrentSessionId(s.id);
                     if (window.innerWidth <= 768) setIsSidebarOpen(false);
                   }}
-                  className={`group flex items-center justify-between gap-2 p-4 cursor-pointer border-l-4 transition-all ${
-                    currentSessionId === s.id ? 'bg-primary text-white shadow-lg border-secondary' : 'hover:bg-primary/5 text-primary border-transparent'
+                  className={`group flex items-center justify-between gap-2 p-4 cursor-pointer border-l-4 transition-colors ${
+                    currentSessionId === s.id ? 'bg-primary text-white border-secondary' : 'hover:bg-primary/5 text-primary border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-3 overflow-hidden min-w-0">
@@ -1402,37 +1402,37 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
       </AnimatePresence>
 
       <main className="flex-grow flex flex-col relative min-w-0 w-full">
-        <header className="h-16 border-b-2 border-primary/5 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+        <header className="h-16 border-b-2 border-primary flex items-center justify-between px-4 md:px-6 bg-white sticky top-0 z-10">
           <div className="flex items-center gap-3 md:gap-4">
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors">
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low text-primary transition-colors">
               <Menu size={24} />
             </button>
             <div className="flex items-center gap-2 min-w-0">
               <span className={`shrink-0 w-2 h-2 ${aiModel === "antigravity" ? "bg-secondary" : "bg-primary"}`} />
               <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
-                {currentSession?.title || "Hengbo AI"}
+                {currentSession?.title || "亨波 AI 顧問"}
               </h2>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
-            <div className="hidden sm:flex items-center bg-surface-low rounded-lg p-1 text-xs font-black uppercase tracking-widest" title="切換 AI 模型">
+            <div className="hidden sm:flex items-center bg-surface-low p-1 text-xs font-black uppercase tracking-widest" title="切換 AI 模型">
               <button
                 onClick={() => setAiModel("flash")}
-                className={`px-3 py-1.5 rounded-md transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/50 hover:text-primary"}`}
+                className={`px-3 py-1.5 transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/50 hover:text-primary"}`}
               >
                 Flash
               </button>
               <button
                 onClick={() => setAiModel("antigravity")}
-                className={`px-3 py-1.5 rounded-md transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/50 hover:text-primary"}`}
-                title="Antigravity Agent（預覽版，延遲較高，不支援圖片分析）"
+                className={`px-3 py-1.5 transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/50 hover:text-primary"}`}
+                title="Agent 模式（預覽版，延遲較高，不支援圖片分析）"
               >
-                Antigravity
+                Agent
               </button>
             </div>
             <button 
               onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
-              className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" 
+              className="p-2 hover:bg-secondary/10 text-secondary transition-colors" 
               title="刪除當前對話"
             >
               <Trash2 size={20} />
@@ -1442,7 +1442,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
         {aiModel === "antigravity" && (
           <div className="px-4 md:px-6 py-2 bg-secondary/10 border-b border-secondary/20 text-secondary text-xs font-bold flex items-center gap-2">
             <Sparkles size={14} />
-            Antigravity Agent 為 Google 預覽版功能：回覆速度較慢、不支援圖片分析，僅建議測試使用。
+            Agent 為預覽版功能：回覆速度較慢、不支援圖片分析，僅建議測試使用。
           </div>
         )}
 
@@ -1452,13 +1452,13 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
               <div className={`shrink-0 w-8 h-8 md:w-9 md:h-9 flex items-center justify-center mt-1 ${
                 msg.role === 'user' ? 'bg-primary text-white' : 'bg-white border-2 border-secondary text-secondary'
               }`}>
-                {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+                {msg.role === 'user' ? <User size={16} /> : <i className="fa-solid fa-disease text-[16px]"></i>}
               </div>
               <div className={`max-w-[85%] md:max-w-[80%] space-y-1.5 ${msg.role === 'user' ? 'items-end' : 'items-start'} flex flex-col`}>
-                <div className={`text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 ${
+                <div className={`text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 border-2 ${
                   msg.role === 'user'
-                    ? 'bg-primary text-white rounded-lg rounded-tr-sm'
-                    : 'bg-surface-low text-primary rounded-lg rounded-tl-sm border-l-4 border-secondary'
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-surface-low text-primary border-primary/10 border-l-4 border-l-secondary'
                 }`}>
                   {msg.role === 'user' ? <div className="whitespace-pre-wrap">{msg.content}</div> : (
                     <div className="markdown-content prose prose-sm max-w-none">
@@ -1484,9 +1484,9 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
           {isTyping && (
             <div className="flex items-start gap-2.5 md:gap-3">
               <div className="shrink-0 w-8 h-8 md:w-9 md:h-9 flex items-center justify-center mt-1 bg-white border-2 border-secondary text-secondary">
-                <Bot size={16} />
+                <i className="fa-solid fa-disease text-[16px]"></i>
               </div>
-              <div className="bg-surface-low border-l-4 border-secondary p-4 rounded-lg rounded-tl-sm flex items-end gap-1 h-[52px]">
+              <div className="bg-surface-low border-2 border-primary/10 border-l-4 border-l-secondary p-4 flex items-end gap-1 h-[52px]">
                 <div className="trend-bar w-1.5 h-3 bg-secondary" style={{ animationDelay: "0ms" }} />
                 <div className="trend-bar w-1.5 h-5 bg-secondary" style={{ animationDelay: "150ms" }} />
                 <div className="trend-bar w-1.5 h-4 bg-secondary" style={{ animationDelay: "300ms" }} />
@@ -1509,16 +1509,16 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
           )}
         </div>
 
-        <footer className="p-4 md:p-6 bg-white border-t-2 border-primary/5">
+        <footer className="p-4 md:p-6 bg-white border-t-2 border-primary">
           <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
             {selectedFile && (
-              <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white flex items-center gap-3 shadow-[6px_6px_0px_0px_rgba(21,66,18,1)] animate-in slide-in-from-bottom-2">
+              <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white flex items-center gap-3">
                 {selectedFile.type.startsWith('image/') ? <ImageIcon size={16} /> : <FileText size={16} />}
                 <span className="text-xs font-black truncate max-w-[150px] md:max-w-[200px]">{selectedFile.name}</span>
                 <button type="button" onClick={() => setSelectedFile(null)} className="hover:text-primary transition-colors"><X size={16} /></button>
               </div>
             )}
-            <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 rounded-lg border-2 border-transparent focus-within:border-primary transition-all">
+            <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 border-2 border-primary/10 focus-within:border-primary transition-colors">
               <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 md:p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={24} /></button>
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
               <textarea 
@@ -1529,7 +1529,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
                 className="flex-grow bg-transparent border-none focus:ring-0 py-3 font-bold text-primary resize-none max-h-32 custom-scrollbar text-sm md:text-base"
                 rows={1}
               />
-              <button disabled={(!input.trim() && !selectedFile) || isTyping} className="p-2 md:p-3 bg-primary text-white rounded-xl hover:bg-secondary transition-all disabled:opacity-30 shadow-lg">
+              <button disabled={(!input.trim() && !selectedFile) || isTyping} className="p-2 md:p-3 bg-primary text-white hover:bg-secondary snap-transition disabled:opacity-30">
                 <Send size={24} />
               </button>
             </div>
