@@ -983,6 +983,12 @@ const AIView = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
+  // AI 模型切換：'flash' = 一般 Gemini 3.5 Flash 對話（低延遲、支援圖片上傳分析）
+  // 'antigravity' = Antigravity Agent（Pre-GA 預覽版，會啟動沙盒環境，延遲較高，不支援圖片分析）
+  const [aiModel, setAiModel] = useState<"flash" | "antigravity">("flash");
+  // 記錄每個對話 session 對應的 Antigravity interaction/environment id，讓多輪對話能延續上下文
+  const antigravityStateRef = useRef<Record<string, { interactionId?: string; environmentId?: string }>>({});
+
   const SESSIONS_STORAGE_KEY = "hengbo_ai_sessions_v2";
 
   const currentSession = useMemo(() => 
@@ -1151,43 +1157,86 @@ const AIView = () => {
     const updatedMessages = [...messages, newUserMsg, newAiMsg];
     updateSessionMessages(currentSessionId, updatedMessages);
     
+    // Antigravity Agent（Pre-GA）目前無正式文件支援圖片分析，先擋掉並提示改用 Flash 模型
+    if (aiModel === "antigravity" && currentFile && currentFile.type.startsWith('image/')) {
+      setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+        ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: "Antigravity Agent（預覽版）目前不支援圖片分析，請切換回「Flash 模式」再上傳圖片。" } : m)
+      } : s));
+      setInput("");
+      setSelectedFile(null);
+      return;
+    }
+
     setInput("");
     setSelectedFile(null);
     setIsTyping(true);
 
-    try {
-      let aiPromptParts: any[] = [];
-      if (currentFile && currentFile.type.startsWith('image/')) {
-        aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
-        aiPromptParts.push({ text: userMsg });
-      } else if (currentFile) {
-        aiPromptParts.push({ text: `檔案內容 (${currentFile.name})：\n${currentFile.content.substring(0, 50000)}\n\n問題：${userMsg}` });
-      } else {
-        aiPromptParts.push({ text: userMsg });
-      }
-
-      const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
-      const response = await genAI.models.generateContentStream({
-        model: "gemini-3.1-flash-lite",
-        systemInstruction: `你是一位專業且充滿洞察力的『Hengbo AI顧問』，代表「亨波趨勢 (HENGBO TREND)」。
+    const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
+    const systemInstruction = `你是一位專業且充滿洞察力的『Hengbo AI顧問』，代表「亨波趨勢 (HENGBO TREND)」。
 你的核心特質：
 1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
 2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
 3. **數據與趨勢驅動**：強調數據支持與精準規劃。
 4. **品牌忠誠度**：引導至 https://vvw-tw.vercel.app/。
-${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`,
-        contents: [
-          ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
-          { role: "user", parts: aiPromptParts }
-        ],
-      });
+${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`;
 
+    try {
       let fullText = "";
-      for await (const chunk of response) {
-        fullText += chunk.text || "";
+
+      if (aiModel === "antigravity") {
+        // --- Antigravity Agent（Pre-GA 預覽）：走 Interactions API，會啟動沙盒環境，延遲較高 ---
+        const sessionState = antigravityStateRef.current[currentSessionId] || {};
+        const agentInput = currentFile
+          ? `檔案內容 (${currentFile.name})：\n${currentFile.content.substring(0, 50000)}\n\n問題：${userMsg}`
+          : userMsg;
+
+        const interaction: any = await (genAI as any).interactions.create({
+          agent: "antigravity-preview-05-2026",
+          input: agentInput,
+          system_instruction: systemInstruction,
+          // 有前一輪就延續對話與沙盒環境，否則開一個新的沙盒
+          ...(sessionState.interactionId
+            ? { previous_interaction_id: sessionState.interactionId, environment: sessionState.environmentId }
+            : { environment: "remote" }),
+        });
+
+        // 目前 streaming 事件格式尚未有完整正式文件，先以非串流方式取得完整回覆，避免解析錯誤
+        fullText = interaction.output_text || "";
+        antigravityStateRef.current[currentSessionId] = {
+          interactionId: interaction.id,
+          environmentId: interaction.environment_id,
+        };
+
         setSessions(prev => prev.map(s => s.id === currentSessionId ? {
           ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
         } : s));
+      } else {
+        // --- 一般模式：Gemini 3.5 Flash，走標準 generateContentStream，逐字串流 ---
+        let aiPromptParts: any[] = [];
+        if (currentFile && currentFile.type.startsWith('image/')) {
+          aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
+          aiPromptParts.push({ text: userMsg });
+        } else if (currentFile) {
+          aiPromptParts.push({ text: `檔案內容 (${currentFile.name})：\n${currentFile.content.substring(0, 50000)}\n\n問題：${userMsg}` });
+        } else {
+          aiPromptParts.push({ text: userMsg });
+        }
+
+        const response = await genAI.models.generateContentStream({
+          model: "gemini-3.5-flash",
+          systemInstruction,
+          contents: [
+            ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
+            { role: "user", parts: aiPromptParts }
+          ],
+        });
+
+        for await (const chunk of response) {
+          fullText += chunk.text || "";
+          setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+            ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
+          } : s));
+        }
       }
 
       const imgMatch = fullText.match(/\[IMAGE_GEN:\s*(.*?)\]/);
@@ -1335,7 +1384,22 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
               {currentSession?.title || "Hengbo AI"}
             </h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="hidden sm:flex items-center bg-surface-low rounded-lg p-1 text-xs font-black uppercase tracking-widest" title="切換 AI 模型">
+              <button
+                onClick={() => setAiModel("flash")}
+                className={`px-3 py-1.5 rounded-md transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/50 hover:text-primary"}`}
+              >
+                Flash
+              </button>
+              <button
+                onClick={() => setAiModel("antigravity")}
+                className={`px-3 py-1.5 rounded-md transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/50 hover:text-primary"}`}
+                title="Antigravity Agent（預覽版，延遲較高，不支援圖片分析）"
+              >
+                Antigravity
+              </button>
+            </div>
             <button 
               onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
               className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" 
@@ -1345,6 +1409,12 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
             </button>
           </div>
         </header>
+        {aiModel === "antigravity" && (
+          <div className="px-4 md:px-6 py-2 bg-secondary/10 border-b border-secondary/20 text-secondary text-xs font-bold flex items-center gap-2">
+            <Sparkles size={14} />
+            Antigravity Agent 為 Google 預覽版功能：回覆速度較慢、不支援圖片分析，僅建議測試使用。
+          </div>
+        )}
 
         <div ref={scrollRef} onScroll={handleScroll} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 custom-scrollbar">
           {messages.map((msg) => (
