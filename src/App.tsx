@@ -40,7 +40,8 @@ import {
   ShieldCheck,
   Clock,
   ChevronDown,
-  Palette
+  Palette,
+  Image as ImageIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
@@ -963,6 +964,27 @@ const ContactView: React.FC = () => {
   );
 };
 
+// 將時間戳轉換為相對時間文字（例如：3 分鐘前）
+const formatRelativeTime = (date: Date): string => {
+  const diffMs = Date.now() - new Date(date).getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "剛剛";
+  if (diffMin < 60) return `${diffMin} 分鐘前`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr} 小時前`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 7) return `${diffDay} 天前`;
+  return new Date(date).toLocaleDateString("zh-TW", { month: "short", day: "numeric" });
+};
+
+// 快速提示詞（僅在新對話尚未開始時顯示，引導顧問對話方向）
+const AI_QUICK_PROMPTS = [
+  "分析我上傳的品牌簡報",
+  "最新產業趨勢摘要",
+  "起草一份提案大綱",
+  "競品定位分析建議",
+];
+
 // ========== AIView 組件 ==========
 const AIView = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -1262,7 +1284,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
 
   if (!isLoggedIn) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="brutalist-grid min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10">
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md bg-white border-2 border-primary shadow-[12px_12px_0px_0px_rgba(21,66,18,1)] p-8 md:p-12">
           <div className="flex flex-col items-center mb-10">
             <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg"><Lock className="w-12 h-12 text-white" /></div>
@@ -1353,17 +1375,22 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
                     setCurrentSessionId(s.id);
                     if (window.innerWidth <= 768) setIsSidebarOpen(false);
                   }}
-                  className={`group flex items-center justify-between p-4 cursor-pointer rounded-lg transition-all ${
-                    currentSessionId === s.id ? 'bg-primary text-white shadow-lg' : 'hover:bg-primary/5 text-primary'
+                  className={`group flex items-center justify-between gap-2 p-4 cursor-pointer border-l-4 transition-all ${
+                    currentSessionId === s.id ? 'bg-primary text-white shadow-lg border-secondary' : 'hover:bg-primary/5 text-primary border-transparent'
                   }`}
                 >
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <MessageSquare size={18} className={currentSessionId === s.id ? 'text-white' : 'text-secondary'} />
-                    <span className="font-bold text-sm truncate">{s.title}</span>
+                  <div className="flex items-center gap-3 overflow-hidden min-w-0">
+                    <MessageSquare size={18} className={`shrink-0 ${currentSessionId === s.id ? 'text-white' : 'text-secondary'}`} />
+                    <div className="min-w-0">
+                      <span className="block font-bold text-sm truncate">{s.title}</span>
+                      <span className={`block text-[10px] font-black uppercase tracking-widest ${currentSessionId === s.id ? 'text-white/60' : 'text-primary/35'}`}>
+                        {formatRelativeTime(s.lastUpdated)}
+                      </span>
+                    </div>
                   </div>
                   <button 
                     onClick={(e) => deleteSession(s.id, e)}
-                    className={`opacity-0 group-hover:opacity-100 p-1 hover:bg-white/20 rounded transition-opacity ${currentSessionId === s.id ? 'text-white' : 'text-primary/40'}`}
+                    className={`opacity-0 group-hover:opacity-100 shrink-0 p-1 hover:bg-white/20 transition-opacity ${currentSessionId === s.id ? 'text-white' : 'text-primary/40'}`}
                   >
                     <Trash2 size={14} />
                   </button>
@@ -1380,9 +1407,12 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors">
               <Menu size={24} />
             </button>
-            <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
-              {currentSession?.title || "Hengbo AI"}
-            </h2>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className={`shrink-0 w-2 h-2 ${aiModel === "antigravity" ? "bg-secondary" : "bg-primary"}`} />
+              <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
+                {currentSession?.title || "Hengbo AI"}
+              </h2>
+            </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
             <div className="hidden sm:flex items-center bg-surface-low rounded-lg p-1 text-xs font-black uppercase tracking-widest" title="切換 AI 模型">
@@ -1418,13 +1448,17 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
 
         <div ref={scrollRef} onScroll={handleScroll} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 custom-scrollbar">
           {messages.map((msg) => (
-            <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[90%] md:max-w-[85%] space-y-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
-                <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'justify-end text-muted' : 'text-secondary'}`}>
-                  {msg.role === 'user' ? <><User size={12} /> 使用者</> : <><Bot size={12} /> Hengbo AI</>}
-                </div>
-                <div className={`inline-block text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 rounded-2xl shadow-sm ${
-                  msg.role === 'user' ? 'bg-primary text-white rounded-tr-none' : 'bg-surface-low text-primary rounded-tl-none border border-primary/5'
+            <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex items-start gap-2.5 md:gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className={`shrink-0 w-8 h-8 md:w-9 md:h-9 flex items-center justify-center mt-1 ${
+                msg.role === 'user' ? 'bg-primary text-white' : 'bg-white border-2 border-secondary text-secondary'
+              }`}>
+                {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+              </div>
+              <div className={`max-w-[85%] md:max-w-[80%] space-y-1.5 ${msg.role === 'user' ? 'items-end' : 'items-start'} flex flex-col`}>
+                <div className={`text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 ${
+                  msg.role === 'user'
+                    ? 'bg-primary text-white rounded-lg rounded-tr-sm'
+                    : 'bg-surface-low text-primary rounded-lg rounded-tl-sm border-l-4 border-secondary'
                 }`}>
                   {msg.role === 'user' ? <div className="whitespace-pre-wrap">{msg.content}</div> : (
                     <div className="markdown-content prose prose-sm max-w-none">
@@ -1432,7 +1466,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
                     </div>
                   )}
                   {msg.imageUrl && (
-                    <div className="mt-4 rounded-xl overflow-hidden border-2 border-primary/10 bg-white">
+                    <div className="mt-4 overflow-hidden border-2 border-primary/10 bg-white">
                       <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain" />
                       <div className="p-3 bg-primary text-white text-[10px] font-black flex justify-between items-center">
                         <span>AI GENERATED CONCEPT</span>
@@ -1441,30 +1475,50 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
                     </div>
                   )}
                 </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary/30 px-1">
+                  {formatRelativeTime(msg.timestamp)}
+                </span>
               </div>
             </motion.div>
           ))}
           {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-surface-low p-4 rounded-2xl rounded-tl-none flex gap-1">
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-2 h-2 bg-secondary rounded-full" />
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-2 h-2 bg-secondary rounded-full" />
-                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-2 h-2 bg-secondary rounded-full" />
+            <div className="flex items-start gap-2.5 md:gap-3">
+              <div className="shrink-0 w-8 h-8 md:w-9 md:h-9 flex items-center justify-center mt-1 bg-white border-2 border-secondary text-secondary">
+                <Bot size={16} />
+              </div>
+              <div className="bg-surface-low border-l-4 border-secondary p-4 rounded-lg rounded-tl-sm flex items-end gap-1 h-[52px]">
+                <div className="trend-bar w-1.5 h-3 bg-secondary" style={{ animationDelay: "0ms" }} />
+                <div className="trend-bar w-1.5 h-5 bg-secondary" style={{ animationDelay: "150ms" }} />
+                <div className="trend-bar w-1.5 h-4 bg-secondary" style={{ animationDelay: "300ms" }} />
+                <div className="trend-bar w-1.5 h-6 bg-secondary" style={{ animationDelay: "450ms" }} />
               </div>
             </div>
+          )}
+          {!isTyping && messages.length === 1 && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="pl-[42px] md:pl-[48px] flex flex-wrap gap-2">
+              {AI_QUICK_PROMPTS.map((prompt) => (
+                <button
+                  key={prompt}
+                  onClick={() => setInput(prompt)}
+                  className="px-3 py-2 border-2 border-primary/10 text-primary text-xs font-bold hover:border-secondary hover:text-secondary transition-colors"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </motion.div>
           )}
         </div>
 
         <footer className="p-4 md:p-6 bg-white border-t-2 border-primary/5">
           <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
             {selectedFile && (
-              <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white rounded-lg flex items-center gap-3 shadow-xl animate-in slide-in-from-bottom-2">
-                <Paperclip size={16} />
+              <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white flex items-center gap-3 shadow-[6px_6px_0px_0px_rgba(21,66,18,1)] animate-in slide-in-from-bottom-2">
+                {selectedFile.type.startsWith('image/') ? <ImageIcon size={16} /> : <FileText size={16} />}
                 <span className="text-xs font-black truncate max-w-[150px] md:max-w-[200px]">{selectedFile.name}</span>
                 <button type="button" onClick={() => setSelectedFile(null)} className="hover:text-primary transition-colors"><X size={16} /></button>
               </div>
             )}
-            <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 rounded-2xl border-2 border-transparent focus-within:border-primary transition-all">
+            <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 rounded-lg border-2 border-transparent focus-within:border-primary transition-all">
               <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 md:p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={24} /></button>
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
               <textarea 
