@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Plus, Search, MessageSquare, Trash2, Send, Paperclip, 
-  Sparkles, Bot, User, RefreshCw, Copy, Check, MoreVertical,
+  Sparkles, User, RefreshCw, Copy, Check, MoreVertical,
   X, Menu, Eye, EyeOff, Lock, ArrowRight, Brain
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -80,7 +80,7 @@ export const AI: React.FC = () => {
       title: "新對話",
       messages: [{ 
         role: "ai", 
-        content: "您好！我是亨波 AI 顧問。很高興為您服務，請問今天有什麼我可以幫您的嗎？",
+        content: "您好，我是亨波 AI 顧問。請問需要協助什麼？",
         id: `msg-${Date.now()}`,
         timestamp: new Date()
       }],
@@ -285,24 +285,24 @@ export const AI: React.FC = () => {
     return (
       <>
         <Navbar />
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10 brutalist-grid">
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md bg-white border-2 border-primary shadow-[12px_12px_0px_0px_rgba(21,66,18,1)] p-8 md:p-12">
             <div className="flex flex-col items-center mb-10">
-              <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg"><Lock className="w-12 h-12 text-white" /></div>
+              <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6"><i className="fa-solid fa-disease text-white text-5xl"></i></div>
               <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 顧問</h2>
-              <p className="text-muted font-bold text-sm uppercase tracking-widest">安全驗證 1.0.0-beta.2</p>
+              <p className="text-muted font-bold text-sm uppercase tracking-widest">顧問專用系統</p>
             </div>
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
                 <label className="font-black uppercase tracking-widest text-[10px] text-secondary">顧問帳號</label>
-                <div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 font-bold focus:outline-none focus:border-primary" placeholder="Consultant ID" /></div>
+                <div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 font-bold focus:outline-none focus:border-primary" placeholder="請輸入帳號" /></div>
               </div>
               <div className="space-y-2">
-                <label className="font-black uppercase tracking-widest text-[10px] text-secondary">安全授權碼</label>
-                <div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary" placeholder="Access Key" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
+                <label className="font-black uppercase tracking-widest text-[10px] text-secondary">登入密碼</label>
+                <div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary" placeholder="請輸入密碼" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
               </div>
               {loginError && <div className="bg-secondary/10 border-l-4 border-secondary p-3 text-secondary font-bold text-xs uppercase">{loginError}</div>}
-              <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:bg-secondary transition-all flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
+              <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg hover:bg-secondary snap-transition flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
             </form>
             <div className="mt-8 pt-8 border-t-2 border-primary/10 flex justify-center">
               <p className="text-primary/40 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
@@ -334,7 +334,7 @@ export const AI: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsSidebarOpen(false)}
-              className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-30 md:hidden"
+              className="fixed inset-0 bg-primary/40 z-30 md:hidden"
             />
           )}
         </AnimatePresence>
@@ -345,13 +345,13 @@ export const AI: React.FC = () => {
               initial={{ x: -320, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -320, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r-2 border-primary/10 flex flex-col bg-surface-low z-40 md:z-20 shadow-2xl md:shadow-none"
+              transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
+              className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r-2 border-primary flex flex-col bg-surface-low z-40 md:z-20"
             >
               <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between md:hidden mb-4">
                   <span className="font-black text-primary uppercase tracking-tighter">對話列表</span>
-                  <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
+                  <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5"><X size={24} /></button>
                 </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={18} />
@@ -365,7 +365,7 @@ export const AI: React.FC = () => {
                 </div>
                 <button 
                   onClick={createNewSession}
-                  className="w-full bg-primary text-white py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-secondary transition-all shadow-md"
+                  className="w-full bg-primary text-white py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-secondary snap-transition"
                 >
                   <Plus size={20} /> 新對話
                 </button>
@@ -379,8 +379,8 @@ export const AI: React.FC = () => {
                       setCurrentSessionId(s.id);
                       if (window.innerWidth <= 768) setIsSidebarOpen(false);
                     }}
-                    className={`group flex items-center justify-between p-4 cursor-pointer rounded-lg transition-all ${
-                      currentSessionId === s.id ? 'bg-primary text-white shadow-lg' : 'hover:bg-primary/5 text-primary'
+                    className={`group flex items-center justify-between p-4 cursor-pointer border-l-4 transition-colors ${
+                      currentSessionId === s.id ? 'bg-primary text-white border-secondary' : 'border-transparent hover:bg-primary/5 hover:border-primary/20 text-primary'
                     }`}
                   >
                     <div className="flex items-center gap-3 overflow-hidden">
@@ -389,7 +389,7 @@ export const AI: React.FC = () => {
                     </div>
                     <button 
                       onClick={(e) => deleteSession(s.id, e)}
-                      className={`opacity-0 group-hover:opacity-100 p-1 hover:bg-white/20 rounded transition-opacity ${currentSessionId === s.id ? 'text-white' : 'text-primary/40'}`}
+                      className={`opacity-0 group-hover:opacity-100 p-1 hover:bg-white/20 transition-opacity ${currentSessionId === s.id ? 'text-white' : 'text-primary/40'}`}
                     >
                       <Trash2 size={14} />
                     </button>
@@ -401,9 +401,9 @@ export const AI: React.FC = () => {
         </AnimatePresence>
 
         <main className="flex-grow flex flex-col relative min-w-0 w-full">
-          <header className="h-16 border-b-2 border-primary/5 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+          <header className="h-16 border-b-2 border-primary flex items-center justify-between px-4 md:px-6 bg-white sticky top-0 z-10">
             <div className="flex items-center gap-3 md:gap-4">
-              <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors">
+              <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low text-primary transition-colors">
                 <Menu size={24} />
               </button>
               <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
@@ -414,7 +414,7 @@ export const AI: React.FC = () => {
               <div className="relative">
                 <button 
                   onClick={() => setShowThinkingMenu(!showThinkingMenu)}
-                  className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors flex items-center gap-1 text-xs md:text-sm font-bold uppercase tracking-wider"
+                  className="p-2 hover:bg-surface-low text-primary transition-colors flex items-center gap-1 text-xs md:text-sm font-bold uppercase tracking-wider"
                   title="調整思考等級"
                 >
                   <Brain size={18} />
@@ -423,10 +423,11 @@ export const AI: React.FC = () => {
                 <AnimatePresence>
                   {showThinkingMenu && (
                     <motion.div
-                      initial={{ opacity: 0, y: -10 }}
+                      initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-2 w-48 bg-white border-2 border-primary/10 rounded-lg shadow-xl z-50"
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-2 w-48 bg-white border-2 border-primary shadow-[6px_6px_0px_0px_rgba(21,66,18,1)] z-50"
                     >
                       {[
                         { level: 'minimal' as const, label: '最少思考', desc: '最快、最粗簡' },
@@ -458,7 +459,7 @@ export const AI: React.FC = () => {
               </div>
               <button 
                 onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
-                className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" 
+                className="p-2 hover:bg-secondary/10 text-secondary transition-colors" 
                 title="刪除當前對話"
               >
                 <Trash2 size={20} />
@@ -471,10 +472,10 @@ export const AI: React.FC = () => {
               <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[90%] md:max-w-[85%] space-y-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
                   <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${msg.role === 'user' ? 'justify-end text-muted' : 'text-secondary'}`}>
-                    {msg.role === 'user' ? <><User size={12} /> 使用者</> : <><Bot size={12} /> 亨波 AI 顧問</>}
+                    {msg.role === 'user' ? <><User size={12} /> 使用者</> : <><i className="fa-solid fa-disease text-[12px]"></i> 亨波 AI 顧問</>}
                   </div>
-                  <div className={`inline-block text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 rounded-2xl shadow-sm ${
-                    msg.role === 'user' ? 'bg-primary text-white rounded-tr-none' : 'bg-surface-low text-primary rounded-tl-none border border-primary/5'
+                  <div className={`inline-block text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 border-2 ${
+                    msg.role === 'user' ? 'bg-primary text-white border-primary' : 'bg-white text-primary border-primary/15'
                   }`}>
                     {msg.role === 'user' ? <div className="whitespace-pre-wrap">{msg.content}</div> : (
                       <div className="markdown-content prose prose-sm max-w-none">
@@ -482,7 +483,7 @@ export const AI: React.FC = () => {
                       </div>
                     )}
                     {msg.imageUrl && (
-                      <div className="mt-4 rounded-xl overflow-hidden border-2 border-primary/10 bg-white">
+                      <div className="mt-4 overflow-hidden border-2 border-primary/15 bg-white">
                         <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain" />
                         <div className="p-3 bg-primary text-white text-[10px] font-black flex justify-between items-center">
                           <span>AI GENERATED CONCEPT</span>
@@ -496,25 +497,25 @@ export const AI: React.FC = () => {
             ))}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-surface-low p-4 rounded-2xl rounded-tl-none flex gap-1">
-                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-2 h-2 bg-secondary rounded-full" />
-                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-2 h-2 bg-secondary rounded-full" />
-                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-2 h-2 bg-secondary rounded-full" />
+                <div className="bg-white border-2 border-primary/15 p-4 flex items-end gap-1 h-[52px]">
+                  <div className="trend-bar w-1.5 h-4 bg-secondary" style={{ animationDelay: '0s' }} />
+                  <div className="trend-bar w-1.5 h-6 bg-secondary" style={{ animationDelay: '0.15s' }} />
+                  <div className="trend-bar w-1.5 h-3 bg-secondary" style={{ animationDelay: '0.3s' }} />
                 </div>
               </div>
             )}
           </div>
 
-          <footer className="p-4 md:p-6 bg-white border-t-2 border-primary/5">
+          <footer className="p-4 md:p-6 bg-white border-t-2 border-primary">
             <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
               {selectedFile && (
-                <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white rounded-lg flex items-center gap-3 shadow-xl animate-in slide-in-from-bottom-2">
+                <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white flex items-center gap-3">
                   <Paperclip size={16} />
                   <span className="text-xs font-black truncate max-w-[150px] md:max-w-[200px]">{selectedFile.name}</span>
                   <button type="button" onClick={() => setSelectedFile(null)} className="hover:text-primary transition-colors"><X size={16} /></button>
                 </div>
               )}
-              <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 rounded-2xl border-2 border-transparent focus-within:border-primary transition-all">
+              <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 border-2 border-primary/10 focus-within:border-primary transition-colors">
                 <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 md:p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={24} /></button>
                 <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
                 <textarea 
@@ -525,7 +526,7 @@ export const AI: React.FC = () => {
                   className="flex-grow bg-transparent border-none focus:ring-0 py-3 font-bold text-primary resize-none max-h-32 custom-scrollbar text-sm md:text-base"
                   rows={1}
                 />
-                <button disabled={(!input.trim() && !selectedFile) || isTyping} className="p-2 md:p-3 bg-primary text-white rounded-xl hover:bg-secondary transition-all disabled:opacity-30 shadow-lg">
+                <button disabled={(!input.trim() && !selectedFile) || isTyping} className="p-2 md:p-3 bg-primary text-white hover:bg-secondary snap-transition disabled:opacity-30">
                   <Send size={24} />
                 </button>
               </div>

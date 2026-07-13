@@ -1233,7 +1233,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
           ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
         } : s));
       } else {
-        // --- 一般模式：Gemini 3.5 Flash，走標準 generateContentStream，逐字串流 ---
+        // --- 一般模式：Gemini 3.1 Flash Lite，走標準 generateContentStream，逐字串流 ---
         let aiPromptParts: any[] = [];
         if (currentFile && currentFile.type.startsWith('image/')) {
           aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
@@ -1245,7 +1245,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
         }
 
         const response = await genAI.models.generateContentStream({
-          model: "gemini-3.5-flash",
+          model: "gemini-3.1-flash-lite",
           systemInstruction,
           contents: [
             ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
