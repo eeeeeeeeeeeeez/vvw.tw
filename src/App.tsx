@@ -213,9 +213,30 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
   );
 };
 
+// 合作夥伴 LOGO 清單 —— 檔案請放到 /public/partners/ 資料夾，命名需與此陣列一致
+const PARTNER_LOGOS = Array.from({ length: 10 }, (_, i) => ({
+  name: `合作夥伴 ${i + 1}`,
+  src: `/partners/partner-${String(i + 1).padStart(2, "0")}.png`,
+}));
+
 const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => (
-  <footer className="bg-primary border-t-4 border-secondary w-full px-8 py-24 mt-24">
-    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-white">
+  <footer className="bg-primary border-t-4 border-secondary w-full pt-16 pb-24 mt-24">
+    <div className="max-w-7xl mx-auto px-8">
+      <div className="flex items-center gap-4 mb-8">
+        <span className="text-secondary font-black tracking-[0.3em] uppercase text-xs">合作夥伴</span>
+        <div className="flex-grow h-px bg-white/10" />
+      </div>
+      <div className="partner-marquee-wrap overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+        <div className="partner-marquee-track">
+          {[...PARTNER_LOGOS, ...PARTNER_LOGOS].map((partner, i) => (
+            <div key={`${partner.name}-${i}`} className="shrink-0 w-[140px] h-16 mx-3 bg-white/95 rounded-xl flex items-center justify-center p-3">
+              <img src={partner.src} alt={partner.name} className="max-w-full max-h-full object-contain" loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+    <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-white mt-16 pt-16 border-t border-white/10">
       <div className="col-span-1 md:col-span-2">
         <div className="flex items-center gap-4 mb-8">
           <Logo className="w-12 h-12" variant="white" />

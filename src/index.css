@@ -85,3 +85,21 @@
 
 /* Safe-area padding for fixed bottom elements on notched phones */
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Partner logo marquee — seamless infinite scroll, pauses on hover/focus */
+@keyframes partner-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.partner-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: partner-marquee 32s linear infinite;
+}
+.partner-marquee-track:hover,
+.partner-marquee-track:focus-within {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .partner-marquee-track { animation: none; }
+}
