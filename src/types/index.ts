@@ -6,11 +6,18 @@ export interface Message {
   imageUrl?: string;
 }
 
+export interface SessionDocument {
+  name: string;
+  content: string;
+  type: string;
+}
+
 export interface ChatSession {
   id: string;
   title: string;
   messages: Message[];
   lastUpdated: Date;
+  documents?: SessionDocument[];
 }
 
 export interface SelectedFile {
