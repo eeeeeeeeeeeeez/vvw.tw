@@ -124,7 +124,6 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
     { id: "services", label: "專業服務" },
     { id: "cases", label: "精選案例" },
     { id: "about", label: "關於我們" },
-    { id: "ai", label: "Hengbo AI" },
   ];
 
   const handleTabClick = (id: string) => {
@@ -234,7 +233,6 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           <button onClick={() => { setActiveTab("cases"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">精選案例</button>
           <button onClick={() => { setActiveTab("about"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">關於我們</button>
           <button onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">聯繫我們</button>
-          <button onClick={() => { setActiveTab("ai"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">Hengbo AI</button>
         </div>
         <div className="flex flex-col gap-4">
           <span className="text-secondary font-black tracking-widest uppercase">社群連結</span>
@@ -1179,7 +1177,7 @@ const AIView = () => {
     // Antigravity Agent（Pre-GA）目前無正式文件支援圖片分析，先擋掉並提示改用 Flash 模型
     if (aiModel === "antigravity" && currentFile && currentFile.type.startsWith('image/')) {
       setSessions(prev => prev.map(s => s.id === currentSessionId ? {
-        ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: "Antigravity Agent（預覽版）目前不支援圖片分析，請切換回「Flash 模式」再上傳圖片。" } : m)
+        ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: "Agent 模式（預覽版）目前不支援圖片分析，請切換回「Flash 模式」再上傳圖片。" } : m)
       } : s));
       setInput("");
       setSelectedFile(null);
@@ -1242,7 +1240,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
         }
 
         const response = await genAI.models.generateContentStream({
-          model: "gemini-3.5-flash",
+          model: "gemini-3.1-flash-lite",
           systemInstruction,
           contents: [
             ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
@@ -1282,32 +1280,32 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
   if (!isLoggedIn) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10">
-        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md bg-white border-2 border-primary shadow-[12px_12px_0px_0px_rgba(21,66,18,1)] p-8 md:p-12">
-          <div className="flex flex-col items-center mb-10">
-            <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg"><Lock className="w-12 h-12 text-white" /></div>
-            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">Hengbo AI</h2>
-            <p className="text-muted font-bold text-sm uppercase tracking-widest">基於tvivl-1.5-beta的AI顧問</p>
+        <motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-primary/5 p-8 md:p-10">
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-16 h-16 rounded-full bg-surface-low flex items-center justify-center mb-5"><Logo className="w-9 h-9" /></div>
+            <h2 className="text-2xl font-bold text-ink mb-1.5">Hengbo AI</h2>
+            <p className="text-muted text-sm">基於 tvivl-1.5-beta 的 AI 顧問</p>
           </div>
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <label className="font-black uppercase tracking-widest text-[10px] text-secondary">顧問帳號</label>
-              <div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 font-bold focus:outline-none focus:border-primary" placeholder="Consultant ID" /></div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-primary/60">顧問帳號</label>
+              <div className="relative"><User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary/30" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low rounded-xl py-3 pl-10 pr-4 font-medium text-ink ring-1 ring-transparent focus:outline-none focus:ring-primary/30 transition-all" placeholder="Consultant ID" /></div>
             </div>
-            <div className="space-y-2">
-              <label className="font-black uppercase tracking-widest text-[10px] text-secondary">安全授權碼</label>
-              <div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary" placeholder="Access Key" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-primary/60">安全授權碼</label>
+              <div className="relative"><Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary/30" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low rounded-xl py-3 pl-10 pr-10 font-medium text-ink ring-1 ring-transparent focus:outline-none focus:ring-primary/30 transition-all" placeholder="Access Key" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-primary/30 hover:text-primary/60 transition-colors">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>
             </div>
-            {loginError && <div className="bg-secondary/10 border-l-4 border-secondary p-3 text-secondary font-bold text-xs uppercase">{loginError}</div>}
-            <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:bg-secondary transition-all flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
+            {loginError && <div className="bg-secondary/5 rounded-xl p-3 text-secondary font-medium text-xs">{loginError}</div>}
+            <button className="w-full bg-primary text-white py-3.5 rounded-2xl font-semibold hover:bg-secondary transition-all flex items-center justify-center gap-2 mt-2">授權並進入 <ArrowRight size={18} /></button>
           </form>
-          <div className="mt-8 pt-8 border-t-2 border-primary/10 flex justify-center">
-            <p className="text-primary/40 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
+          <div className="mt-6 pt-6 border-t border-primary/5 flex justify-center">
+            <p className="text-primary/40 text-xs flex items-center gap-1.5">
               還沒有顧問帳號嗎？
               <a 
                 href="https://lin.ee/ZegJcQj" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-primary hover:text-secondary transition-colors underline underline-offset-4 decoration-2"
+                className="text-primary hover:text-secondary transition-colors font-medium"
               >
                 取得帳號
               </a>
@@ -1414,9 +1412,9 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
               <button
                 onClick={() => setAiModel("antigravity")}
                 className={`px-3 py-1.5 rounded-md transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/50 hover:text-primary"}`}
-                title="Antigravity Agent（預覽版，延遲較高，不支援圖片分析）"
+                title="Agent 模式（預覽版，延遲較高，不支援圖片分析）"
               >
-                Antigravity
+                Agent
               </button>
             </div>
             <button 
@@ -1431,7 +1429,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
         {aiModel === "antigravity" && (
           <div className="px-4 md:px-6 py-2 bg-secondary/10 border-b border-secondary/20 text-secondary text-xs font-bold flex items-center gap-2">
             <Sparkles size={14} />
-            Antigravity Agent 為 Google 預覽版功能：回覆速度較慢、不支援圖片分析，僅建議測試使用。
+            Agent 模式為 Google 預覽版功能：回覆速度較慢、不支援圖片分析，僅建議測試使用。
           </div>
         )}
 
@@ -1491,7 +1489,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
           )}
         </div>
 
-        <footer className="p-4 md:p-6 bg-white border-t border-primary/10">
+        <footer className="p-4 md:p-6 bg-white border-t border-primary/10 pb-safe">
           <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto relative">
             {selectedFile && (
               <div className="absolute bottom-full left-0 mb-3 p-2.5 pl-3 bg-surface-low rounded-xl flex items-center gap-2.5 border border-primary/10 animate-in slide-in-from-bottom-2">
@@ -1567,19 +1565,39 @@ export default function App() {
 
       {activeTab !== "ai" && <Footer setActiveTab={setActiveTab} />}
 
-      <AnimatePresence>
-        {showScrollTop && activeTab !== "ai" && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            onClick={scrollToTop}
-            className="fixed bottom-8 right-8 z-50 bg-primary text-white p-4 brutalist-border-heavy hover:bg-secondary snap-transition"
-          >
-            <ArrowRight size={32} className="-rotate-90" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      <div className="fixed bottom-5 right-5 md:bottom-8 md:right-8 z-50 flex flex-col items-end gap-3 pb-safe">
+        <AnimatePresence>
+          {showScrollTop && activeTab !== "ai" && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              onClick={scrollToTop}
+              className="bg-primary text-white p-3.5 md:p-4 brutalist-border-heavy hover:bg-secondary snap-transition"
+            >
+              <ArrowRight size={24} className="-rotate-90 md:hidden" />
+              <ArrowRight size={32} className="-rotate-90 hidden md:block" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {activeTab === "home" && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.5, y: 20 }}
+              onClick={() => setActiveTab("ai")}
+              className="flex items-center gap-2.5 bg-primary text-white rounded-full shadow-xl shadow-primary/30 hover:bg-secondary transition-colors active:scale-95 w-14 h-14 justify-center sm:w-auto sm:h-auto sm:pl-4 sm:pr-5 sm:py-3.5"
+              aria-label="開啟亨波AI"
+            >
+              <span className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                <Logo className="w-4 h-4" variant="white" />
+              </span>
+              <span className="hidden sm:inline font-bold text-sm whitespace-nowrap">亨波AI</span>
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
