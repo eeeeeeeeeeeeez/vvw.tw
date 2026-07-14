@@ -1310,7 +1310,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
           <div className="flex flex-col items-center mb-8">
             <div className="w-16 h-16 rounded-full bg-surface-low flex items-center justify-center mb-5"><i className="fa-solid fa-disease text-3xl text-primary" aria-hidden="true"></i></div>
             <h2 className="text-2xl font-bold text-ink mb-1.5">Hengbo AI</h2>
-            <p className="text-muted text-sm">基於 tvivl-1.5-beta 的 AI 顧問</p>
+            <p className="text-muted text-sm">By Google</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
