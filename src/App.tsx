@@ -125,7 +125,7 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
     { id: "services", label: "專業服務" },
     { id: "cases", label: "精選案例" },
     { id: "about", label: "關於我們" },
-    { id: "ai", label: "Hengbo AI" },
+    { id: "ai", label: "亨波AI" },
   ];
 
   const handleTabClick = (id: string) => {
@@ -235,7 +235,7 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           <button onClick={() => { setActiveTab("cases"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">精選案例</button>
           <button onClick={() => { setActiveTab("about"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">關於我們</button>
           <button onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">聯繫我們</button>
-          <button onClick={() => { setActiveTab("ai"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">Hengbo AI</button>
+          <button onClick={() => { setActiveTab("ai"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">亨波AI</button>
         </div>
         <div className="flex flex-col gap-4">
           <span className="text-secondary font-black tracking-widest uppercase">社群連結</span>
