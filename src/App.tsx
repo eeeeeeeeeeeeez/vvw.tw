@@ -24,6 +24,7 @@ import {
   Leaf,
   Lock,
   User,
+  Bot,
   Sparkles,
   RefreshCw,
   Trash2,
@@ -39,8 +40,7 @@ import {
   ShieldCheck,
   Clock,
   ChevronDown,
-  Palette,
-  Image as ImageIcon
+  Palette
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
@@ -963,27 +963,6 @@ const ContactView: React.FC = () => {
   );
 };
 
-// 將時間戳轉換為相對時間文字（例如：3 分鐘前）
-const formatRelativeTime = (date: Date): string => {
-  const diffMs = Date.now() - new Date(date).getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "剛剛";
-  if (diffMin < 60) return `${diffMin} 分鐘前`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr} 小時前`;
-  const diffDay = Math.floor(diffHr / 24);
-  if (diffDay < 7) return `${diffDay} 天前`;
-  return new Date(date).toLocaleDateString("zh-TW", { month: "short", day: "numeric" });
-};
-
-// 快速提示詞（僅在新對話尚未開始時顯示，引導顧問對話方向）
-const AI_QUICK_PROMPTS = [
-  "分析我上傳的品牌簡報",
-  "最新產業趨勢摘要",
-  "起草一份提案大綱",
-  "競品定位分析建議",
-];
-
 // ========== AIView 組件 ==========
 const AIView = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -1003,6 +982,25 @@ const AIView = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+
+  const handleCopyMessage = async (id: string, content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+    } catch {
+      // Fallback for environments without Clipboard API permission
+      const textarea = document.createElement('textarea');
+      textarea.value = content;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+    setCopiedMessageId(id);
+    setTimeout(() => setCopiedMessageId((current) => (current === id ? null : current)), 1500);
+  };
 
   // AI 模型切換：'flash' = 一般 Gemini 3.5 Flash 對話（低延遲、支援圖片上傳分析）
   // 'antigravity' = Antigravity Agent（Pre-GA 預覽版，會啟動沙盒環境，延遲較高，不支援圖片分析）
@@ -1057,7 +1055,7 @@ const AIView = () => {
       title: "新對話",
       messages: [{ 
         role: "ai", 
-        content: "您好，我是亨波 AI 顧問。請問需要協助什麼？",
+        content: "您好！我是Hengbo AI很高興為您服務，請問今天有什麼我可以幫您的嗎？",
         id: `msg-${Date.now()}`,
         timestamp: new Date()
       }],
@@ -1181,7 +1179,7 @@ const AIView = () => {
     // Antigravity Agent（Pre-GA）目前無正式文件支援圖片分析，先擋掉並提示改用 Flash 模型
     if (aiModel === "antigravity" && currentFile && currentFile.type.startsWith('image/')) {
       setSessions(prev => prev.map(s => s.id === currentSessionId ? {
-        ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: "Agent 模式（預覽版）目前不支援圖片分析，請切換回「Flash 模式」再上傳圖片。" } : m)
+        ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: "Antigravity Agent（預覽版）目前不支援圖片分析，請切換回「Flash 模式」再上傳圖片。" } : m)
       } : s));
       setInput("");
       setSelectedFile(null);
@@ -1193,14 +1191,13 @@ const AIView = () => {
     setIsTyping(true);
 
     const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
-    const systemInstruction = `你是「亨波趨勢」的 AI 顧問，服務對象是企業客戶與內部顧問人員。
-
-# 語氣與風格
-- 專業、穩重、精簡，用詞正式但不生硬，不說客套話與贅語
-- 先給結論與可執行的建議，需要時才補充推理過程或理由
-- 一律使用精準的繁體中文，強調數據與趨勢依據
-- 僅在情境相關時，可提及亨波趨勢 https://vvw-tw.vercel.app/ 的相關服務，避免生硬置入
-${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`;
+    const systemInstruction = `你是一位專業且充滿洞察力的『Hengbo AI顧問』，代表「亨波趨勢 (HENGBO TREND)」。
+你的核心特質：
+1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
+2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
+3. **數據與趨勢驅動**：強調數據支持與精準規劃。
+4. **品牌忠誠度**：引導至 https://vvw-tw.vercel.app/。
+${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`;
 
     try {
       let fullText = "";
@@ -1233,7 +1230,7 @@ ${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[
           ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
         } : s));
       } else {
-        // --- 一般模式：Gemini 3.1 Flash Lite，走標準 generateContentStream，逐字串流 ---
+        // --- 一般模式：Gemini 3.5 Flash，走標準 generateContentStream，逐字串流 ---
         let aiPromptParts: any[] = [];
         if (currentFile && currentFile.type.startsWith('image/')) {
           aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
@@ -1245,7 +1242,7 @@ ${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[
         }
 
         const response = await genAI.models.generateContentStream({
-          model: "gemini-3.1-flash-lite",
+          model: "gemini-3.5-flash",
           systemInstruction,
           contents: [
             ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
@@ -1284,24 +1281,24 @@ ${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[
 
   if (!isLoggedIn) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="brutalist-grid min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex items-center justify-center bg-surface-low px-6 pt-24 relative z-10">
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md bg-white border-2 border-primary shadow-[12px_12px_0px_0px_rgba(21,66,18,1)] p-8 md:p-12">
           <div className="flex flex-col items-center mb-10">
-            <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6"><i className="fa-solid fa-disease text-white text-5xl"></i></div>
-            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">亨波 AI 顧問</h2>
-            <p className="text-muted font-bold text-sm uppercase tracking-widest">顧問專用系統</p>
+            <div className="w-24 h-24 bg-primary flex items-center justify-center mb-6 shadow-lg"><Lock className="w-12 h-12 text-white" /></div>
+            <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-2">Hengbo AI</h2>
+            <p className="text-muted font-bold text-sm uppercase tracking-widest">基於tvivl-1.5-beta的AI顧問</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
               <label className="font-black uppercase tracking-widest text-[10px] text-secondary">顧問帳號</label>
-              <div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 font-bold focus:outline-none focus:border-primary" placeholder="請輸入帳號" /></div>
+              <div className="relative"><User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 font-bold focus:outline-none focus:border-primary" placeholder="Consultant ID" /></div>
             </div>
             <div className="space-y-2">
-              <label className="font-black uppercase tracking-widest text-[10px] text-secondary">登入密碼</label>
-              <div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary" placeholder="請輸入密碼" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
+              <label className="font-black uppercase tracking-widest text-[10px] text-secondary">安全授權碼</label>
+              <div className="relative"><Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={16} /><input required type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-low border-2 border-primary/10 py-3 pl-10 pr-10 font-bold focus:outline-none focus:border-primary" placeholder="Access Key" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/40">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button></div>
             </div>
             {loginError && <div className="bg-secondary/10 border-l-4 border-secondary p-3 text-secondary font-bold text-xs uppercase">{loginError}</div>}
-            <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg hover:bg-secondary snap-transition flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
+            <button className="w-full bg-primary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg hover:bg-secondary transition-all flex items-center justify-center gap-3">授權並進入 <ArrowRight size={20} /></button>
           </form>
           <div className="mt-8 pt-8 border-t-2 border-primary/10 flex justify-center">
             <p className="text-primary/40 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
@@ -1330,7 +1327,7 @@ ${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-primary/40 z-30 md:hidden"
+            className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-30 md:hidden"
           />
         )}
       </AnimatePresence>
@@ -1341,13 +1338,13 @@ ${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[
             initial={{ x: -320, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -320, opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
-            className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r-2 border-primary flex flex-col bg-surface-low z-40 md:z-20"
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r-2 border-primary/10 flex flex-col bg-surface-low z-40 md:z-20 shadow-2xl md:shadow-none"
           >
             <div className="p-6 space-y-6">
               <div className="flex items-center justify-between md:hidden mb-4">
                 <span className="font-black text-primary uppercase tracking-tighter">對話列表</span>
-                <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5"><X size={24} /></button>
+                <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
               </div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={18} />
@@ -1375,22 +1372,17 @@ ${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[
                     setCurrentSessionId(s.id);
                     if (window.innerWidth <= 768) setIsSidebarOpen(false);
                   }}
-                  className={`group flex items-center justify-between gap-2 p-4 cursor-pointer border-l-4 transition-colors ${
-                    currentSessionId === s.id ? 'bg-primary text-white border-secondary' : 'hover:bg-primary/5 text-primary border-transparent'
+                  className={`group flex items-center justify-between p-3.5 cursor-pointer rounded-xl transition-all ${
+                    currentSessionId === s.id ? 'bg-primary/5 text-primary' : 'hover:bg-primary/5 text-primary/70'
                   }`}
                 >
-                  <div className="flex items-center gap-3 overflow-hidden min-w-0">
-                    <MessageSquare size={18} className={`shrink-0 ${currentSessionId === s.id ? 'text-white' : 'text-secondary'}`} />
-                    <div className="min-w-0">
-                      <span className="block font-bold text-sm truncate">{s.title}</span>
-                      <span className={`block text-[10px] font-black uppercase tracking-widest ${currentSessionId === s.id ? 'text-white/60' : 'text-primary/35'}`}>
-                        {formatRelativeTime(s.lastUpdated)}
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <MessageSquare size={16} className={currentSessionId === s.id ? 'text-primary' : 'text-primary/30'} />
+                    <span className={`text-sm truncate ${currentSessionId === s.id ? 'font-bold' : 'font-medium'}`}>{s.title}</span>
                   </div>
                   <button 
                     onClick={(e) => deleteSession(s.id, e)}
-                    className={`opacity-0 group-hover:opacity-100 shrink-0 p-1 hover:bg-white/20 transition-opacity ${currentSessionId === s.id ? 'text-white' : 'text-primary/40'}`}
+                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-primary/10 rounded-md text-primary/40 transition-opacity"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -1402,37 +1394,34 @@ ${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[
       </AnimatePresence>
 
       <main className="flex-grow flex flex-col relative min-w-0 w-full">
-        <header className="h-16 border-b-2 border-primary flex items-center justify-between px-4 md:px-6 bg-white sticky top-0 z-10">
+        <header className="h-16 border-b-2 border-primary/5 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
           <div className="flex items-center gap-3 md:gap-4">
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low text-primary transition-colors">
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors">
               <Menu size={24} />
             </button>
-            <div className="flex items-center gap-2 min-w-0">
-              <span className={`shrink-0 w-2 h-2 ${aiModel === "antigravity" ? "bg-secondary" : "bg-primary"}`} />
-              <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
-                {currentSession?.title || "亨波 AI 顧問"}
-              </h2>
-            </div>
+            <h2 className="font-black text-primary uppercase tracking-tighter truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
+              {currentSession?.title || "Hengbo AI"}
+            </h2>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
-            <div className="hidden sm:flex items-center bg-surface-low p-1 text-xs font-black uppercase tracking-widest" title="切換 AI 模型">
+            <div className="hidden sm:flex items-center bg-surface-low rounded-lg p-1 text-xs font-black uppercase tracking-widest" title="切換 AI 模型">
               <button
                 onClick={() => setAiModel("flash")}
-                className={`px-3 py-1.5 transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/50 hover:text-primary"}`}
+                className={`px-3 py-1.5 rounded-md transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/50 hover:text-primary"}`}
               >
                 Flash
               </button>
               <button
                 onClick={() => setAiModel("antigravity")}
-                className={`px-3 py-1.5 transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/50 hover:text-primary"}`}
-                title="Agent 模式（預覽版，延遲較高，不支援圖片分析）"
+                className={`px-3 py-1.5 rounded-md transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/50 hover:text-primary"}`}
+                title="Antigravity Agent（預覽版，延遲較高，不支援圖片分析）"
               >
-                Agent
+                Antigravity
               </button>
             </div>
             <button 
               onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
-              className="p-2 hover:bg-secondary/10 text-secondary transition-colors" 
+              className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" 
               title="刪除當前對話"
             >
               <Trash2 size={20} />
@@ -1442,23 +1431,21 @@ ${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[
         {aiModel === "antigravity" && (
           <div className="px-4 md:px-6 py-2 bg-secondary/10 border-b border-secondary/20 text-secondary text-xs font-bold flex items-center gap-2">
             <Sparkles size={14} />
-            Agent 為預覽版功能：回覆速度較慢、不支援圖片分析，僅建議測試使用。
+            Antigravity Agent 為 Google 預覽版功能：回覆速度較慢、不支援圖片分析，僅建議測試使用。
           </div>
         )}
 
-        <div ref={scrollRef} onScroll={handleScroll} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-6 md:space-y-8 custom-scrollbar">
+        <div ref={scrollRef} onScroll={handleScroll} className="flex-grow overflow-y-auto p-4 md:p-6 space-y-5 md:space-y-6 custom-scrollbar bg-white">
           {messages.map((msg) => (
-            <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex items-start gap-2.5 md:gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`shrink-0 w-8 h-8 md:w-9 md:h-9 flex items-center justify-center mt-1 ${
-                msg.role === 'user' ? 'bg-primary text-white' : 'bg-white border-2 border-secondary text-secondary'
-              }`}>
-                {msg.role === 'user' ? <User size={16} /> : <i className="fa-solid fa-disease text-[16px]"></i>}
+            <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`group flex items-end gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center overflow-hidden ${msg.role === 'user' ? 'bg-surface-high' : 'bg-surface-low'}`}>
+                {msg.role === 'user' ? <User size={14} className="text-primary/50" /> : <Logo className="w-4 h-4" />}
               </div>
-              <div className={`max-w-[85%] md:max-w-[80%] space-y-1.5 ${msg.role === 'user' ? 'items-end' : 'items-start'} flex flex-col`}>
-                <div className={`text-sm md:text-base font-bold leading-relaxed p-3 md:p-4 border-2 ${
+              <div className={`max-w-[82%] md:max-w-[75%] flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`text-sm md:text-[15px] font-medium leading-relaxed px-4 py-2.5 ${
                   msg.role === 'user'
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-surface-low text-primary border-primary/10 border-l-4 border-l-secondary'
+                    ? 'bg-primary text-white rounded-2xl rounded-br-md'
+                    : 'bg-surface-low text-ink rounded-2xl rounded-bl-md'
                 }`}>
                   {msg.role === 'user' ? <div className="whitespace-pre-wrap">{msg.content}</div> : (
                     <div className="markdown-content prose prose-sm max-w-none">
@@ -1466,71 +1453,66 @@ ${isImageRequest ? '- 使用者要求產出圖片時，在回覆最後加上：[
                     </div>
                   )}
                   {msg.imageUrl && (
-                    <div className="mt-4 overflow-hidden border-2 border-primary/10 bg-white">
+                    <div className="mt-3 rounded-xl overflow-hidden border border-primary/10 bg-white">
                       <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto max-h-[400px] md:max-h-[500px] object-contain" />
-                      <div className="p-3 bg-primary text-white text-[10px] font-black flex justify-between items-center">
+                      <div className="p-2.5 bg-surface-high text-primary text-[10px] font-bold flex justify-between items-center">
                         <span>AI GENERATED CONCEPT</span>
                         <a href={msg.imageUrl} target="_blank" rel="noreferrer" className="underline hover:text-secondary">VIEW ORIGINAL</a>
                       </div>
                     </div>
                   )}
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary/30 px-1">
-                  {formatRelativeTime(msg.timestamp)}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => handleCopyMessage(msg.id, msg.content)}
+                  className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] font-medium text-primary/35 hover:text-primary opacity-0 group-hover:opacity-100 md:transition-opacity focus:opacity-100"
+                  title="複製訊息"
+                >
+                  {copiedMessageId === msg.id ? (
+                    <><Check size={12} className="text-secondary" /> 已複製</>
+                  ) : (
+                    <><Copy size={12} /> 複製</>
+                  )}
+                </button>
               </div>
             </motion.div>
           ))}
           {isTyping && (
-            <div className="flex items-start gap-2.5 md:gap-3">
-              <div className="shrink-0 w-8 h-8 md:w-9 md:h-9 flex items-center justify-center mt-1 bg-white border-2 border-secondary text-secondary">
-                <i className="fa-solid fa-disease text-[16px]"></i>
+            <div className="flex items-end gap-2.5">
+              <div className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center bg-surface-low overflow-hidden">
+                <Logo className="w-4 h-4" />
               </div>
-              <div className="bg-surface-low border-2 border-primary/10 border-l-4 border-l-secondary p-4 flex items-end gap-1 h-[52px]">
-                <div className="trend-bar w-1.5 h-3 bg-secondary" style={{ animationDelay: "0ms" }} />
-                <div className="trend-bar w-1.5 h-5 bg-secondary" style={{ animationDelay: "150ms" }} />
-                <div className="trend-bar w-1.5 h-4 bg-secondary" style={{ animationDelay: "300ms" }} />
-                <div className="trend-bar w-1.5 h-6 bg-secondary" style={{ animationDelay: "450ms" }} />
+              <div className="bg-surface-low px-4 py-3.5 rounded-2xl rounded-bl-md flex gap-1.5">
+                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1.5 h-1.5 bg-muted rounded-full" />
+                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-muted rounded-full" />
+                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 bg-muted rounded-full" />
               </div>
             </div>
           )}
-          {!isTyping && messages.length === 1 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="pl-[42px] md:pl-[48px] flex flex-wrap gap-2">
-              {AI_QUICK_PROMPTS.map((prompt) => (
-                <button
-                  key={prompt}
-                  onClick={() => setInput(prompt)}
-                  className="px-3 py-2 border-2 border-primary/10 text-primary text-xs font-bold hover:border-secondary hover:text-secondary transition-colors"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </motion.div>
-          )}
         </div>
 
-        <footer className="p-4 md:p-6 bg-white border-t-2 border-primary">
-          <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative">
+        <footer className="p-4 md:p-6 bg-white border-t border-primary/10">
+          <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto relative">
             {selectedFile && (
-              <div className="absolute bottom-full left-0 mb-4 p-3 bg-secondary text-white flex items-center gap-3">
-                {selectedFile.type.startsWith('image/') ? <ImageIcon size={16} /> : <FileText size={16} />}
-                <span className="text-xs font-black truncate max-w-[150px] md:max-w-[200px]">{selectedFile.name}</span>
-                <button type="button" onClick={() => setSelectedFile(null)} className="hover:text-primary transition-colors"><X size={16} /></button>
+              <div className="absolute bottom-full left-0 mb-3 p-2.5 pl-3 bg-surface-low rounded-xl flex items-center gap-2.5 border border-primary/10 animate-in slide-in-from-bottom-2">
+                <Paperclip size={14} className="text-primary/50" />
+                <span className="text-xs font-medium text-primary truncate max-w-[150px] md:max-w-[200px]">{selectedFile.name}</span>
+                <button type="button" onClick={() => setSelectedFile(null)} className="text-primary/40 hover:text-secondary transition-colors"><X size={14} /></button>
               </div>
             )}
-            <div className="flex items-end gap-2 md:gap-3 bg-surface-low p-2 border-2 border-primary/10 focus-within:border-primary transition-colors">
-              <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 md:p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={24} /></button>
+            <div className="flex items-end gap-2 bg-surface-low p-1.5 rounded-3xl ring-1 ring-transparent focus-within:ring-primary/30 transition-all">
+              <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2.5 text-primary/40 hover:text-primary transition-colors"><Paperclip size={20} /></button>
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
               <textarea 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) { e.preventDefault(); handleSendMessage(e); } }}
                 placeholder="輸入訊息..."
-                className="flex-grow bg-transparent border-none focus:ring-0 py-3 font-bold text-primary resize-none max-h-32 custom-scrollbar text-sm md:text-base"
+                className="flex-grow bg-transparent border-none focus:ring-0 py-2.5 font-medium text-ink resize-none max-h-32 custom-scrollbar text-sm md:text-base placeholder:text-primary/30"
                 rows={1}
               />
-              <button disabled={(!input.trim() && !selectedFile) || isTyping} className="p-2 md:p-3 bg-primary text-white hover:bg-secondary snap-transition disabled:opacity-30">
-                <Send size={24} />
+              <button disabled={(!input.trim() && !selectedFile) || isTyping} className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full hover:bg-secondary transition-all disabled:opacity-30">
+                <Send size={18} />
               </button>
             </div>
           </form>
