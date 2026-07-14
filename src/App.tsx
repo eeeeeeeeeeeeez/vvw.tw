@@ -69,11 +69,20 @@ interface Message {
   imageUrl?: string;
 }
 
+interface SessionDocument {
+  name: string;
+  content: string;
+  type: string;
+}
+
 interface ChatSession {
   id: string;
   title: string;
   messages: Message[];
   lastUpdated: Date;
+  // 此對話中曾上傳過的「文字類」檔案（PDF/Word/純文字），會持續存在於對話上下文中，
+  // 不會因為只有第一輪的 prompt 帶到而在後續追問時「被遺忘」。圖片檔不放這裡（見下方說明）。
+  documents?: SessionDocument[];
 }
 
 // --- Components ---
@@ -1106,22 +1115,6 @@ const AIView = () => {
     }
   };
 
-  const updateSessionMessages = (sessionId: string, newMessages: Message[]) => {
-    setSessions(prev => prev.map(s => {
-      if (s.id === sessionId) {
-        let newTitle = s.title;
-        if (s.title === "新對話" || s.title === "未命名對話") {
-          const firstUserMsg = newMessages.find(m => m.role === "user");
-          if (firstUserMsg) {
-            newTitle = firstUserMsg.content.substring(0, 20) + (firstUserMsg.content.length > 20 ? "..." : "");
-          }
-        }
-        return { ...s, messages: newMessages, title: newTitle, lastUpdated: new Date() };
-      }
-      return s;
-    }));
-  };
-
   useEffect(() => {
     if (shouldAutoScroll && scrollRef.current) {
       setTimeout(() => {
@@ -1185,12 +1178,41 @@ const AIView = () => {
     }
   };
 
+  // 依「字元數」概估 token 預算，動態決定要帶幾則歷史訊息，取代原本固定 slice(-10)。
+  // 訊息內容短就多帶一點，內容長就少帶一點；但無論如何至少保留最近 4 則，避免話題斷得太突然。
+  const MAX_HISTORY_CHARS = 12000;
+  const MIN_HISTORY_MESSAGES = 4;
+  const buildHistoryWindow = (allMessages: Message[]): Message[] => {
+    const windowed: Message[] = [];
+    let totalChars = 0;
+    for (let i = allMessages.length - 1; i >= 0; i--) {
+      const m = allMessages[i];
+      totalChars += m.content.length;
+      if (totalChars > MAX_HISTORY_CHARS && windowed.length >= MIN_HISTORY_MESSAGES) break;
+      windowed.unshift(m);
+    }
+    return windowed;
+  };
+
+  // 把此對話中「文字類」檔案（PDF/Word/純文字）的內容組成一段可放進 systemInstruction 的文字，
+  // 讓 AI 在後續追問時仍看得到先前上傳過的檔案，而不是只有上傳當下那一輪看得到。
+  const DOC_CHAR_CAP = 50000; // 單一檔案最多帶入的字元數
+  const MAX_DOCS_IN_CONTEXT = 3; // 最多同時保留幾份檔案在上下文中，避免多次上傳把 token 撐爆
+  const buildDocumentsContext = (docs: SessionDocument[]): string => {
+    if (!docs.length) return "";
+    const recentDocs = docs.slice(-MAX_DOCS_IN_CONTEXT);
+    return recentDocs
+      .map(d => `【檔案：${d.name}】\n${d.content.substring(0, DOC_CHAR_CAP)}`)
+      .join("\n\n---\n\n");
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!input.trim() && !selectedFile) || isTyping || !currentSessionId) return;
 
     let userMsg = input.trim() || (selectedFile ? `請分析這份檔案：${selectedFile.name}` : "");
     const currentFile = selectedFile;
+    const isTextFile = !!currentFile && !currentFile.type.startsWith('image/');
     const userMsgId = `msg-${Date.now()}-u`;
     const aiMsgId = `msg-${Date.now()}-a`;
 
@@ -1198,7 +1220,23 @@ const AIView = () => {
     const newAiMsg: Message = { role: "ai", content: "", id: aiMsgId, timestamp: new Date() };
     
     const updatedMessages = [...messages, newUserMsg, newAiMsg];
-    updateSessionMessages(currentSessionId, updatedMessages);
+
+    // 文字類檔案（非圖片）在送出當下就併入 session.documents，之後每一輪都會自動帶入上下文，
+    // 不會只有上傳的那一輪看得到內容。同名檔案重新上傳時取代舊的內容。
+    const existingDocuments = currentSession?.documents || [];
+    const updatedDocuments = isTextFile
+      ? [...existingDocuments.filter(d => d.name !== currentFile!.name), { name: currentFile!.name, content: currentFile!.content, type: currentFile!.type }]
+      : existingDocuments;
+
+    setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+      ...s,
+      messages: updatedMessages,
+      documents: updatedDocuments,
+      title: (s.title === "新對話" || s.title === "未命名對話")
+        ? (userMsg.substring(0, 20) + (userMsg.length > 20 ? "..." : ""))
+        : s.title,
+      lastUpdated: new Date(),
+    } : s));
     
     // Antigravity Agent（Pre-GA）目前無正式文件支援圖片分析，先擋掉並提示改用 Flash 模型
     if (aiModel === "antigravity" && currentFile && currentFile.type.startsWith('image/')) {
@@ -1215,13 +1253,18 @@ const AIView = () => {
     setIsTyping(true);
 
     const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
+    const documentsContext = buildDocumentsContext(updatedDocuments);
     const systemInstruction = `你是一位專業且充滿洞察力的『Hengbo AI顧問』，代表「亨波趨勢 (HENGBO TREND)」。
 你的核心特質：
 1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
 2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
 3. **數據與趨勢驅動**：強調數據支持與精準規劃。
 4. **品牌忠誠度**：引導至 https://vvw-tw.vercel.app/。
-${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`;
+${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}${documentsContext ? `
+
+以下是使用者在此對話中上傳過的檔案內容。即使使用者之後的提問沒有重新附上檔案，也可能是在針對這些內容追問，請一併參考：
+
+${documentsContext}` : ''}`;
 
     try {
       let fullText = "";
@@ -1229,8 +1272,10 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
       if (aiModel === "antigravity") {
         // --- Antigravity Agent（Pre-GA 預覽）：走 Interactions API，會啟動沙盒環境，延遲較高 ---
         const sessionState = antigravityStateRef.current[currentSessionId] || {};
-        const agentInput = currentFile
-          ? `檔案內容 (${currentFile.name})：\n${currentFile.content.substring(0, 50000)}\n\n問題：${userMsg}`
+        // 文字類檔案的內容已經併入 systemInstruction 的 documentsContext，這裡不用再重複帶一次完整內容，
+        // 只需提示模型「剛剛新增了這份檔案」即可，避免同一份內容被重複計入 token。
+        const agentInput = isTextFile
+          ? `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n問題：${userMsg}`
           : userMsg;
 
         const interaction: any = await (genAI as any).interactions.create({
@@ -1257,10 +1302,13 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
         // --- 一般模式：Gemini 3.5 Flash，走標準 generateContentStream，逐字串流 ---
         let aiPromptParts: any[] = [];
         if (currentFile && currentFile.type.startsWith('image/')) {
+          // 圖片無法放進純文字的 documentsContext，仍需在當輪以 inlineData 附上
           aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
           aiPromptParts.push({ text: userMsg });
-        } else if (currentFile) {
-          aiPromptParts.push({ text: `檔案內容 (${currentFile.name})：\n${currentFile.content.substring(0, 50000)}\n\n問題：${userMsg}` });
+        } else if (isTextFile) {
+          // 文字類檔案的內容已經併入 systemInstruction 的 documentsContext，這裡不重複帶入完整內容，
+          // 只需標註「這輪新上傳了這份檔案」，避免同一份內容被重複計入 token
+          aiPromptParts.push({ text: `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n${userMsg}` });
         } else {
           aiPromptParts.push({ text: userMsg });
         }
@@ -1269,7 +1317,7 @@ ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文
           model: "gemini-3.1-flash-lite",
           systemInstruction,
           contents: [
-            ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
+            ...buildHistoryWindow(messages).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
             { role: "user", parts: aiPromptParts }
           ],
         });
