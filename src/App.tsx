@@ -227,10 +227,15 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
         <div className="flex-grow h-px bg-white/10" />
       </div>
       <div className="partner-marquee-wrap overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
-        <div className="partner-marquee-track">
+        <div className="partner-marquee-track items-center">
           {[...PARTNER_LOGOS, ...PARTNER_LOGOS].map((partner, i) => (
-            <div key={`${partner.name}-${i}`} className="shrink-0 w-[140px] h-16 mx-3 bg-white/95 rounded-xl flex items-center justify-center p-3">
-              <img src={partner.src} alt={partner.name} className="max-w-full max-h-full object-contain" loading="lazy" />
+            <div key={`${partner.name}-${i}`} className="shrink-0 w-[150px] h-20 mx-3 bg-white border border-white/10 flex items-center justify-center p-4">
+              <img
+                src={partner.src}
+                alt={partner.name}
+                loading="lazy"
+                className="max-h-full max-w-full object-contain"
+              />
             </div>
           ))}
         </div>
