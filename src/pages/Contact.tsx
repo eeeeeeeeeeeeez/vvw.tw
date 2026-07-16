@@ -52,25 +52,25 @@ export const Contact: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pt-24 min-h-screen flex items-center justify-center px-8">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pt-12 min-h-screen flex items-center justify-center px-6 md:px-8">
         <div className="max-w-xl w-full bg-white brutalist-border p-12 text-center">
-          <div className="w-24 h-24 bg-secondary text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+          <div className="w-24 h-24 bg-secondary text-white flex items-center justify-center mx-auto mb-8 brutalist-border border-primary">
             <Check size={48} />
           </div>
           <h2 className="text-4xl font-black text-primary uppercase tracking-tighter mb-4">訊息已送出！</h2>
           <p className="text-muted font-bold mb-12">感謝您的諮詢。我們的顧問將在 24 小時內與您聯繫。</p>
-          <button onClick={() => setIsSubmitted(false)} className="bg-primary text-white px-12 py-5 font-black uppercase tracking-widest hover:bg-secondary snap-transition">再次提交</button>
+          <button onClick={() => setIsSubmitted(false)} className="bg-primary text-white px-12 py-5 font-black uppercase tracking-widest hover:bg-secondary snap-transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-secondary">再次提交</button>
         </div>
       </motion.div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-24 brutalist-grid">
-      <section className="px-8 py-32">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-12 md:pt-24 brutalist-grid">
+      <section className="px-6 md:px-8 py-16 md:py-32">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24">
           <div>
-            <div className="mb-16">
+            <div className="mb-10 md:mb-16">
               <span className="font-black uppercase tracking-[0.4em] text-secondary mb-4 block">聯繫我們</span>
               <h1 className="text-[clamp(3.5rem,10vw,6rem)] font-black tracking-tighter leading-none text-primary uppercase">
                 啟動您的<br/>
@@ -78,7 +78,7 @@ export const Contact: React.FC = () => {
               </h1>
             </div>
 
-            <div className="space-y-12 mb-24">
+            <div className="space-y-8 md:space-y-12 mb-12 md:mb-24">
               <div className="flex gap-8 group">
                 <div className="w-16 h-16 bg-primary text-white flex items-center justify-center brutalist-border group-hover:bg-secondary snap-transition shrink-0"><Mail size={32} /></div>
                 <div>
@@ -131,16 +131,16 @@ export const Contact: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="font-black uppercase tracking-widest text-[10px] text-secondary">您的姓名 *</label>
-                  <input required type="text" value={formState.name} onChange={(e) => setFormState({...formState, name: e.target.value})} className="w-full bg-surface-low border-2 border-primary/10 py-4 px-6 font-bold focus:outline-none focus:border-primary snap-transition" placeholder="姓名" />
+                  <input required type="text" value={formState.name} onChange={(e) => setFormState({...formState, name: e.target.value})} className="w-full bg-surface-low border-2 border-primary/10 py-4 px-6 font-bold focus:outline-none focus:border-primary focus-visible:ring-4 focus-visible:ring-secondary/30 snap-transition" placeholder="姓名" />
                 </div>
                 <div className="space-y-2">
                   <label className="font-black uppercase tracking-widest text-[10px] text-secondary">所屬組織</label>
-                  <input type="text" value={formState.org} onChange={(e) => setFormState({...formState, org: e.target.value})} className="w-full bg-surface-low border-2 border-primary/10 py-4 px-6 font-bold focus:outline-none focus:border-primary snap-transition" placeholder="公司或機構名稱" />
+                  <input type="text" value={formState.org} onChange={(e) => setFormState({...formState, org: e.target.value})} className="w-full bg-surface-low border-2 border-primary/10 py-4 px-6 font-bold focus:outline-none focus:border-primary focus-visible:ring-4 focus-visible:ring-secondary/30 snap-transition" placeholder="公司或機構名稱" />
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="font-black uppercase tracking-widest text-[10px] text-secondary">電子郵件 *</label>
-                <input required type="email" value={formState.email} onChange={(e) => setFormState({...formState, email: e.target.value})} className="w-full bg-surface-low border-2 border-primary/10 py-4 px-6 font-bold focus:outline-none focus:border-primary snap-transition" placeholder="email@example.com" />
+                <input required type="email" value={formState.email} onChange={(e) => setFormState({...formState, email: e.target.value})} className="w-full bg-surface-low border-2 border-primary/10 py-4 px-6 font-bold focus:outline-none focus:border-primary focus-visible:ring-4 focus-visible:ring-secondary/30 snap-transition" placeholder="email@example.com" />
               </div>
               <div className="space-y-2">
                 <label className="font-black uppercase tracking-widest text-[10px] text-secondary">諮詢項目 *</label>
@@ -159,7 +159,7 @@ export const Contact: React.FC = () => {
               
               {submitError && <p className="text-secondary font-black text-sm uppercase tracking-widest">{submitError}</p>}
               
-              <button disabled={isSubmitting} className="w-full bg-primary text-white py-6 font-black uppercase tracking-[0.2em] text-xl shadow-lg hover:bg-secondary snap-transition flex items-center justify-center gap-4 disabled:opacity-50">
+              <button disabled={isSubmitting} className="w-full bg-primary text-white py-6 font-black uppercase tracking-[0.2em] text-xl shadow-lg hover:bg-secondary snap-transition flex items-center justify-center gap-4 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-secondary">
                 {isSubmitting ? "傳送中..." : "送出諮詢表單"}
                 <Send size={24} />
               </button>

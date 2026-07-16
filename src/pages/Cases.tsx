@@ -8,10 +8,10 @@ export const Cases: React.FC = () => {
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }}
-      className="pt-24 brutalist-grid"
+      className="pt-12 md:pt-24 brutalist-grid"
     >
-      <section className="px-8 py-32">
-        <div className="max-w-7xl mx-auto mb-24">
+      <section className="px-6 md:px-8 py-16 md:py-32">
+        <div className="max-w-7xl mx-auto mb-12 md:mb-24">
           <span className="font-black uppercase tracking-[0.4em] text-secondary mb-4 block">實戰成果展示</span>
           <h1 className="text-[clamp(3.5rem,12vw,8rem)] font-black tracking-tighter leading-none text-primary uppercase">
             精選<br/>
@@ -32,7 +32,7 @@ export const Cases: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-[clamp(2rem,6vw,3.75rem)] font-black uppercase tracking-tighter leading-none mb-4">傳統機械廠數位升級</h2>
-                <div className="space-y-4 mb-6 opacity-0 group-hover:opacity-100 snap-transition">
+                <div className="space-y-4 mb-6 md:opacity-0 md:group-hover:opacity-100 snap-transition">
                   <p className="font-bold text-sm leading-relaxed">挑戰：面臨數位轉型瓶頸，缺乏自動化數據追蹤系統。</p>
                   <p className="font-bold text-sm leading-relaxed">方案：協助申請政府數位轉型補助，並導入智慧生產監控系統。</p>
                   <p className="font-black text-secondary group-hover:text-white text-lg">量化成果：獲得 50 萬元補助，生產效率提升 30%。</p>
@@ -52,7 +52,7 @@ export const Cases: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none mb-6">DTC 品牌視覺重塑</h2>
-                <div className="space-y-4 mb-6 opacity-0 group-hover:opacity-100 snap-transition">
+                <div className="space-y-4 mb-6 md:opacity-0 md:group-hover:opacity-100 snap-transition">
                   <p className="font-bold text-sm leading-relaxed">挑戰：品牌知名度侷限於本地，視覺形象過於傳統。</p>
                   <p className="font-bold text-sm leading-relaxed">方案：重新定義品牌視覺語言 (CIS)，並執行跨國精準廣告投放。</p>
                   <p className="font-black text-white group-hover:text-secondary text-lg">量化成果：廣告 ROI 提升至 4.8，品牌溢價提升 40%。</p>

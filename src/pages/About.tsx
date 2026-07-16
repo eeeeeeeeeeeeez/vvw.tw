@@ -11,9 +11,9 @@ export const About: React.FC = () => {
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }}
-      className="pt-24 brutalist-grid"
+      className="pt-12 md:pt-24 brutalist-grid"
     >
-      <section className="relative px-8 py-32 overflow-hidden bg-surface-low border-b-4 border-primary">
+      <section className="relative px-6 md:px-8 py-16 md:py-32 overflow-hidden bg-surface-low border-b-4 border-primary">
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="font-black uppercase tracking-[0.4em] text-secondary mb-4">核心理念</div>
           <h1 className="text-[clamp(3rem,10vw,6rem)] font-black tracking-tighter leading-none text-primary uppercase relative">
@@ -33,7 +33,7 @@ export const About: React.FC = () => {
       </section>
 
       <section className="flex flex-col md:flex-row w-full min-h-screen">
-        <div className="w-full md:w-1/2 bg-primary p-12 md:p-24 flex flex-col justify-between">
+        <div className="w-full md:w-1/2 bg-primary p-8 md:p-24 flex flex-col justify-between">
           <div>
             <h2 className="text-[clamp(4rem,12vw,8rem)] font-black text-white tracking-tighter leading-none mb-12">關於<br/>我們</h2>
             <div className="w-24 h-2 bg-secondary mb-8"></div>
@@ -43,7 +43,7 @@ export const About: React.FC = () => {
             <Building2 size={240} />
           </div>
         </div>
-        <div className="w-full md:w-1/2 bg-white p-12 md:p-24 border-b-4 md:border-b-0 md:border-l-4 border-primary">
+        <div className="w-full md:w-1/2 bg-white p-8 md:p-24 border-b-4 md:border-b-0 md:border-l-4 border-primary">
           <div className="space-y-12">
             <div>
               <h3 className="text-3xl font-black text-primary uppercase mb-6 tracking-tight">亨波趨勢：細節的執行者</h3>
@@ -81,14 +81,14 @@ export const About: React.FC = () => {
         </div>
       </section>
 
-      <section className="bg-primary py-40 px-8 relative overflow-hidden">
+      <section className="bg-primary py-20 md:py-40 px-6 md:px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
           <h2 className="text-[clamp(5rem,20vw,20rem)] font-black text-white leading-none tracking-tighter mb-4 opacity-10 absolute pointer-events-none">SUCCESS</h2>
           <h3 className="text-[clamp(3rem,12vw,6rem)] font-black text-white mb-12 tracking-tighter relative z-10 uppercase">想要了解更多？</h3>
           <div className="relative z-10">
             <button 
               onClick={() => navigate("/contact")}
-              className="bg-secondary text-white text-2xl font-black px-16 py-6 hover:bg-white hover:text-primary snap-transition flex items-center gap-4"
+              className="bg-secondary text-white text-xl md:text-2xl font-black px-8 md:px-16 py-5 md:py-6 hover:bg-white hover:text-primary snap-transition flex items-center gap-4 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white"
             >
               與我們聯繫
               <ArrowRight size={32} />

@@ -35,7 +35,7 @@ export const Navbar: React.FC = () => {
           <Link
             key={tab.path}
             to={tab.path}
-            className={`font-black uppercase tracking-tighter px-2 py-1 snap-transition ${
+            className={`font-black uppercase tracking-tighter px-2 py-1 snap-transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-secondary ${
               isActive(tab.path) 
                 ? "text-secondary border-b-2 border-secondary" 
                 : "text-primary hover:bg-primary hover:text-white"
@@ -49,7 +49,7 @@ export const Navbar: React.FC = () => {
       <div className="flex items-center gap-4">
         <Link 
           to="/contact"
-          className="hidden sm:block bg-primary text-white px-6 py-3 font-black uppercase tracking-widest hover:bg-secondary snap-transition text-sm"
+          className="hidden sm:block bg-primary text-white px-6 py-3 font-black uppercase tracking-widest hover:bg-secondary snap-transition text-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-secondary"
         >
           立即諮詢
         </Link>
@@ -57,7 +57,9 @@ export const Navbar: React.FC = () => {
         {/* Mobile Menu Toggle */}
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 text-primary hover:bg-surface-low rounded-lg transition-colors"
+          aria-label={isOpen ? "關閉選單" : "開啟選單"}
+          aria-expanded={isOpen}
+          className="md:hidden p-2 text-primary hover:bg-surface-low transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-secondary"
         >
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>

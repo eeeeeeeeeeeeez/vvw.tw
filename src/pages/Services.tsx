@@ -7,11 +7,11 @@ export const Services: React.FC = () => (
     initial={{ opacity: 0 }} 
     animate={{ opacity: 1 }} 
     exit={{ opacity: 0 }}
-    className="pt-24 brutalist-grid"
+    className="pt-12 md:pt-24 brutalist-grid"
   >
-    <section className="px-8 py-32">
+    <section className="px-6 md:px-8 py-16 md:py-32">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-32">
+        <div className="mb-16 md:mb-32">
           <span className="font-black uppercase tracking-[0.4em] text-secondary mb-4 block">專業服務範疇</span>
           <h1 className="text-[clamp(3.5rem,12vw,8rem)] font-black tracking-tighter leading-none text-primary uppercase">
             全方位<br/>
@@ -19,7 +19,7 @@ export const Services: React.FC = () => (
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
           {[
             { 
               icon: <FileText size={64} />, 
@@ -57,7 +57,7 @@ export const Services: React.FC = () => (
               process: ["資源盤點", "需求對接", "媒合洽談", "合作落地", "持續追蹤"]
             }
           ].map((service, idx) => (
-            <div key={idx} className="group bg-white brutalist-border p-12 hover:bg-primary hover:text-white snap-transition">
+            <div key={idx} className="group bg-white brutalist-border p-6 md:p-12 hover:bg-primary hover:text-white snap-transition">
               <div className="text-secondary group-hover:text-white mb-8 snap-transition">{service.icon}</div>
               <h3 className="text-4xl font-black mb-6 uppercase tracking-tighter">{service.title}</h3>
               <p className="text-xl font-bold mb-8 opacity-70 group-hover:opacity-100 leading-relaxed">{service.desc}</p>
