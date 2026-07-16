@@ -539,7 +539,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             </div>
             <div>
               <h2 className="text-[clamp(2rem,6vw,3.75rem)] font-black uppercase tracking-tighter leading-none mb-4">傳統機械廠數位升級</h2>
-              <div className="space-y-4 mb-6 opacity-0 group-hover:opacity-100 snap-transition">
+              <div className="space-y-4 mb-6 md:opacity-0 md:group-hover:opacity-100 snap-transition">
                 <p className="font-bold text-sm leading-relaxed">挑戰：面臨數位轉型瓶頸，缺乏自動化數據追蹤系統。</p>
                 <p className="font-bold text-sm leading-relaxed">方案：協助申請政府數位轉型補助，並導入智慧生產監控系統。</p>
                 <p className="font-black text-secondary group-hover:text-white text-lg">量化成果：獲得 50 萬元補助，生產效率提升 30%。</p>
@@ -559,7 +559,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
             </div>
             <div>
               <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-black uppercase tracking-tighter text-white group-hover:text-primary leading-none mb-6">DTC 品牌視覺重塑</h2>
-              <div className="space-y-4 mb-6 opacity-0 group-hover:opacity-100 snap-transition">
+              <div className="space-y-4 mb-6 md:opacity-0 md:group-hover:opacity-100 snap-transition">
                 <p className="font-bold text-sm leading-relaxed">挑戰：品牌知名度侷限於本地，視覺形象過於傳統。</p>
                 <p className="font-bold text-sm leading-relaxed">方案：重新定義品牌視覺語言 (CIS)，並執行跨國精準廣告投放。</p>
                 <p className="font-black text-white group-hover:text-secondary text-lg">量化成果：廣告 ROI 提升至 4.8，品牌溢價提升 40%。</p>
@@ -1254,12 +1254,12 @@ const AIView = () => {
 
     const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
     const documentsContext = buildDocumentsContext(updatedDocuments);
-    const systemInstruction = `你是一位專業且充滿洞察力的『Hengbo AI顧問』，代表「亨波趨勢 (HENGBO TREND)」。
-你的核心特質：
-1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
-2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
-3. **數據與趨勢驅動**：強調數據支持與精準規劃。
-4. **品牌忠誠度**：引導至 https://vvw-tw.vercel.app/。
+    const systemInstruction = `你是「亨波趨勢 (HENGBO TREND)」網站上的客服顧問助手，服務對象是正在諮詢的真實客戶。
+回覆風格：
+1. **直接回答**：使用者的每一則訊息都是在跟你對話，不是新對話的開場，絕對不要在回覆中重新自我介紹、複述你的身分或職稱（例如「我是Hengbo AI顧問」「身為專業顧問」之類的開場白），開場自我介紹只在對話一開始出現過一次，之後每次回覆都直接切入內容即可。
+2. **語氣自然專業**：像真人顧問一樣簡潔、務實地回答，不需要每句話都強調自己的專業性或角色定位。
+3. **繁體中文**：使用清楚、精準的『繁體中文』。
+4. **視情況引導**：只有在使用者的問題確實適合進一步諮詢或需要更多資訊時，才自然地提及可至 https://vvw-tw.vercel.app/ 或聯繫頁面了解更多，不要每則回覆都硬塞這句話。
 ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}${documentsContext ? `
 
 以下是使用者在此對話中上傳過的檔案內容。即使使用者之後的提問沒有重新附上檔案，也可能是在針對這些內容追問，請一併參考：
@@ -1454,7 +1454,7 @@ ${documentsContext}` : ''}`;
                   </div>
                   <button 
                     onClick={(e) => deleteSession(s.id, e)}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-primary/10 rounded-md text-primary/40 transition-opacity"
+                    className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1 hover:bg-primary/10 rounded-md text-primary/40 transition-opacity"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -1476,16 +1476,16 @@ ${documentsContext}` : ''}`;
             </h2>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
-            <div className="hidden sm:flex items-center bg-surface-low rounded-lg p-1 text-xs font-black uppercase tracking-widest" title="切換 AI 模型">
+            <div className="flex items-center bg-surface-low rounded-lg p-1 text-[10px] sm:text-xs font-black uppercase tracking-widest" title="切換 AI 模型">
               <button
                 onClick={() => setAiModel("flash")}
-                className={`px-3 py-1.5 rounded-md transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/50 hover:text-primary"}`}
+                className={`px-2 sm:px-3 py-1.5 rounded-md transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/50 hover:text-primary"}`}
               >
                 Flash
               </button>
               <button
                 onClick={() => setAiModel("antigravity")}
-                className={`px-3 py-1.5 rounded-md transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/50 hover:text-primary"}`}
+                className={`px-2 sm:px-3 py-1.5 rounded-md transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/50 hover:text-primary"}`}
                 title="Agent 模式（預覽版，延遲較高，不支援圖片分析）"
               >
                 Agent
@@ -1537,7 +1537,7 @@ ${documentsContext}` : ''}`;
                 <button
                   type="button"
                   onClick={() => handleCopyMessage(msg.id, msg.content)}
-                  className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] font-medium text-primary/35 hover:text-primary opacity-0 group-hover:opacity-100 md:transition-opacity focus:opacity-100"
+                  className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] font-medium text-primary/35 hover:text-primary opacity-100 md:opacity-0 md:group-hover:opacity-100 md:transition-opacity focus:opacity-100"
                   title="複製訊息"
                 >
                   {copiedMessageId === msg.id ? (
