@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @theme {
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
@@ -17,17 +16,6 @@
   --spacing-10: 2.5rem;
   --spacing-12: 3rem;
   --spacing-24: 6rem;
-
-  /* --- 新版「現代質感」風格 tokens ---
-     與上方 brutalist 變數並存，僅用於已翻新的頁面／元件（首頁、導覽列、頁尾）。
-     其餘尚未翻新的頁面繼續使用上方舊變數，翻新告一段落後可移除舊變數。 */
-  --font-display: "Plus Jakarta Sans", "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --color-teal: #1F6F5C;
-  --color-teal-dark: #163F35;
-  --color-teal-soft: #E4F0EB;
-  --color-coral: #FF8B66;
-  --color-coral-soft: #FFE7DB;
-  --color-neutral-bg: #F3F5F7;
 }
 
 @layer base {

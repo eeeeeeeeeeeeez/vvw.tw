@@ -142,87 +142,83 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
   };
 
   return (
-    <div className="font-display sticky top-0 z-50 px-3 md:px-6 pt-3 md:pt-5">
-      <nav className="max-w-[1180px] mx-auto flex items-center justify-between gap-3 rounded-full border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_10px_30px_rgba(30,36,48,0.08)] px-3 md:px-6 py-2 md:py-2.5">
-        <div
-          className="flex items-center gap-2.5 cursor-pointer shrink-0"
-          onClick={() => handleTabClick("home")}
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b-2 border-primary flex justify-between items-center px-6 md:px-8 py-4 max-w-[1920px] mx-auto">
+      <div 
+        className="flex items-center gap-3 text-xl md:text-2xl font-black tracking-tighter text-primary uppercase cursor-pointer"
+        onClick={() => handleTabClick("home")}
+      >
+        <Logo className="w-8 h-8 md:w-10 md:h-10" />
+        亨波趨勢
+      </div>
+
+      {/* Desktop Menu */}
+      <div className="hidden md:flex items-center gap-12">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => handleTabClick(tab.id)}
+            className={`font-black uppercase tracking-tighter px-2 py-1 snap-transition ${
+              activeTab === tab.id 
+                ? "text-secondary border-b-2 border-secondary" 
+                : "text-primary hover:bg-primary hover:text-white"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-4">
+        <button 
+          onClick={() => handleTabClick("contact")}
+          className="hidden sm:block bg-primary text-white px-6 py-3 font-black uppercase tracking-widest hover:bg-secondary snap-transition text-sm"
         >
-          <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-teal to-teal-dark flex items-center justify-center shrink-0">
-            <Logo className="w-6 h-6 md:w-7 md:h-7" variant="white" />
-          </div>
-          <span className="font-bold text-ink text-[15px] md:text-base tracking-tight whitespace-nowrap">亨波趨勢</span>
-        </div>
-
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabClick(tab.id)}
-              className={`transition-colors ${
-                activeTab === tab.id
-                  ? "text-teal font-semibold"
-                  : "text-ink/70 hover:text-teal"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => handleTabClick("contact")}
-            className="hidden sm:flex items-center bg-teal text-white px-5 py-2.5 rounded-full font-semibold text-sm shadow-[0_8px_20px_rgba(31,111,92,0.28)] hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(31,111,92,0.34)] transition-all"
-          >
-            預約諮詢
-          </button>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-ink rounded-full hover:bg-black/5 transition-colors"
-          >
-            {isOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
-      </nav>
+          立即諮詢
+        </button>
+        
+        {/* Mobile Menu Toggle */}
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden p-2 text-primary hover:bg-surface-low rounded-lg transition-colors"
+        >
+          {isOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+      </div>
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="max-w-[1180px] mx-auto mt-2 rounded-3xl border border-white/60 bg-white/90 backdrop-blur-xl shadow-xl md:hidden overflow-hidden"
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-full left-0 right-0 bg-white border-b-4 border-primary shadow-2xl md:hidden overflow-hidden"
           >
-            <div className="flex flex-col p-4 gap-1.5">
+            <div className="flex flex-col p-6 space-y-4">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => handleTabClick(tab.id)}
-                  className={`text-left py-3 px-4 rounded-2xl font-semibold text-base transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-teal-soft text-teal"
-                      : "text-ink/70 hover:bg-black/5"
+                  className={`text-left py-4 px-6 font-black uppercase tracking-widest text-lg border-2 ${
+                    activeTab === tab.id 
+                      ? "bg-primary text-white border-primary" 
+                      : "text-primary border-transparent hover:border-primary/10"
                   }`}
                 >
                   {tab.label}
                 </button>
               ))}
-              <button
+              <button 
                 onClick={() => handleTabClick("contact")}
-                className="mt-1 w-full bg-teal text-white py-3.5 rounded-2xl font-semibold text-base"
+                className="w-full bg-secondary text-white py-5 font-black uppercase tracking-[0.2em] text-lg shadow-lg"
               >
-                預約諮詢
+                立即諮詢
               </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </nav>
   );
 };
 
@@ -233,18 +229,16 @@ const PARTNER_LOGOS = Array.from({ length: 10 }, (_, i) => ({
 }));
 
 const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => (
-  <footer className="font-display w-full px-4 md:px-6 pt-8 md:pt-10 pb-8 md:pb-10">
-    <div className="max-w-6xl mx-auto rounded-[32px] md:rounded-[40px] bg-gradient-to-br from-teal to-teal-dark text-white px-6 md:px-14 pt-12 md:pt-14 pb-8 md:pb-10 relative overflow-hidden">
-      <div className="absolute w-72 h-72 md:w-96 md:h-96 bg-coral/20 blur-[100px] rounded-full -right-16 -top-16 pointer-events-none" />
-
-      <div className="relative flex items-center gap-4 mb-8">
-        <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">合作夥伴</span>
-        <div className="flex-grow h-px bg-white/15" />
+  <footer className="bg-primary border-t-4 border-secondary w-full pt-16 pb-24 mt-24">
+    <div className="max-w-7xl mx-auto px-8">
+      <div className="flex items-center gap-4 mb-8">
+        <span className="text-secondary font-black tracking-[0.3em] uppercase text-xs">合作夥伴</span>
+        <div className="flex-grow h-px bg-white/10" />
       </div>
-      <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+      <div className="partner-marquee-wrap overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <div className="partner-marquee-track items-center">
           {[...PARTNER_LOGOS, ...PARTNER_LOGOS].map((partner, i) => (
-            <div key={`${partner.name}-${i}`} className="shrink-0 w-[130px] h-16 mx-2.5 bg-white/95 rounded-2xl flex items-center justify-center p-3">
+            <div key={`${partner.name}-${i}`} className="shrink-0 w-[150px] h-20 mx-3 bg-white border border-white/10 flex items-center justify-center p-4">
               <img
                 src={partner.src}
                 alt={partner.name}
@@ -255,33 +249,30 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
           ))}
         </div>
       </div>
-
-      <div className="relative grid grid-cols-1 md:grid-cols-3 gap-10 mt-14 pt-10 border-t border-white/15">
-        <div className="col-span-1 md:col-span-2">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
-              <Logo className="w-7 h-7" variant="white" />
-            </div>
-            <span className="font-extrabold text-2xl">亨波趨勢</span>
-          </div>
-          <p className="text-sm text-white/60 max-w-lg leading-relaxed">
-            © 2026 HENGBO TREND. MASTERING TRENDS, MAXIMIZING IMPACT.<br/>
-            專業企劃、補助申請、品牌設計與廣告投放的一站式顧問夥伴。
-          </p>
+    </div>
+    <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-white mt-16 pt-16 border-t border-white/10">
+      <div className="col-span-1 md:col-span-2">
+        <div className="flex items-center gap-4 mb-8">
+          <Logo className="w-12 h-12" variant="white" />
+          <span className="text-4xl font-black block">亨波趨勢</span>
         </div>
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-3">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">導覽導航</span>
-            <button onClick={() => { setActiveTab("services"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-white/80 hover:text-coral transition-colors text-sm font-medium">專業服務</button>
-            <button onClick={() => { setActiveTab("cases"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-white/80 hover:text-coral transition-colors text-sm font-medium">精選案例</button>
-            <button onClick={() => { setActiveTab("about"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-white/80 hover:text-coral transition-colors text-sm font-medium">關於我們</button>
-            <button onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-white/80 hover:text-coral transition-colors text-sm font-medium">聯繫我們</button>
-          </div>
-          <div className="flex flex-col gap-3">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">社群連結</span>
-            <a href="https://www.facebook.com/share/1H7nCUSiie/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-coral transition-colors text-sm font-medium">Facebook</a>
-            <a href="https://lin.ee/XrjcRfb" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-coral transition-colors text-sm font-medium">LINE</a>
-          </div>
+        <p className="font-bold text-sm tracking-widest uppercase opacity-70 max-w-lg leading-relaxed">
+          © 2026 <Logo className="w-4 h-4 mx-1" variant="white" /> HENGBO TREND. MASTERING TRENDS, MAXIMIZING IMPACT.<br/>
+          專業企劃、補助申請、品牌設計與廣告投放的一站式顧問夥伴。
+        </p>
+      </div>
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
+          <span className="text-secondary font-black tracking-widest uppercase">導覽導航</span>
+          <button onClick={() => { setActiveTab("services"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">專業服務</button>
+          <button onClick={() => { setActiveTab("cases"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">精選案例</button>
+          <button onClick={() => { setActiveTab("about"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">關於我們</button>
+          <button onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-left text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">聯繫我們</button>
+        </div>
+        <div className="flex flex-col gap-4">
+          <span className="text-secondary font-black tracking-widest uppercase">社群連結</span>
+          <a href="https://www.facebook.com/share/1H7nCUSiie/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">Facebook</a>
+          <a href="https://lin.ee/XrjcRfb" target="_blank" rel="noopener noreferrer" className="text-surface-high hover:text-secondary snap-transition uppercase font-bold text-sm tracking-widest">LINE</a>
         </div>
       </div>
     </div>
@@ -313,142 +304,115 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
   };
 
   return (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
+  <motion.div 
+    initial={{ opacity: 0 }} 
+    animate={{ opacity: 1 }} 
     exit={{ opacity: 0 }}
-    className="font-display bg-[#F3F5F7] text-ink"
+    className="brutalist-grid min-h-screen"
   >
     {/* Hero */}
-    <section className="relative px-6 md:px-8 pt-16 pb-20 md:pt-24 md:pb-28 text-center overflow-hidden">
-      <div className="absolute w-[520px] h-[520px] rounded-full bg-teal/20 blur-[100px] -top-52 -right-40 pointer-events-none" />
-      <div className="absolute w-[420px] h-[420px] rounded-full bg-coral/15 blur-[100px] top-40 -left-40 pointer-events-none" />
-
-      <div className="relative max-w-3xl mx-auto">
-        <span className="inline-flex items-center gap-2 bg-teal-soft text-teal px-5 py-2 rounded-full text-sm font-semibold mb-8">
-          ✦ 策略顧問．品牌與資源整合
-        </span>
-        <h1 className="font-black text-[clamp(2.4rem,6vw,4.2rem)] leading-[1.2] tracking-tight">
-          讓好策略，<span className="bg-gradient-to-r from-teal to-coral bg-clip-text text-transparent">真正被執行</span>。
-        </h1>
-        <p className="max-w-xl mx-auto mt-7 text-muted text-lg leading-relaxed">
-          從企劃撰寫、政府補助申請，到品牌設計與廣告投放，我們陪企業把每一步想法，落地成看得見的成果。
-        </p>
-        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={() => setActiveTab("contact")}
-            className="bg-teal text-white px-8 py-3.5 rounded-full font-semibold shadow-[0_8px_20px_rgba(31,111,92,0.28)] hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(31,111,92,0.34)] transition-all"
-          >
-            預約免費諮詢
-          </button>
-          <button
-            onClick={() => setActiveTab("services")}
-            className="bg-white text-ink px-8 py-3.5 rounded-full font-semibold border border-black/10 hover:-translate-y-0.5 transition-transform"
-          >
-            查看服務項目
-          </button>
+    <section className="relative px-8 py-24 overflow-hidden">
+      <div className="max-w-7xl mx-auto grid grid-cols-12 gap-0 relative">
+        <div className="absolute -right-20 top-0 opacity-5 pointer-events-none select-none">
+          <Building2 size={600} className="text-primary" />
         </div>
-
-        {/* Floating stat cards */}
-        <div className="hidden md:block relative max-w-3xl mx-auto h-56 mt-16">
-          <div className="absolute left-0 top-4 -rotate-6 bg-white/70 backdrop-blur-xl border border-white/70 rounded-3xl shadow-[0_20px_50px_rgba(30,36,48,0.10)] px-7 py-5 w-56 text-left">
-            <div className="font-extrabold text-3xl text-teal">100+</div>
-            <div className="text-sm text-muted mt-1">合作企業</div>
-          </div>
-          <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-white/70 backdrop-blur-xl border border-white/70 rounded-3xl shadow-[0_20px_50px_rgba(30,36,48,0.10)] px-7 py-5 w-56 text-left">
-            <div className="font-extrabold text-3xl text-teal">4.8×</div>
-            <div className="text-sm text-muted mt-1">平均廣告 ROI</div>
-          </div>
-          <div className="absolute right-0 top-8 rotate-6 bg-gradient-to-br from-coral to-[#FFA487] rounded-3xl shadow-[0_20px_50px_rgba(30,36,48,0.10)] px-7 py-5 w-56 text-left text-white">
-            <div className="font-extrabold text-3xl">$1,500萬</div>
-            <div className="text-sm opacity-90 mt-1">單案融資達成</div>
+        <div className="col-span-12 lg:col-span-10 z-10">
+          <h1 className="text-[clamp(3rem,12vw,8rem)] leading-[0.85] font-black text-primary uppercase tracking-tighter mb-12">
+            賦能企業<br/>
+            <span className="text-secondary">築造未來</span>
+          </h1>
+        </div>
+        <div className="col-span-12 lg:col-span-6 lg:ml-[16.6%] bg-primary p-12 relative z-20 border-r-8 border-secondary">
+          <p className="text-white text-[clamp(1.5rem,5vw,2.25rem)] font-bold tracking-[0.2em] mb-8">助力企業，引領趨勢</p>
+          <div className="w-full h-1 bg-secondary mb-8"></div>
+          <div className="flex gap-4">
+            <div className="w-24 h-24 bg-white flex items-center justify-center brutalist-border">
+              <Logo className="w-16 h-16" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-white font-black text-xl tracking-widest">HENGBO TREND</span>
+              <span className="text-white/60 font-bold text-xs uppercase tracking-[0.3em]">Strategic Consulting</span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     {/* Why Choose Us */}
-    <section className="px-6 md:px-8 py-20 md:py-24">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center max-w-xl mx-auto mb-16">
-          <span className="inline-block bg-teal-soft text-teal px-4 py-1.5 rounded-full text-sm font-semibold mb-5">為什麼選擇我們</span>
-          <h2 className="font-black text-[clamp(1.9rem,4vw,2.6rem)]">不只是顧問，是一起把事情做成的夥伴</h2>
-          <p className="text-muted mt-4">以深度市場洞察為基礎，成為企業成長路上值得信賴的夥伴。</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <section className="px-8 py-32 bg-white">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {[
-            { icon: <Target className="text-teal" size={26} />, title: "精準策略", desc: "基於深度市場洞察與數據分析，為您的企業量身打造具備高度執行力的成長藍圖。" },
-            { icon: <Zap className="text-teal" size={26} />, title: "高效執行", desc: "從企劃撰寫到資源對接，我們強調速度與品質的平衡，確保每一個專案都能如期達成目標。" },
-            { icon: <ShieldCheck className="text-teal" size={26} />, title: "專業保障", desc: "擁有豐富的政府補助申請經驗與品牌行銷實績，是您在商場競爭中最堅實的後盾。" }
+            { icon: <Target className="text-secondary" size={48} />, title: "精準策略", desc: "基於深度市場洞察與數據分析，為您的企業量身打造具備高度執行力的成長藍圖。" },
+            { icon: <Zap className="text-secondary" size={48} />, title: "高效執行", desc: "從企劃撰寫到資源對接，我們強調速度與品質的平衡，確保每一個專案都能如期達成目標。" },
+            { icon: <ShieldCheck className="text-secondary" size={48} />, title: "專業保障", desc: "擁有豐富的政府補助申請經驗與品牌行銷實績，是您在商場競爭中最堅實的後盾。" }
           ].map((item, i) => (
-            <div key={i} className="bg-white rounded-[28px] p-9 shadow-[0_16px_40px_rgba(30,36,48,0.06)] hover:-translate-y-1.5 transition-transform">
-              <div className="w-14 h-14 rounded-2xl bg-teal-soft flex items-center justify-center mb-6">{item.icon}</div>
-              <h3 className="font-bold text-xl mb-3">{item.title}</h3>
-              <p className="text-muted text-[15px] leading-relaxed">{item.desc}</p>
+            <div key={i} className="p-8 border-4 border-primary hover:bg-surface-low transition-colors">
+              <div className="mb-6">{item.icon}</div>
+              <h3 className="text-2xl font-black text-primary mb-4 uppercase tracking-tight">{item.title}</h3>
+              <p className="font-bold text-muted leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
       </div>
     </section>
 
-    {/* Core Services */}
-    <section className="px-6 md:px-8 py-20 md:py-24">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center max-w-xl mx-auto mb-16">
-          <span className="inline-block bg-coral-soft text-coral px-4 py-1.5 rounded-full text-sm font-semibold mb-5">核心服務</span>
-          <h2 className="font-black text-[clamp(1.9rem,4vw,2.6rem)]">從想法到落地的完整服務鏈</h2>
-          <p className="text-muted mt-4">我們不只提供服務；我們透過數據驅動的精準規劃，協助您在市場競爭中取得絕對優勢。</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-6">
-          <div className="bg-white rounded-[32px] p-10 md:p-12 shadow-[0_20px_50px_rgba(30,36,48,0.08)] flex flex-col justify-between min-h-[320px]">
-            <div>
-              <span className="inline-block bg-coral-soft text-coral text-xs font-bold px-3.5 py-1.5 rounded-full mb-6">企劃撰寫</span>
-              <h3 className="font-extrabold text-2xl md:text-3xl mb-4 leading-snug">一份讓投資人與團隊<br/>都買單的企劃</h3>
-            </div>
-            <p className="text-muted max-w-md leading-relaxed">從市場洞察到可執行藍圖，我們專注於邏輯架構與商業價值的深度挖掘。</p>
+    {/* Bento Grid */}
+    <section className="px-8 py-32 bg-surface-low border-t-2 border-primary">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
+          <h2 className="text-[clamp(3rem,10vw,4.5rem)] font-black uppercase tracking-tighter text-primary">策略<br/>精準度</h2>
+          <div className="max-w-md text-right">
+            <span className="font-black uppercase tracking-[0.3em] text-secondary block mb-4">核心服務能力</span>
+            <p className="font-bold text-muted">我們不只提供服務；我們透過數據驅動的精準規劃，協助您在市場競爭中取得絕對優勢。</p>
           </div>
-          <div className="rounded-[32px] p-10 md:p-12 bg-gradient-to-br from-teal to-teal-dark text-white shadow-[0_20px_50px_rgba(30,36,48,0.08)] flex flex-col justify-between min-h-[320px]">
-            <div>
-              <span className="inline-block bg-white/15 text-white text-xs font-bold px-3.5 py-1.5 rounded-full mb-6">補助申請</span>
-              <h3 className="font-extrabold text-2xl md:text-3xl mb-4">對接政府資源</h3>
+        </div>
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-12 md:col-span-8 group bg-white brutalist-border p-12 hover:bg-primary hover:text-white snap-transition relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 opacity-5 group-hover:opacity-20 snap-transition">
+              <FileText size={240} />
             </div>
-            <div>
-              <p className="text-white/75 mb-6 leading-relaxed">對接政府資源，極大化研發與轉型動能。我們提供從資格評估到結案報告的全程專業輔導。</p>
-              <button
-                onClick={() => setActiveTab("services")}
-                className="bg-white text-teal px-5 py-2.5 rounded-full font-semibold text-sm hover:-translate-y-0.5 transition-transform"
-              >
-                了解更多
-              </button>
-            </div>
+            <span className="text-secondary font-black text-2xl mb-8 block">01</span>
+            <h3 className="text-[clamp(2rem,6vw,3rem)] font-black mb-6 uppercase">企劃撰寫</h3>
+            <p className="text-xl max-w-xl font-medium mb-8 leading-relaxed">從市場洞察到可執行藍圖，一份讓投資人與團隊都買單的企劃。我們專注於邏輯架構與商業價值的深度挖掘。</p>
+            <div className="w-16 h-2 bg-secondary"></div>
+          </div>
+          <div className="col-span-12 md:col-span-4 bg-secondary p-12 text-white brutalist-border border-secondary relative">
+            <span className="text-white/50 font-black text-2xl mb-8 block">02</span>
+            <h3 className="text-[clamp(1.5rem,5vw,2.25rem)] font-black mb-6 uppercase">補助申請</h3>
+            <Rocket size={80} className="mb-8" />
+            <p className="font-bold mb-8 leading-relaxed">對接政府資源，極大化研發與轉型動能。我們提供從資格評估到結案報告的全程專業輔導。</p>
+            <button onClick={() => setActiveTab("services")} className="bg-white text-primary px-6 py-3 font-black uppercase tracking-widest hover:bg-primary hover:text-white snap-transition">了解更多</button>
           </div>
         </div>
       </div>
     </section>
 
     {/* CTA */}
-    <section className="px-6 md:px-8 py-20 md:py-24">
-      <div className="max-w-4xl mx-auto rounded-[32px] md:rounded-[40px] p-10 md:p-20 text-center bg-gradient-to-br from-teal to-teal-dark text-white relative overflow-hidden">
-        <div className="absolute w-96 h-96 bg-coral/30 blur-[100px] rounded-full -right-24 -bottom-24 pointer-events-none" />
-        <h2 className="relative font-black text-[clamp(2rem,4.5vw,2.8rem)]">準備好引領趨勢了嗎？</h2>
-        <p className="relative text-white/75 max-w-md mx-auto mt-5 mb-10">訂閱我們的趨勢週報，獲取最新的市場洞察與補助資訊。</p>
-        <div className="relative flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-          <input
-            type="email"
+    <section className="px-8 py-40 bg-white">
+      <div className="max-w-4xl mx-auto text-center">
+        <h2 className="text-[clamp(2.5rem,8vw,5rem)] font-black text-primary uppercase tracking-tighter mb-12">
+          準備好<br/>
+          <span className="text-secondary">引領趨勢</span>了嗎？
+        </h2>
+        <p className="text-xl font-bold text-muted mb-12 uppercase tracking-widest">訂閱我們的趨勢週報，獲取最新的市場洞察與補助資訊。</p>
+        <div className="flex flex-col md:flex-row gap-4">
+          <input 
+            type="email" 
             value={ctaEmail}
             onChange={(e) => setCtaEmail(e.target.value)}
-            placeholder="您的電子郵件"
-            className="flex-grow rounded-full px-6 py-4 text-ink outline-none"
+            placeholder="您的電子郵件" 
+            className="flex-grow bg-surface-low border-4 border-primary p-6 font-black text-xl focus:outline-none focus:bg-white snap-transition"
           />
-          <button
+          <button 
             onClick={handleSubscribe}
             disabled={ctaLoading}
-            className="bg-coral text-white px-7 py-4 rounded-full font-semibold hover:-translate-y-0.5 transition-transform disabled:opacity-50 whitespace-nowrap"
+            className="bg-primary text-white px-12 py-6 font-black text-xl uppercase tracking-widest hover:bg-secondary snap-transition disabled:opacity-50"
           >
             {ctaLoading ? "處理中..." : "立即訂閱"}
           </button>
         </div>
-        {ctaMsg && <p className="relative mt-4 font-semibold text-white/90">{ctaMsg}</p>}
+        {ctaMsg && <p className="mt-4 font-black text-secondary uppercase tracking-widest">{ctaMsg}</p>}
       </div>
     </section>
   </motion.div>
