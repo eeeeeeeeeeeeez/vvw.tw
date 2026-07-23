@@ -1,4 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import {
+ Routes,
+ Route,
+ Link,
+ useNavigate,
+ useLocation,
+ useParams,
+} from "react-router-dom";
 import { 
  Menu, 
  X, 
@@ -40,7 +48,10 @@ import {
  ShieldCheck,
  Clock,
  ChevronDown,
- Palette
+ Palette,
+ BookOpen,
+ Calendar,
+ Tag
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
@@ -48,6 +59,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
 import mammoth from "mammoth";
+import { BLOG_POSTS, getBlogPostBySlug } from "./data/blogPosts";
 
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -132,6 +144,7 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
  { id: "home", label: "首頁"},
  { id: "services", label: "專業服務"},
  { id: "cases", label: "精選案例"},
+ { id: "blog", label: "知識庫"},
  { id: "about", label: "關於我們"},
  { id: "ai", label: "亨波AI"},
  ];
@@ -268,6 +281,7 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
  <span className="text-secondary font-semibold tracking-wide ">導覽導航</span>
  <button onClick={() => { setActiveTab("services"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">專業服務</button>
  <button onClick={() => { setActiveTab("cases"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">精選案例</button>
+ <button onClick={() => { setActiveTab("blog"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">知識庫</button>
  <button onClick={() => { setActiveTab("about"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">關於我們</button>
  <button onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">聯繫我們</button>
  </div>
@@ -644,6 +658,191 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
  </div>
  </div>
  </section>
+ </motion.div>
+ );
+};
+
+// --- 廣告投放知識庫 ---
+
+const BlogListView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => {
+ return (
+ <motion.div 
+ initial={{ opacity: 0 }} 
+ animate={{ opacity: 1 }} 
+ exit={{ opacity: 0 }}
+ className="pt-24 soft-dot-grid min-h-screen"
+ >
+ <section className="px-8 py-32">
+ <div className="max-w-7xl mx-auto">
+ <div className="mb-24 max-w-4xl">
+ <span className="font-semibold tracking-wide text-secondary mb-4 block">知識庫</span>
+ <h1 className="text-[clamp(3rem,10vw,6.5rem)] type-display font-semibold text-primary mb-8">
+ 廣告投放<br/>
+ <span className="text-stroke">知識庫</span>
+ </h1>
+ <p className="text-lg md:text-xl font-bold text-muted leading-relaxed">
+ 亨波趨勢整理廣告投放相關的實戰知識與策略觀念，涵蓋 Meta、Google、TikTok 廣告投放教學、預算規劃與代操評估，幫助企業與行銷人員建立正確的廣告投放觀念。
+ </p>
+ </div>
+
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+ {BLOG_POSTS.map((post) => (
+ <Link
+ key={post.slug}
+ to={`/blog/${post.slug}`}
+ onClick={() => window.scrollTo({ top: 0, behavior: "smooth"})}
+ className="group flex flex-col bg-white rounded-3xl shadow-md soft-card-hover p-10 hover:bg-primary hover:text-white snap-transition"
+ >
+ <div className="flex items-center gap-3 mb-6 text-secondary group-hover:text-white/80">
+ <BookOpen size={28} />
+ <span className="font-semibold text-xs tracking-wide">{post.category}</span>
+ </div>
+ <h2 className="text-2xl font-semibold mb-4 leading-snug">{post.title}</h2>
+ <p className="font-bold text-sm opacity-70 group-hover:opacity-100 leading-relaxed mb-8 flex-grow">{post.excerpt}</p>
+ <div className="flex items-center gap-4 text-xs font-semibold tracking-wide opacity-60 group-hover:opacity-100">
+ <span className="flex items-center gap-1"><Calendar size={14} />{post.publishDate}</span>
+ <span className="flex items-center gap-1"><Clock size={14} />{post.readTime}</span>
+ </div>
+ </Link>
+ ))}
+ </div>
+
+ <div className="mt-24 bg-primary text-white rounded-3xl p-12 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8">
+ <div>
+ <h2 className="text-3xl md:text-4xl font-semibold mb-4">需要專業的廣告投放代操服務？</h2>
+ <p className="font-bold opacity-70 max-w-xl">讓亨波趨勢協助您規劃 Meta、Google、TikTok 廣告投放策略，以數據驅動極大化轉換效益。</p>
+ </div>
+ <button 
+ onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth"}); }}
+ className="shrink-0 bg-white text-primary px-8 py-4 rounded-full font-medium hover:bg-secondary hover:text-white snap-transition press-feedback"
+ >
+ 立即諮詢
+ </button>
+ </div>
+ </div>
+ </section>
+ </motion.div>
+ );
+};
+
+const BlogPostView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => {
+ const { slug } = useParams<{ slug: string }>();
+ const post = slug ? getBlogPostBySlug(slug) : undefined;
+ const navigate = useNavigate();
+
+ if (!post) {
+ return (
+ <motion.div 
+ initial={{ opacity: 0 }} 
+ animate={{ opacity: 1 }} 
+ exit={{ opacity: 0 }}
+ className="pt-24 soft-dot-grid min-h-screen flex items-center justify-center px-8"
+ >
+ <div className="text-center max-w-xl">
+ <h1 className="text-4xl font-semibold text-primary mb-6">找不到這篇文章</h1>
+ <p className="font-bold text-muted mb-8">這篇廣告投放知識文章可能已經被移除或網址有誤。</p>
+ <button 
+ onClick={() => navigate("/blog")}
+ className="bg-primary text-white px-8 py-4 rounded-full font-medium hover:bg-primary-dark snap-transition press-feedback"
+ >
+ 返回知識庫
+ </button>
+ </div>
+ </motion.div>
+ );
+ }
+
+ const relatedPosts = BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 3);
+
+ return (
+ <motion.div 
+ initial={{ opacity: 0 }} 
+ animate={{ opacity: 1 }} 
+ exit={{ opacity: 0 }}
+ className="pt-24 soft-dot-grid"
+ >
+ <article className="px-8 py-24">
+ <div className="max-w-3xl mx-auto">
+ <button 
+ onClick={() => navigate("/blog")}
+ className="flex items-center gap-2 text-secondary font-semibold text-sm mb-10 hover:opacity-70 snap-transition press-feedback"
+ >
+ <ArrowRight size={18} className="rotate-180" />
+ 返回知識庫
+ </button>
+
+ <div className="flex items-center gap-4 mb-6 text-xs font-semibold tracking-wide text-secondary">
+ <span className="flex items-center gap-1"><Tag size={14} />{post.category}</span>
+ <span className="flex items-center gap-1"><Calendar size={14} />{post.publishDate}</span>
+ <span className="flex items-center gap-1"><Clock size={14} />{post.readTime}</span>
+ </div>
+
+ <h1 className="text-[clamp(2.25rem,7vw,3.75rem)] type-display font-semibold text-primary mb-10 leading-tight">
+ {post.title}
+ </h1>
+
+ <div className="space-y-12">
+ {post.sections.map((section, i) => (
+ <div key={i}>
+ {section.heading && (
+ <h2 className="text-2xl md:text-3xl font-semibold text-primary mb-5">{section.heading}</h2>
+ )}
+ {section.paragraphs.map((p, j) => (
+ <p key={j} className="text-lg font-medium text-muted leading-relaxed mb-4">{p}</p>
+ ))}
+ {section.list && (
+ <ul className="space-y-3 mt-4">
+ {section.list.map((item, k) => (
+ <li key={k} className="flex items-start gap-3 font-semibold text-primary/90">
+ <BadgeCheck size={20} className="text-secondary shrink-0 mt-1" />
+ <span>{item}</span>
+ </li>
+ ))}
+ </ul>
+ )}
+ </div>
+ ))}
+ </div>
+
+ <div className="mt-16 flex flex-wrap gap-2">
+ {post.keywords.map((kw) => (
+ <span key={kw} className="px-4 py-2 rounded-full bg-surface-low text-xs font-semibold tracking-wide text-muted">#{kw}</span>
+ ))}
+ </div>
+
+ <div className="mt-16 bg-primary text-white rounded-3xl p-10 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
+ <div>
+ <h3 className="text-2xl font-semibold mb-2">想進一步了解廣告投放代操服務？</h3>
+ <p className="font-bold opacity-70">歡迎與亨波趨勢聯繫，為您的品牌規劃專屬廣告投放策略。</p>
+ </div>
+ <button 
+ onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth"}); }}
+ className="shrink-0 bg-white text-primary px-8 py-4 rounded-full font-medium hover:bg-secondary hover:text-white snap-transition press-feedback"
+ >
+ 立即諮詢
+ </button>
+ </div>
+
+ {relatedPosts.length > 0 && (
+ <div className="mt-20">
+ <span className="font-semibold tracking-wide text-secondary mb-6 block">延伸閱讀</span>
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+ {relatedPosts.map((rp) => (
+ <Link
+ key={rp.slug}
+ to={`/blog/${rp.slug}`}
+ onClick={() => window.scrollTo({ top: 0, behavior: "smooth"})}
+ className="block bg-surface-low rounded-2xl p-6 hover:bg-primary hover:text-white snap-transition group"
+ >
+ <h4 className="font-semibold text-lg mb-2 leading-snug">{rp.title}</h4>
+ <span className="text-xs font-semibold opacity-60 group-hover:opacity-100">{rp.readTime}</span>
+ </Link>
+ ))}
+ </div>
+ </div>
+ )}
+ </div>
+ </article>
  </motion.div>
  );
 };
@@ -1641,10 +1840,45 @@ const SEO_BY_TAB: Record<string, { title: string; description: string }> = {
  title: "AI 智能顧問｜亨波趨勢 HENGBO TREND",
  description: "使用亨波趨勢 AI 智能顧問，即時獲得廣告投放、企劃撰寫與補助申請相關的專業建議。",
  },
+ blog: {
+ title: "廣告投放知識庫｜Meta / Google / TikTok 廣告投放教學｜亨波趨勢",
+ description: "亨波趨勢廣告投放知識庫，整理 Meta、Google、TikTok 廣告投放教學、預算規劃與代操評估等實戰文章，協助企業建立正確的廣告投放觀念。",
+ },
 };
 
+const SITE_URL = "https://grv.ccwu.cc";
+
+// 依路徑 (tab) 判斷應使用哪一組 SEO 內容，blog 文章頁另外處理
+function tabForPath(pathname: string): string {
+ const seg = pathname.split("/").filter(Boolean)[0];
+ if (!seg) return "home";
+ if (seg === "blog") return "blog";
+ return ["services", "cases", "about", "contact", "ai"].includes(seg) ? seg : "home";
+}
+
+function pathForTab(tab: string): string {
+ return tab === "home" ? "/" : `/${tab}`;
+}
+
+// 將 <script type="application/ld+json" id="dynamic-jsonld"> 動態注入/移除，
+// 用於文章頁的 Article 結構化資料
+function setDynamicJsonLd(data: object | null) {
+ const existing = document.getElementById("dynamic-jsonld");
+ if (existing) existing.remove();
+ if (!data) return;
+ const script = document.createElement("script");
+ script.type = "application/ld+json";
+ script.id = "dynamic-jsonld";
+ script.textContent = JSON.stringify(data);
+ document.head.appendChild(script);
+}
+
 export default function App() {
- const [activeTab, setActiveTab] = useState("home");
+ const navigate = useNavigate();
+ const location = useLocation();
+ const activeTab = tabForPath(location.pathname);
+ const setActiveTab = (tab: string) => navigate(pathForTab(tab));
+
  const [showScrollTop, setShowScrollTop] = useState(false);
  const [isLoading, setIsLoading] = useState(true);
 
@@ -1654,23 +1888,61 @@ export default function App() {
  }, []);
 
  useEffect(() => {
- const seo = SEO_BY_TAB[activeTab] || SEO_BY_TAB.home;
- document.title = seo.title;
-
  const setMeta = (selector: string, attr: string, content: string) => {
  const el = document.head.querySelector(selector);
  if (el) el.setAttribute(attr, content);
  };
+ const setCanonical = (href: string) => {
+ const el = document.head.querySelector('link[rel="canonical"]');
+ if (el) el.setAttribute("href", href);
+ };
+
+ // 廣告投放知識庫文章頁：使用文章專屬的 SEO 內容與 Article 結構化資料
+ if (location.pathname.startsWith("/blog/")) {
+ const slug = location.pathname.split("/blog/")[1];
+ const post = getBlogPostBySlug(slug);
+ if (post) {
+ document.title = post.metaTitle;
+ setMeta('meta[name="description"]', "content", post.metaDescription);
+ setMeta('meta[property="og:title"]', "content", post.metaTitle);
+ setMeta('meta[property="og:description"]', "content", post.metaDescription);
+ setMeta('meta[name="twitter:title"]', "content", post.metaTitle);
+ setMeta('meta[name="twitter:description"]', "content", post.metaDescription);
+ setCanonical(`${SITE_URL}${location.pathname}`);
+ setDynamicJsonLd({
+ "@context": "https://schema.org",
+ "@type": "BlogPosting",
+ headline: post.title,
+ description: post.metaDescription,
+ datePublished: post.publishDate,
+ dateModified: post.publishDate,
+ keywords: post.keywords.join(", "),
+ author: { "@type": "Organization", name: "亨波趨勢 HENGBO TREND" },
+ publisher: {
+ "@type": "Organization",
+ name: "亨波趨勢 HENGBO TREND",
+ logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png`},
+ },
+ mainEntityOfPage: `${SITE_URL}${location.pathname}`,
+ });
+ return;
+ }
+ }
+
+ const seo = SEO_BY_TAB[activeTab] || SEO_BY_TAB.home;
+ document.title = seo.title;
  setMeta('meta[name="description"]', "content", seo.description);
  setMeta('meta[property="og:title"]', "content", seo.title);
  setMeta('meta[property="og:description"]', "content", seo.description);
  setMeta('meta[name="twitter:title"]', "content", seo.title);
  setMeta('meta[name="twitter:description"]', "content", seo.description);
- }, [activeTab]);
+ setCanonical(`${SITE_URL}${location.pathname === "/" ? "/" : location.pathname}`);
+ setDynamicJsonLd(null);
+ }, [location.pathname, activeTab]);
 
  useEffect(() => {
  window.scrollTo(0, 0);
- }, [activeTab]);
+ }, [location.pathname]);
 
  useEffect(() => {
  const handleScroll = () => {
@@ -1691,12 +1963,17 @@ export default function App() {
  <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
  
  <AnimatePresence mode="wait">
- {activeTab === "home"&& <HomeView key="home" setActiveTab={setActiveTab} />}
- {activeTab === "services"&& <ServicesView key="services" setActiveTab={setActiveTab} />}
- {activeTab === "cases"&& <CasesView key="cases" setActiveTab={setActiveTab} />}
- {activeTab === "about"&& <AboutView key="about" setActiveTab={setActiveTab} />}
- {activeTab === "contact"&& <ContactView key="contact"/>}
- {activeTab === "ai"&& <AIView key="ai"/>}
+ <Routes location={location} key={location.pathname}>
+ <Route path="/" element={<HomeView setActiveTab={setActiveTab} />} />
+ <Route path="/services" element={<ServicesView setActiveTab={setActiveTab} />} />
+ <Route path="/cases" element={<CasesView setActiveTab={setActiveTab} />} />
+ <Route path="/blog" element={<BlogListView setActiveTab={setActiveTab} />} />
+ <Route path="/blog/:slug" element={<BlogPostView setActiveTab={setActiveTab} />} />
+ <Route path="/about" element={<AboutView setActiveTab={setActiveTab} />} />
+ <Route path="/contact" element={<ContactView />} />
+ <Route path="/ai" element={<AIView />} />
+ <Route path="*" element={<HomeView setActiveTab={setActiveTab} />} />
+ </Routes>
  </AnimatePresence>
 
  {activeTab !== "ai"&& <Footer setActiveTab={setActiveTab} />}
