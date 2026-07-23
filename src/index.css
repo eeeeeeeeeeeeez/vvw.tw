@@ -1,17 +1,18 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
 
 @theme {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  
-  --color-primary: #154212;
-  --color-secondary: #BB0014;
-  --color-surface: #F9F9F9;
-  --color-surface-container: #EEEEEE;
-  --color-surface-low: #F3F3F3;
-  --color-surface-high: #E8E8E8;
-  --color-ink: #1A1C1C;
-  --color-muted: #72796E;
+  --font-sans: -apple-system, "SF Pro Text", "PingFang TC", "Noto Sans TC", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #1A7F4E;
+  --color-primary-dark: #0F5C38;
+  --color-secondary: #E8590C;
+  --color-surface: #FFFFFF;
+  --color-surface-container: #F1F3F4;
+  --color-surface-low: #F8F9FA;
+  --color-surface-high: #E8EAED;
+  --color-ink: #202124;
+  --color-muted: #5F6368;
 
   --spacing-10: 2.5rem;
   --spacing-12: 3rem;
@@ -22,56 +23,96 @@
   body {
     @apply bg-surface text-ink font-sans antialiased;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
-    @apply font-black tracking-tighter uppercase;
+    @apply font-medium tracking-tight;
   }
 }
 
-.brutalist-grid {
-  background-image: radial-gradient(#C2C9BB 1px, transparent 1px);
-  background-size: 40px 40px;
+/* Apple 排版:大型展示字級用負字距、緊 leading;內文保持寬鬆 leading、字距趨近 0 */
+.type-display {
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.type-headline {
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+.type-body {
+  letter-spacing: 0;
+  line-height: 1.6;
 }
 
-.text-stroke {
-  -webkit-text-stroke: 1px #154212;
-  color: transparent;
+/* 按壓回饋:pointer-down 立即反應，不用等 release */
+.press-feedback {
+  transition: transform 120ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.press-feedback:active {
+  transform: scale(0.97);
 }
 
-/* Custom snap transition for brutalist feel */
+/* 半透明毛玻璃材質，取代原本純色實心導覽列 */
+.glass-surface {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+.glass-surface-dark {
+  background: rgba(21, 66, 18, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.soft-dot-grid {
+  background-image: radial-gradient(#E8EAED 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
 .snap-transition {
-  transition: all 50ms cubic-bezier(0, 0, 0.2, 1);
+  transition: all 350ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-.brutalist-border {
-  @apply border-2 border-primary;
+@media (prefers-reduced-motion: reduce) {
+  .snap-transition, .press-feedback {
+    transition: opacity 150ms ease !important;
+    transform: none !important;
+  }
 }
 
-.brutalist-border-heavy {
-  @apply border-4 border-primary;
+.soft-card {
+  @apply bg-white rounded-3xl border-0;
+  box-shadow: 0 1px 3px rgba(32,33,36,0.06), 0 4px 16px rgba(32,33,36,0.04);
 }
 
-/* Markdown Styles */
+.soft-card-hover {
+  transition: box-shadow 250ms ease, transform 250ms ease;
+}
+.soft-card-hover:hover {
+  box-shadow: 0 4px 12px rgba(32,33,36,0.08), 0 12px 32px rgba(32,33,36,0.08);
+  transform: translateY(-2px);
+}
+
 .markdown-content {
-  @apply text-primary;
+  @apply text-ink;
 }
 
-.markdown-content h1 { @apply text-lg font-bold mt-4 mb-2; }
-.markdown-content h2 { @apply text-base font-bold mt-3 mb-2; }
-.markdown-content h3 { @apply text-sm font-bold mt-3 mb-1.5; }
+.markdown-content h1 { @apply text-lg font-semibold mt-4 mb-2; }
+.markdown-content h2 { @apply text-base font-semibold mt-3 mb-2; }
+.markdown-content h3 { @apply text-sm font-semibold mt-3 mb-1.5; }
 .markdown-content p { @apply mb-3 leading-relaxed; }
 .markdown-content ul { @apply list-disc pl-5 mb-3; }
 .markdown-content ol { @apply list-decimal pl-5 mb-3; }
 .markdown-content li { @apply mb-1; }
-.markdown-content strong { @apply font-bold text-secondary; display: inline; }
-.markdown-content b { @apply font-bold text-secondary; }
+.markdown-content strong { @apply font-semibold text-primary; display: inline; }
+.markdown-content b { @apply font-semibold text-primary; }
 .markdown-content em { @apply italic; }
-.markdown-content code { @apply bg-surface-high px-1.5 py-0.5 rounded font-mono text-sm; }
-.markdown-content pre { @apply bg-primary text-white p-4 rounded-none my-4 overflow-x-auto; }
-.markdown-content blockquote { @apply border-l-4 border-secondary pl-4 italic my-4; }
-.markdown-content a { @apply text-secondary underline hover:no-underline; }
+.markdown-content code { @apply bg-surface-high px-1.5 py-0.5 rounded-md font-mono text-sm; }
+.markdown-content pre { @apply bg-ink text-white p-4 rounded-2xl my-4 overflow-x-auto; }
+.markdown-content blockquote { @apply border-l-4 border-primary/30 pl-4 italic my-4; }
+.markdown-content a { @apply text-primary underline hover:no-underline; }
 
-/* Custom scrollbar — thin, brand-colored, replaces default browser chrome */
 .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -83,10 +124,8 @@
 }
 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--color-primary) 20%, transparent) transparent; }
 
-/* Safe-area padding for fixed bottom elements on notched phones */
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-/* Partner logo marquee — seamless infinite scroll, pauses on hover/focus */
 @keyframes partner-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
