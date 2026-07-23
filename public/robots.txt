@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://taipei.ccwu.cc/sitemap.xml
+Sitemap: https://grv.ccwu.cc/sitemap.xml

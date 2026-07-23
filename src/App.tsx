@@ -386,6 +386,26 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
  <p className="font-bold mb-8 leading-relaxed">對接政府資源，極大化研發與轉型動能。我們提供從資格評估到結案報告的全程專業輔導。</p>
  <button onClick={() => setActiveTab("services")} className="bg-white text-primary px-6 py-3 rounded-full font-medium hover:bg-primary hover:text-white snap-transition press-feedback">了解更多</button>
  </div>
+ <div className="col-span-12 group bg-primary text-white p-12 rounded-3xl shadow-md soft-card-hover relative overflow-hidden hover:bg-secondary snap-transition">
+ <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:opacity-20 snap-transition">
+ <TrendingUp size={280} />
+ </div>
+ <span className="text-white/50 font-semibold text-2xl mb-8 block">03</span>
+ <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-end relative z-10">
+ <div>
+ <h3 className="text-[clamp(1.75rem,6vw,3rem)] font-semibold mb-6">廣告投放代操</h3>
+ <p className="font-bold text-lg leading-relaxed max-w-xl">
+ 亨波趨勢專精 <strong>Meta、Google、TikTok 廣告投放</strong>，以數據洞察驅動受眾精準定位、素材創意優化與轉化率追蹤分析，為品牌極大化廣告投放的轉換效益與 ROI，是企業值得信賴的廣告投放代操顧問夥伴。
+ </p>
+ </div>
+ <div className="flex flex-wrap gap-3 lg:justify-end">
+ {["受眾精準定位", "素材創意優化", "轉化率追蹤分析", "跨平台廣告投放"].map((tag) => (
+ <span key={tag} className="px-4 py-2 rounded-full border border-white/30 text-xs font-semibold tracking-wide">{tag}</span>
+ ))}
+ </div>
+ </div>
+ <button onClick={() => setActiveTab("services")} className="relative z-10 mt-10 bg-white text-primary px-6 py-3 rounded-full font-medium hover:bg-primary-dark hover:text-white snap-transition press-feedback">了解廣告投放服務</button>
+ </div>
  </div>
  </div>
  </section>
@@ -430,16 +450,26 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  >
  <section className="px-8 py-32">
  <div className="max-w-7xl mx-auto">
- <div className="mb-32">
+ <div className="mb-16 max-w-4xl">
  <span className="font-semibold tracking-wide text-secondary mb-4 block">專業服務範疇</span>
- <h1 className="text-[clamp(3.5rem,12vw,8rem)] type-display font-semibold text-primary ">
- 全方位<br/>
- <span className="text-stroke">顧問解決方案</span>
+ <h1 className="text-[clamp(3.5rem,12vw,8rem)] type-display font-semibold text-primary mb-8">
+ 廣告投放<br/>
+ <span className="text-stroke">代操顧問夥伴</span>
  </h1>
+ <p className="text-lg md:text-xl font-bold text-muted leading-relaxed">
+ 亨波趨勢提供專業<strong className="text-primary">廣告投放</strong>代操服務，涵蓋 Meta、Google、TikTok 等主流平台，從受眾精準定位、素材創意優化到轉化率追蹤分析，以數據驅動策略極大化廣告投放成效與 ROI。同時提供企劃撰寫、政府補助申請、品牌視覺設計與資源對接，是企業成長最堅實的一站式顧問夥伴。
+ </p>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
  {[
+ { 
+ icon: <TrendingUp size={64} />, 
+ title: "廣告投放", 
+ desc: "基於數據洞察的精準廣告投放策略，涵蓋受眾精準定位、素材創意優化與轉化率追蹤分析，極大化 Meta、Google、TikTok 等平台的廣告投放代操成效與 ROI。",
+ features: ["受眾精準定位", "素材創意優化", "轉化率追蹤分析"],
+ process: ["目標設定", "受眾分析", "素材製作", "投放測試", "數據優化"]
+ },
  { 
  icon: <FileText size={64} />, 
  title: "企劃撰寫", 
@@ -460,13 +490,6 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  desc: "讓品牌不只被看到，更被記住與喜愛。將品牌靈魂轉化為視覺語彙，建立專業形象。",
  features: ["視覺識別 (CIS)", "應用系統設計", "品牌故事轉化"],
  process: ["品牌診斷", "視覺探索", "設計執行", "規範建立", "應用落地"]
- },
- { 
- icon: <TrendingUp size={64} />, 
- title: "廣告投放", 
- desc: "基於數據洞察的精準投放策略，極大化 Meta、Google、TikTok 等平台的轉型效益。",
- features: ["受眾精準定位", "素材創意優化", "轉化率追蹤分析"],
- process: ["目標設定", "受眾分析", "素材製作", "投放測試", "數據優化"]
  },
  { 
  icon: <Network size={64} />, 
@@ -1591,6 +1614,35 @@ ${documentsContext}` : ''}`;
 
 // --- Main App ---
 
+// 各分頁的 SEO title / description，隨 activeTab 切換動態更新，
+// 廣告投放服務頁採用關鍵字強化文案。
+const SEO_BY_TAB: Record<string, { title: string; description: string }> = {
+ home: {
+ title: "廣告投放代操推薦｜亨波趨勢 HENGBO TREND｜Meta / Google / TikTok 精準廣告投放服務",
+ description: "亨波趨勢專精廣告投放代操服務，提供 Meta、Google、TikTok 等平台的受眾精準定位、素材創意優化與轉化率追蹤分析，以數據驅動策略極大化廣告投放成效與 ROI。",
+ },
+ services: {
+ title: "廣告投放服務與代操方案｜亨波趨勢 HENGBO TREND",
+ description: "亨波趨勢廣告投放服務涵蓋受眾精準定位、素材創意優化、轉化率追蹤分析，並提供企劃撰寫、政府補助申請與品牌設計等一站式顧問服務，助您極大化廣告投放 ROI。",
+ },
+ cases: {
+ title: "廣告投放成功案例｜亨波趨勢 HENGBO TREND",
+ description: "查看亨波趨勢協助品牌透過精準廣告投放與品牌設計提升 ROI 與市場競爭力的實戰案例。",
+ },
+ about: {
+ title: "關於我們｜亨波趨勢 HENGBO TREND 廣告投放顧問團隊",
+ description: "亨波趨勢是專精廣告投放代操、企劃撰寫與政府補助申請的顧問團隊，助力企業引領趨勢。",
+ },
+ contact: {
+ title: "聯繫我們｜廣告投放諮詢｜亨波趨勢 HENGBO TREND",
+ description: "歡迎聯繫亨波趨勢，預約廣告投放代操諮詢，我們將為您規劃 Meta、Google、TikTok 精準廣告投放策略。",
+ },
+ ai: {
+ title: "AI 智能顧問｜亨波趨勢 HENGBO TREND",
+ description: "使用亨波趨勢 AI 智能顧問，即時獲得廣告投放、企劃撰寫與補助申請相關的專業建議。",
+ },
+};
+
 export default function App() {
  const [activeTab, setActiveTab] = useState("home");
  const [showScrollTop, setShowScrollTop] = useState(false);
@@ -1600,6 +1652,21 @@ export default function App() {
  const timer = setTimeout(() => setIsLoading(false), 1500);
  return () => clearTimeout(timer);
  }, []);
+
+ useEffect(() => {
+ const seo = SEO_BY_TAB[activeTab] || SEO_BY_TAB.home;
+ document.title = seo.title;
+
+ const setMeta = (selector: string, attr: string, content: string) => {
+ const el = document.head.querySelector(selector);
+ if (el) el.setAttribute(attr, content);
+ };
+ setMeta('meta[name="description"]', "content", seo.description);
+ setMeta('meta[property="og:title"]', "content", seo.title);
+ setMeta('meta[property="og:description"]', "content", seo.description);
+ setMeta('meta[name="twitter:title"]', "content", seo.title);
+ setMeta('meta[name="twitter:description"]', "content", seo.description);
+ }, [activeTab]);
 
  useEffect(() => {
  window.scrollTo(0, 0);
