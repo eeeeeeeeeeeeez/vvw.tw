@@ -1574,14 +1574,17 @@ const AIView = () => {
  setSelectedFile(null);
  setIsTyping(true);
 
- const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
+ // 只有明確表達「要畫一張圖／生成圖片」意圖時才觸發圖片生成，
+ // 避免「架構圖」「地圖」「docker image」這類常見詞彙被誤判，
+ // 導致本來要生成的正常文字內容被錯誤替換成圖片。
+ const isImageRequest = /(幫我)?畫(一?[張個幅]|出)|(生成|產生|製作)(一[張個])?(圖片|插畫|海報|封面)|generate\s+(me\s+)?(an?\s+)?(image|picture|illustration)|draw\s+(me\s+)?(a|an)\s+\w+|create\s+(an?\s+)?(image|picture|illustration)/i.test(userMsg);
  const documentsContext = buildDocumentsContext(updatedDocuments);
- const systemInstruction = `你是「亨波趨勢 (HENGBO TREND)」網站上的客服顧問助手，服務對象是正在諮詢的真實客戶。
+ const systemInstruction = `你是「亨波趨勢 (HENGBO TREND)」網站上的 AI 助理，可以自由回答任何問題、協助寫程式、生成文件、回答一般知識問題，不是只能回答跟公司業務相關的問題。
 回覆風格：
 1. **直接回答**：使用者的每一則訊息都是在跟你對話，不是新對話的開場，絕對不要在回覆中重新自我介紹、複述你的身分或職稱（例如「我是Hengbo AI顧問」「身為專業顧問」之類的開場白），開場自我介紹只在對話一開始出現過一次，之後每次回覆都直接切入內容即可。
-2. **語氣自然專業**：像真人顧問一樣簡潔、務實地回答，不需要每句話都強調自己的專業性或角色定位。
+2. **語氣自然專業**：像真人助理一樣簡潔、務實地回答，不需要每句話都強調自己的專業性或角色定位。
 3. **繁體中文**：使用清楚、精準的『繁體中文』。
-4. **視情況引導**：只有在使用者的問題確實適合進一步諮詢或需要更多資訊時，才自然地提及可至 https://vvw-tw.vercel.app/ 或聯繫頁面了解更多，不要每則回覆都硬塞這句話。
+4. **不要主動推銷官網或聯繫方式**：絕對不要在回覆中主動附上官網連結、聯繫頁面、或建議使用者「進一步諮詢」，除非使用者明確詢問「怎麼聯絡你們」「官網在哪」之類的問題，才可以回答 https://grv.ccwu.cc/ 。一般的提問（包含寫程式、產生內容、回答知識性問題）都直接回答問題本身就好，不要在回覆結尾加業務性質的引導句。
 ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}${documentsContext ? `
 
 以下是使用者在此對話中上傳過的檔案內容。即使使用者之後的提問沒有重新附上檔案，也可能是在針對這些內容追問，請一併參考：
@@ -1637,7 +1640,7 @@ ${documentsContext}` : ''}`;
 
  const response = await genAI.models.generateContentStream({
  model: "gemini-3.5-flash-lite",
- systemInstruction,
+ config: { systemInstruction },
  contents: [
  ...buildHistoryWindow(messages).map(m => ({ role: m.role === "user"? "user": "model", parts: [{ text: m.content }] })),
  { role: "user", parts: aiPromptParts }
