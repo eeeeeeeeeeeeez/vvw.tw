@@ -51,7 +51,8 @@ import {
  Palette,
  BookOpen,
  Calendar,
- Tag
+ Tag,
+ Code2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI } from "@google/genai";
@@ -1220,6 +1221,73 @@ const ContactView: React.FC = () => {
  );
 };
 
+// 聊天訊息中的程式碼區塊：提供複製功能，若偵測為 HTML 則額外提供「預覽網頁」，
+// 直接用 iframe 把 AI 產生的網頁渲染出來，不用複製貼上到其他地方才看得到畫面。
+const CodeBlock: React.FC<{ className?: string; children?: React.ReactNode }> = ({ className, children }) => {
+ const codeText = React.useMemo(() => String(children ?? "").replace(/\n$/, ""), [children]);
+ const langMatch = /language-(\w+)/.exec(className || "");
+ const lang = langMatch?.[1];
+ // 沒有語言標記、且內容不含換行，視為 inline code（例如 `variable`），維持原本簡單樣式即可
+ const isInline = !className && !codeText.includes("\n");
+
+ const isHtml = lang === "html" || lang === "xml" || /^\s*<!doctype html|^\s*<html[\s>]/i.test(codeText);
+ const [showPreview, setShowPreview] = useState(false);
+ const [copied, setCopied] = useState(false);
+
+ if (isInline) {
+ return <code className={className}>{children}</code>;
+ }
+
+ const handleCopy = async () => {
+ try {
+ await navigator.clipboard.writeText(codeText);
+ setCopied(true);
+ setTimeout(() => setCopied(false), 1500);
+ } catch {
+ /* 剪貼簿權限被拒絕時靜默失敗即可 */
+ }
+ };
+
+ return (
+ <div className="not-prose my-4 rounded-2xl overflow-hidden border border-black/10 bg-ink text-white">
+ <div className="flex items-center justify-between px-4 py-2 bg-white/10 text-white/60 text-[11px] font-semibold tracking-wide">
+ <span>{lang ? lang.toUpperCase() : "CODE"}</span>
+ <div className="flex items-center gap-4">
+ {isHtml && (
+ <button
+ type="button"
+ onClick={() => setShowPreview((p) => !p)}
+ className="flex items-center gap-1 hover:text-white transition-colors press-feedback"
+ >
+ {showPreview ? (<><Code2 size={13}/> 檢視程式碼</>) : (<><Eye size={13}/> 預覽網頁</>)}
+ </button>
+ )}
+ <button
+ type="button"
+ onClick={handleCopy}
+ className="flex items-center gap-1 hover:text-white transition-colors press-feedback"
+ >
+ {copied ? (<><Check size={13}/> 已複製</>) : (<><Copy size={13}/> 複製</>)}
+ </button>
+ </div>
+ </div>
+
+ {showPreview && isHtml ? (
+ <iframe
+ srcDoc={codeText}
+ sandbox="allow-scripts"
+ className="w-full h-[420px] bg-white"
+ title="網頁預覽"
+ />
+ ) : (
+ <pre className="!my-0 !bg-transparent !rounded-none p-4 overflow-x-auto">
+ <code className={className}>{codeText}</code>
+ </pre>
+ )}
+ </div>
+ );
+};
+
 // ========== AIView 組件 ==========
 const AIView = () => {
  const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -1738,7 +1806,13 @@ ${documentsContext}` : ''}`;
  }`}>
  {msg.role === 'user' ? <div className="whitespace-pre-wrap">{msg.content}</div> : (
  <div className="markdown-content prose prose-sm max-w-none">
- <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+ <ReactMarkdown
+ remarkPlugins={[remarkGfm]}
+ components={{
+ pre: ({ children }) => <>{children}</>,
+ code: CodeBlock,
+ }}
+ >{msg.content}</ReactMarkdown>
  </div>
  )}
  {msg.imageUrl && (

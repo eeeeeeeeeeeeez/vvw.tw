@@ -110,6 +110,16 @@
 .markdown-content em { @apply italic; }
 .markdown-content code { @apply bg-surface-high px-1.5 py-0.5 rounded-md font-mono text-sm; }
 .markdown-content pre { @apply bg-ink text-white p-4 rounded-2xl my-4 overflow-x-auto; }
+/* pre 內的 code 屬於「區塊程式碼」，不套用 inline code 的淺色底，
+   避免白色文字疊在淺灰底色上造成對比度不足、難以閱讀 */
+.markdown-content pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85em;
+  line-height: 1.6;
+}
 .markdown-content blockquote { @apply border-l-4 border-primary/30 pl-4 italic my-4; }
 .markdown-content a { @apply text-primary underline hover:no-underline; }
 
@@ -134,10 +144,6 @@
   display: flex;
   width: max-content;
   animation: partner-marquee 32s linear infinite;
-}
-.partner-marquee-track:hover,
-.partner-marquee-track:focus-within {
-  animation-play-state: paused;
 }
 @media (prefers-reduced-motion: reduce) {
   .partner-marquee-track { animation: none; }
