@@ -1223,7 +1223,13 @@ const ContactView: React.FC = () => {
 
 // 聊天訊息中的程式碼區塊：提供複製功能，若偵測為 HTML 則額外提供「預覽網頁」，
 // 直接用 iframe 把 AI 產生的網頁渲染出來，不用複製貼上到其他地方才看得到畫面。
-const CodeBlock: React.FC<{ className?: string; children?: React.ReactNode }> = ({ className, children }) => {
+// 用元件外部的 Map 保存每個程式碼區塊的「預覽開關」狀態，
+// key 是 blockKey（訊息ID + 區塊位置），而不是程式碼內容本身。
+// 這樣即使訊息在串流過程中內容不斷變動、CodeBlock 被重新建立，
+// 開關狀態也不會被重置回「顯示程式碼」。
+const codeBlockPreviewState = new Map<string, boolean>();
+
+const CodeBlock: React.FC<{ className?: string; children?: React.ReactNode; blockKey?: string }> = ({ className, children, blockKey }) => {
  const codeText = React.useMemo(() => String(children ?? "").replace(/\n$/, ""), [children]);
  const langMatch = /language-(\w+)/.exec(className || "");
  const lang = langMatch?.[1];
@@ -1231,8 +1237,18 @@ const CodeBlock: React.FC<{ className?: string; children?: React.ReactNode }> = 
  const isInline = !className && !codeText.includes("\n");
 
  const isHtml = lang === "html" || lang === "xml" || /^\s*<!doctype html|^\s*<html[\s>]/i.test(codeText);
- const [showPreview, setShowPreview] = useState(false);
+ const [showPreview, setShowPreviewState] = useState(
+ () => (blockKey ? codeBlockPreviewState.get(blockKey) : undefined) ?? false
+ );
  const [copied, setCopied] = useState(false);
+
+ const setShowPreview = (updater: boolean | ((prev: boolean) => boolean)) => {
+ setShowPreviewState((prev) => {
+ const next = typeof updater === "function" ? (updater as (p: boolean) => boolean)(prev) : updater;
+ if (blockKey) codeBlockPreviewState.set(blockKey, next);
+ return next;
+ });
+ };
 
  if (isInline) {
  return <code className={className}>{children}</code>;
@@ -1287,6 +1303,20 @@ const CodeBlock: React.FC<{ className?: string; children?: React.ReactNode }> = 
  </div>
  );
 };
+
+// 產生每則訊息專屬的 ReactMarkdown components 設定，
+// 用一個遞增計數器幫每個程式碼區塊配上穩定的 blockKey（訊息ID + 區塊順序），
+// 讓 CodeBlock 的預覽開關狀態能跨越串流重新渲染而維持不變。
+function createMarkdownComponents(messageId: string) {
+ let blockIndex = 0;
+ return {
+ pre: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+ code: (props: { className?: string; children?: React.ReactNode }) => {
+ const key = `${messageId}-${blockIndex++}`;
+ return <CodeBlock {...props} blockKey={key} />;
+ },
+ };
+}
 
 // ========== AIView 組件 ==========
 const AIView = () => {
@@ -1808,10 +1838,7 @@ ${documentsContext}` : ''}`;
  <div className="markdown-content prose prose-sm max-w-none">
  <ReactMarkdown
  remarkPlugins={[remarkGfm]}
- components={{
- pre: ({ children }) => <>{children}</>,
- code: CodeBlock,
- }}
+ components={createMarkdownComponents(msg.id)}
  >{msg.content}</ReactMarkdown>
  </div>
  )}
