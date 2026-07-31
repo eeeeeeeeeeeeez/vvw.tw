@@ -297,6 +297,42 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
 });
 
 /**
+ * POST /api/ai/agent
+ * 處理 Antigravity Agent（Interactions API）請求
+ * 原本這段是直接在瀏覽器端用曝光的 API key 呼叫，會啟動遠端沙盒環境，
+ * 屬於高風險操作，因此搬到後端執行，前端只透過這個端點取得結果。
+ */
+router.post('/agent', async (req: Request, res: Response) => {
+  const { input, systemInstruction, previousInteractionId, environmentId } = req.body;
+
+  if (!input) {
+    return res.status(400).json({ error: '缺少 input 參數' });
+  }
+
+  try {
+    console.log(`\n🤖 Agent 請求: "${String(input).slice(0, 80)}..."`);
+
+    const interaction: any = await (ai as any).interactions.create({
+      agent: "antigravity-preview-05-2026",
+      input,
+      system_instruction: systemInstruction,
+      ...(previousInteractionId
+        ? { previous_interaction_id: previousInteractionId, environment: environmentId }
+        : { environment: "remote" }),
+    });
+
+    res.json({
+      output_text: interaction.output_text || "",
+      id: interaction.id,
+      environment_id: interaction.environment_id,
+    });
+  } catch (error: any) {
+    console.error(`\n❌ Agent 錯誤: ${error.message}`);
+    res.status(error.status || 500).json({ error: error.message || 'Agent 服務異常' });
+  }
+});
+
+/**
  * GET /api/ai/health
  * 檢查 AI 服務與搜尋功能的配置狀態
  */
