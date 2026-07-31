@@ -6,8 +6,7 @@ const router = Router();
 
 // 從環境變數讀取配置
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
-const GOOGLE_SEARCH_API_KEY = process.env.GOOGLE_SEARCH_API_KEY || "";
-const SEARCH_ENGINE_ID = process.env.SEARCH_ENGINE_ID || "";
+const TAVILY_API_KEY = process.env.TAVILY_API_KEY || "";
 
 // v2 SDK：不再使用 genAI.getGenerativeModel()（舊版 @google/generative-ai 風格），
 // 改用 ai.models / ai.chats 介面。
@@ -21,18 +20,18 @@ const searchCache = new Map<string, { results: any; timestamp: number }>();
 const CACHE_TTL = 3600000; // 1 小時
 
 /**
- * 定義搜尋工具函數 (改進版)
+ * 定義搜尋工具函數（Tavily Search API 版本）
  * - 支持快取機制
  * - 錯誤處理更完善
- * - 回傳結構化數據
+ * - 回傳結構化數據，並附帶 Tavily 產生的摘要答案（如果有）
  */
-async function google_search(query: string) {
-  if (!GOOGLE_SEARCH_API_KEY || !SEARCH_ENGINE_ID) {
-    console.warn("⚠️ 搜尋功能未配置，請設定 GOOGLE_SEARCH_API_KEY 與 SEARCH_ENGINE_ID");
+async function tavily_search(query: string) {
+  if (!TAVILY_API_KEY) {
+    console.warn("⚠️ 搜尋功能未配置，請設定 TAVILY_API_KEY");
     return {
       success: false,
       error: "搜尋功能未配置",
-      message: "請在環境變數中設定 Google Search API 金鑰"
+      message: "請在環境變數中設定 Tavily API 金鑰"
     };
   }
 
@@ -44,42 +43,54 @@ async function google_search(query: string) {
     return { success: true, cached: true, results: cached.results };
   }
 
-  const url = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_SEARCH_API_KEY}&cx=${SEARCH_ENGINE_ID}&q=${encodeURIComponent(query)}&num=5`;
-
   try {
     console.log(`🔍 正在搜尋: "${query}"`);
-    const response = await fetch(url);
+    const response = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${TAVILY_API_KEY}`,
+      },
+      body: JSON.stringify({
+        query,
+        search_depth: "basic",
+        max_results: 5,
+        include_answer: true,
+      }),
+    });
 
     if (!response.ok) {
-      console.error(`❌ Google Search API 錯誤: ${response.status} ${response.statusText}`);
+      const errorText = await response.text().catch(() => response.statusText);
+      console.error(`❌ Tavily API 錯誤: ${response.status} ${errorText}`);
       return {
         success: false,
-        error: `API 錯誤: ${response.statusText}`,
+        error: `API 錯誤: ${errorText}`,
         statusCode: response.status
       };
     }
 
     const data: any = await response.json();
 
-    if (!data.items || data.items.length === 0) {
+    if (!data.results || data.results.length === 0) {
       console.warn(`⚠️ 未找到搜尋結果: ${query}`);
       return { success: true, results: [], message: "未找到相關搜尋結果" };
     }
 
     // 簡化回傳結果，僅提取標題、連結與摘要，節省 Token
-    const results = data.items.map((item: any, index: number) => ({
+    const results = data.results.map((item: any, index: number) => ({
       rank: index + 1,
       title: item.title,
-      link: item.link,
-      snippet: item.snippet,
-      displayLink: item.displayLink
+      link: item.url,
+      snippet: item.content,
     }));
 
+    const payload = { results, answer: data.answer || undefined };
+
     // 存入快取
-    searchCache.set(cacheKey, { results, timestamp: Date.now() });
+    searchCache.set(cacheKey, { results: payload, timestamp: Date.now() });
 
     console.log(`✅ 搜尋完成，找到 ${results.length} 項結果`);
-    return { success: true, results, query };
+    return { success: true, ...payload, query };
 
   } catch (error: any) {
     console.error(`❌ 搜尋執行失敗: ${error.message}`);
@@ -96,8 +107,8 @@ const tools = [
   {
     functionDeclarations: [
       {
-        name: "google_search",
-        description: "搜尋網際網路以獲取最新資訊。適用於查詢：最新市場趨勢、產品價格、新聞事件、技術資訊、統計數據等。當用戶詢問時間敏感的問題時，應主動調用此工具。",
+        name: "web_search",
+        description: "使用 Tavily Search API 搜尋網際網路以獲取最新資訊。適用於查詢：最新市場趨勢、產品價格、新聞事件、技術資訊、統計數據等。當用戶詢問時間敏感的問題時，應主動調用此工具。",
         parameters: {
           type: "OBJECT",
           properties: {
@@ -146,7 +157,7 @@ router.post('/chat', async (req: Request, res: Response) => {
    - 評估您的知識庫是否足夠回答
 
 2. **行動 (Action)**:
-   - 如果需要最新資訊，直接調用 google_search 工具
+   - 如果需要最新資訊，直接調用 web_search 工具
    - 搜尋關鍵字應包含具體時間範圍
    - 不需徵求用戶許可，主動執行搜尋
 
@@ -231,17 +242,17 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
         toolCallCount++;
         const { name, args } = call;
 
-        if (name === 'google_search') {
+        if (name === 'web_search') {
           const searchQuery = (args as any).query;
-          console.log(`\n🔧 工具調用 #${toolCallCount}: google_search("${searchQuery}")`);
+          console.log(`\n🔧 工具調用 #${toolCallCount}: web_search("${searchQuery}")`);
 
           // 通知前端正在搜尋
           res.write(`data: ${JSON.stringify({ text: `🔍 正在搜尋: ${searchQuery}...\n\n` })}\n\n`);
 
-          const result = await google_search(searchQuery);
+          const result = await tavily_search(searchQuery);
           toolResultParts.push({
             functionResponse: {
-              name: "google_search",
+              name: "web_search",
               response: { result },
             },
           });
@@ -297,7 +308,7 @@ router.get('/health', (_req: Request, res: Response) => {
     model: MODEL_ID,
     features: {
       gemini_api: !!GEMINI_API_KEY ? '✅ 已配置' : '❌ 未配置',
-      google_search: !!GOOGLE_SEARCH_API_KEY && !!SEARCH_ENGINE_ID ? '✅ 已配置' : '❌ 未配置',
+      tavily_search: !!TAVILY_API_KEY ? '✅ 已配置' : '❌ 未配置',
       streaming: '✅ 已啟用',
       tool_calling: '✅ 已啟用'
     }
