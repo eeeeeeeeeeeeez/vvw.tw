@@ -1603,15 +1603,24 @@ ${documentsContext}` : ''}`;
  ? `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n問題：${userMsg}`
  : userMsg;
 
- const interaction: any = await (genAI as any).interactions.create({
- agent: "antigravity-preview-05-2026",
+ const interactionRes = await fetch('/api/ai/agent', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({
  input: agentInput,
- system_instruction: systemInstruction,
- // 有前一輪就延續對話與沙盒環境，否則開一個新的沙盒
+ systemInstruction,
  ...(sessionState.interactionId
- ? { previous_interaction_id: sessionState.interactionId, environment: sessionState.environmentId }
- : { environment: "remote"}),
+ ? { previousInteractionId: sessionState.interactionId, environmentId: sessionState.environmentId }
+ : {}),
+ }),
  });
+
+ if (!interactionRes.ok) {
+ const errBody = await interactionRes.json().catch(() => ({}));
+ throw new Error(errBody.error || `Agent 請求失敗 (${interactionRes.status})`);
+ }
+
+ const interaction: any = await interactionRes.json();
 
  // 目前 streaming 事件格式尚未有完整正式文件，先以非串流方式取得完整回覆，避免解析錯誤
  fullText = interaction.output_text || "";
