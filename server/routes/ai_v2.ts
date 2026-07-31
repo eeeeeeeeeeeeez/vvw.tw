@@ -13,7 +13,7 @@ const TAVILY_API_KEY = process.env.TAVILY_API_KEY || "";
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // 目前有效的模型 ID（gemini-2.0-flash 已停用/過時，改用 gemini-2.5-flash）
-const MODEL_ID = "gemini-2.5-flash";
+const MODEL_ID = "gemini-3.5-flash-lite";
 
 // 搜尋結果快取（簡單實作，生產環境應使用 Redis）
 const searchCache = new Map<string, { results: any; timestamp: number }>();
