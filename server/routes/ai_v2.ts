@@ -128,8 +128,9 @@ const tools = [
  * POST /api/ai/chat
  * 處理 AI 對話請求，支持工具調用與串流
  * v2 SDK 版本：
- * - 改用 ai.models.generateContent / generateContentStream
- * - 手動處理工具調用循環後，最後一輪以串流方式回傳
+ * - 改用 ai.models.generateContent 處理工具調用循環
+ * - 迴圈跳出後直接把已取得的最終內容用小區塊模擬串流吐回前端，
+ *   不再對模型重打一次請求（避免重複耗時，這是先前 504 逾時的主因）
  */
 router.post('/chat', async (req: Request, res: Response) => {
   const { messages, userMsg, fileData, thinkingLevel = 'medium', systemInstruction: customSystemInstruction } = req.body;
@@ -187,16 +188,20 @@ router.post('/chat', async (req: Request, res: Response) => {
 - **品牌忠誠度**: 引導至 https://vvw.tw/
 ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`;
 
-    // thinkingConfig：對應 v2 SDK 的 GenerateContentConfig.thinkingConfig
-    const thinkingBudgets: Record<string, number> = {
-      low: 512,
-      medium: 2048,
-      high: 8192,
+    // thinkingConfig：Gemini 3.x 系列改用 thinkingLevel（enum），
+    // 舊版整數 thinkingBudget 官方遷移指南指出在 Gemini 3 系列上「可能導致非預期的效能表現」，
+    // 對 flash-lite 這種低延遲模型尤其容易拖慢速度，故不再使用。
+    // 注意：Gemini 3 Flash / Flash-Lite 目前不支援完全關閉 thinking，
+    // 'minimal' 已是最低可用等級，因此這裡把使用者的 'minimal' 也對應過去。
+    const thinkingLevelMap: Record<string, string> = {
+      minimal: 'minimal',
+      low: 'low',
+      medium: 'low', // flash-lite 場景刻意壓低，避免多輪工具循環時思考時間疊加超時
+      high: 'medium',
     };
-    const thinkingConfig =
-      selectedThinkingLevel !== 'minimal'
-        ? { thinkingBudget: thinkingBudgets[selectedThinkingLevel] ?? thinkingBudgets.medium }
-        : undefined;
+    const thinkingConfig = {
+      thinkingLevel: thinkingLevelMap[selectedThinkingLevel] ?? 'low',
+    };
 
     const history = messages.map((m: any) => ({
       role: m.role === "user" ? "user" : "model",
@@ -231,14 +236,7 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
     const baseConfig: any = {
       systemInstruction,
       tools,
-      ...(thinkingConfig && { thinkingConfig }),
-    };
-    // 工具判斷迴圈只需要「要不要呼叫 web_search」，不需要跟最終答案一樣的思考預算，
-    // 用最低的思考預算加速這幾輪來回，把預算留給最後生成答案的那一輪
-    const toolLoopConfig: any = {
-      systemInstruction,
-      tools,
-      thinkingConfig: { thinkingBudget: thinkingBudgets.low },
+      thinkingConfig,
     };
 
     // 對話內容（含本輪使用者輸入）
@@ -252,7 +250,7 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
       const response = await ai.models.generateContent({
         model: MODEL_ID,
         contents,
-        config: toolLoopConfig,
+        config: baseConfig,
       });
 
       finalContentParts = response.candidates?.[0]?.content?.parts || [];
@@ -287,6 +285,7 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
 
           toolResultParts.push({
             functionResponse: {
+              id: call.id, // Gemini 3.5 系列要求 functionResponse 帶上對應 functionCall 的 id
               name: "web_search",
               response: { result },
             },
@@ -301,19 +300,20 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
       if (toolCallCount >= 5) break;
     }
 
-    // 最後一輪以串流方式取得最終答案
-    const finalStream = await ai.models.generateContentStream({
-      model: MODEL_ID,
-      contents,
-      config: baseConfig,
-    });
+    // 注意：迴圈跳出時（不論是「一開始就沒有工具調用」還是「工具調用後模型給出了
+    // 最終回答」），finalContentParts 已經是完整、確定的最終答案內容 ——
+    // 舊版這裡還會「額外」再打一次 generateContentStream 重新生成一次答案，
+    // 等於每個請求都要多等一次完整的模型生成時間，這是先前 504 逾時的主因之一，
+    // 現在移除，直接把已經拿到的內容用小區塊的方式模擬串流吐給前端即可。
+    const finalText = finalContentParts
+      .map((part: any) => part?.text || '')
+      .join('');
 
-    for await (const chunk of finalStream) {
+    const STREAM_CHUNK_SIZE = 40;
+    for (let i = 0; i < finalText.length; i += STREAM_CHUNK_SIZE) {
       if (clientDisconnected) break;
-      const chunkText = chunk.text;
-      if (chunkText) {
-        res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
-      }
+      const chunkText = finalText.slice(i, i + STREAM_CHUNK_SIZE);
+      res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
     }
 
     console.log(`\n✅ 對話完成，共進行 ${toolCallCount} 次工具調用`);
