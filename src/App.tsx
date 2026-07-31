@@ -52,7 +52,9 @@ import {
  BookOpen,
  Calendar,
  Tag,
- Code2
+ Code2,
+ Square,
+ Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import ReactMarkdown from "react-markdown";
@@ -73,12 +75,20 @@ const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || "admin";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "hengbo2026";
 
 // --- Types ---
+interface SearchStatus {
+ query: string;
+ status: "searching"| "done";
+ success?: boolean;
+ resultCount?: number;
+}
+
 interface Message {
  role: "user"| "ai";
  content: string;
  id: string;
  timestamp: Date;
  imageUrl?: string;
+ searches?: SearchStatus[];
 }
 
 interface SessionDocument {
@@ -1361,6 +1371,10 @@ const AIView = () => {
  const [aiModel, setAiModel] = useState<"flash"| "antigravity">("flash");
  // 記錄每個對話 session 對應的 Antigravity interaction/environment id，讓多輪對話能延續上下文
  const antigravityStateRef = useRef<Record<string, { interactionId?: string; environmentId?: string }>>({});
+ // 目前正在進行中的請求，供「停止生成」按鈕中斷使用
+ const abortControllerRef = useRef<AbortController | null>(null);
+ // Agent 模式沒有逐字串流，跑很久時用來輪播提示文字的計時器
+ const agentProgressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
  const SESSIONS_STORAGE_KEY = "hengbo_ai_sessions_v2";
 
@@ -1573,6 +1587,9 @@ const AIView = () => {
  setSelectedFile(null);
  setIsTyping(true);
 
+ const abortController = new AbortController();
+ abortControllerRef.current = abortController;
+
  // 只有明確表達「要畫一張圖／生成圖片」意圖時才觸發圖片生成，
  // 避免「架構圖」「地圖」「docker image」這類常見詞彙被誤判，
  // 導致本來要生成的正常文字內容被錯誤替換成圖片。
@@ -1604,9 +1621,28 @@ ${documentsContext}` : ''}`;
  ? `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n問題：${userMsg}`
  : userMsg;
 
+ // Agent 模式沒有逐字串流，容易讓人以為卡住了，跑久一點就輪播不同的進度文字
+ const agentProgressMessages = [
+ "🤖 AI 正在沙盒環境中準備任務...",
+ "🤖 分析問題並規劃執行步驟...",
+ "🤖 執行中，複雜任務可能需要一點時間...",
+ "🤖 整理結果，即將完成...",
+ ];
+ let progressIndex = 0;
+ setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+ ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: agentProgressMessages[0] } : m)
+ } : s));
+ agentProgressTimerRef.current = setInterval(() => {
+ progressIndex = Math.min(progressIndex + 1, agentProgressMessages.length - 1);
+ setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+ ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: agentProgressMessages[progressIndex] } : m)
+ } : s));
+ }, 8000);
+
  const interactionRes = await fetch('/api/ai/agent', {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
+ signal: abortController.signal,
  body: JSON.stringify({
  input: agentInput,
  systemInstruction,
@@ -1615,6 +1651,11 @@ ${documentsContext}` : ''}`;
  : {}),
  }),
  });
+
+ if (agentProgressTimerRef.current) {
+ clearInterval(agentProgressTimerRef.current);
+ agentProgressTimerRef.current = null;
+ }
 
  if (!interactionRes.ok) {
  const errBody = await interactionRes.json().catch(() => ({}));
@@ -1651,6 +1692,7 @@ ${documentsContext}` : ''}`;
  const chatRes = await fetch('/api/ai/chat', {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
+ signal: abortController.signal,
  body: JSON.stringify({
  messages: buildHistoryWindow(messages).map(m => ({ role: m.role, content: m.content })),
  userMsg: backendUserMsg,
@@ -1686,6 +1728,30 @@ ${documentsContext}` : ''}`;
  try { parsed = JSON.parse(payload); } catch { continue; }
 
  if (parsed.error) throw new Error(parsed.error);
+
+ if (parsed.type === 'search') {
+ // 搜尋狀態獨立成一組資料，前端渲染成獨立的卡片，不混進回覆文字裡
+ setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+ ...s, messages: s.messages.map(m => {
+ if (m.id !== aiMsgId) return m;
+ const prevSearches = m.searches || [];
+ if (parsed.status === 'start') {
+ return { ...m, searches: [...prevSearches, { query: parsed.query, status: "searching"as const }] };
+ }
+ // status === 'done'：更新對應那筆搜尋紀錄
+ return {
+ ...m,
+ searches: prevSearches.map(item =>
+ item.query === parsed.query && item.status === "searching"
+ ? { ...item, status: "done"as const, success: parsed.success, resultCount: parsed.resultCount }
+ : item
+ ),
+ };
+ })
+ } : s));
+ continue;
+ }
+
  if (parsed.text) {
  fullText += parsed.text;
  setSessions(prev => prev.map(s => s.id === currentSessionId ? {
@@ -1704,12 +1770,35 @@ ${documentsContext}` : ''}`;
  } : s));
  }
  } catch (e: any) {
+ if (agentProgressTimerRef.current) {
+ clearInterval(agentProgressTimerRef.current);
+ agentProgressTimerRef.current = null;
+ }
+ if (e?.name === 'AbortError') {
+ // 使用者主動按下停止，保留已經生成的內容，不當作錯誤處理
+ setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+ ...s, messages: s.messages.map(m => {
+ if (m.id !== aiMsgId) return m;
+ return { ...m, content: m.content ? `${m.content}\n\n*（已停止生成）*` : "*（已停止生成）*"};
+ })
+ } : s));
+ } else {
  setSessions(prev => prev.map(s => s.id === currentSessionId ? {
  ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: `錯誤：${e.message || "服務異常"}` } : m)
  } : s));
+ }
  } finally {
  setIsTyping(false);
+ abortControllerRef.current = null;
+ if (agentProgressTimerRef.current) {
+ clearInterval(agentProgressTimerRef.current);
+ agentProgressTimerRef.current = null;
  }
+ }
+ };
+
+ const handleStopGeneration = () => {
+ abortControllerRef.current?.abort();
  };
 
  const filteredSessions = sessions.filter(s => 
@@ -1873,6 +1962,35 @@ ${documentsContext}` : ''}`;
  {msg.role === 'user' ? <User size={14} className="text-primary/50"/> : <i className="fa-solid fa-disease text-sm text-primary" aria-hidden="true"></i>}
  </div>
  <div className={`max-w-[82%] md:max-w-[75%] flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+ {msg.role === 'ai' && msg.searches && msg.searches.length > 0 && (
+ <div className="flex flex-col gap-1.5 mb-1">
+ {msg.searches.map((s, i) => (
+ <div
+ key={`${s.query}-${i}`}
+ className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium w-fit border ${
+ s.status === 'searching'
+ ? 'bg-surface-low text-primary/60 border-primary/10'
+ : s.success === false
+ ? 'bg-red-50 text-red-500 border-red-100'
+ : 'bg-secondary/5 text-secondary border-secondary/10'
+ }`}
+ >
+ {s.status === 'searching' ? (
+ <Loader2 size={12} className="animate-spin"/>
+ ) : (
+ <Search size={12} />
+ )}
+ <span>
+ {s.status === 'searching'
+ ? `正在搜尋: ${s.query}`
+ : s.success === false
+ ? `搜尋失敗: ${s.query}`
+ : `已搜尋: ${s.query}（${s.resultCount ?? 0} 筆結果）`}
+ </span>
+ </div>
+ ))}
+ </div>
+ )}
  <div className={`text-sm md:text-[15px] font-medium leading-relaxed px-4 py-2.5 ${
  msg.role === 'user'
  ? 'bg-primary text-white rounded-2xl rounded-br-md'
@@ -1945,9 +2063,20 @@ ${documentsContext}` : ''}`;
  className="flex-grow bg-transparent border-none focus:ring-0 py-2.5 font-medium text-ink resize-none max-h-32 custom-scrollbar text-sm md:text-base placeholder:text-primary/30"
  rows={1}
  />
- <button disabled={(!input.trim() && !selectedFile) || isTyping} className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full hover:bg-secondary transition-all disabled:opacity-30">
+ {isTyping ? (
+ <button
+ type="button"
+ onClick={handleStopGeneration}
+ className="shrink-0 w-10 h-10 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-all"
+ title="停止生成"
+ >
+ <Square size={16} fill="currentColor"/>
+ </button>
+ ) : (
+ <button disabled={!input.trim() && !selectedFile} className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full hover:bg-secondary transition-all disabled:opacity-30">
  <Send size={18} />
  </button>
+ )}
  </div>
  </form>
  </footer>
