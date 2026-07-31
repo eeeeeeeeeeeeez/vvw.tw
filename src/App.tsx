@@ -1698,7 +1698,7 @@ ${documentsContext}` : ''}`;
  userMsg: backendUserMsg,
  fileData: backendFileData,
  systemInstruction,
- thinkingLevel: 'medium',
+ thinkingLevel: 'low',
  }),
  });
 
