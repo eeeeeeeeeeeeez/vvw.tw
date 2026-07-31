@@ -1579,7 +1579,9 @@ const AIView = () => {
  // 導致本來要生成的正常文字內容被錯誤替換成圖片。
  const isImageRequest = /(幫我)?畫(一?[張個幅]|出)|(生成|產生|製作)(一[張個])?(圖片|插畫|海報|封面)|generate\s+(me\s+)?(an?\s+)?(image|picture|illustration)|draw\s+(me\s+)?(a|an)\s+\w+|create\s+(an?\s+)?(image|picture|illustration)/i.test(userMsg);
  const documentsContext = buildDocumentsContext(updatedDocuments);
+ const todayStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: 'Asia/Taipei' });
  const systemInstruction = `你是「亨波趨勢 (HENGBO TREND)」網站上的 AI 助理，可以自由回答任何問題、協助寫程式、生成文件、回答一般知識問題，不是只能回答跟公司業務相關的問題。
+今天的實際日期是：${todayStr}（台灣時區）。這是系統提供的真實時間，優先於你訓練資料中的任何日期認知，使用者問「今天幾號」等時間相關問題時務必以此為準，不要用猜測或訓練資料中的日期回答。
 回覆風格：
 1. **直接回答**：使用者的每一則訊息都是在跟你對話，不是新對話的開場，絕對不要在回覆中重新自我介紹、複述你的身分或職稱（例如「我是Hengbo AI顧問」「身為專業顧問」之類的開場白），開場自我介紹只在對話一開始出現過一次，之後每次回覆都直接切入內容即可。
 2. **語氣自然專業**：像真人助理一樣簡潔、務實地回答，不需要每句話都強調自己的專業性或角色定位。
