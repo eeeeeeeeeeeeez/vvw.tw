@@ -189,9 +189,9 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
 
     // thinkingConfig：對應 v2 SDK 的 GenerateContentConfig.thinkingConfig
     const thinkingBudgets: Record<string, number> = {
-      low: 1024,
-      medium: 8192,
-      high: 24576,
+      low: 512,
+      medium: 2048,
+      high: 8192,
     };
     const thinkingConfig =
       selectedThinkingLevel !== 'minimal'
@@ -233,6 +233,13 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
       tools,
       ...(thinkingConfig && { thinkingConfig }),
     };
+    // 工具判斷迴圈只需要「要不要呼叫 web_search」，不需要跟最終答案一樣的思考預算，
+    // 用最低的思考預算加速這幾輪來回，把預算留給最後生成答案的那一輪
+    const toolLoopConfig: any = {
+      systemInstruction,
+      tools,
+      thinkingConfig: { thinkingBudget: thinkingBudgets.low },
+    };
 
     // 對話內容（含本輪使用者輸入）
     const contents: any[] = [...history, { role: "user", parts: promptParts }];
@@ -245,7 +252,7 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
       const response = await ai.models.generateContent({
         model: MODEL_ID,
         contents,
-        config: baseConfig,
+        config: toolLoopConfig,
       });
 
       finalContentParts = response.candidates?.[0]?.content?.parts || [];
