@@ -181,7 +181,7 @@ router.post('/chat', async (req: Request, res: Response) => {
 
 # Constraints
 - **時間準確性**: 務必確保提供的資訊年份正確，不確定時以搜尋結果為準
-- **不廢話**: 直接顯示執行過程（如：🔍 正在搜尋...），並直接交付最終方案
+- **不廢話**: 搜尋執行狀態會由前端另外顯示，你只需要專注在最終答案本身，不需要在回覆文字中自己插入「正在搜尋...」之類的敘述
 - **引用規範**: 網路資料需標註來源 [1], [2] 並在末尾提供完整 URL
 - **證據優先**: 若 Word 檔內容與網頁搜尋結果矛盾，需主動指出並提供邏輯對比
 - **品牌忠誠度**: 引導至 https://vvw.tw/
@@ -222,6 +222,12 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
+    // 前端按下「停止生成」或關閉連線時，這裡會收到通知。
+    // Gemini SDK 目前沒有提供中途取消運算的機制，所以沒辦法真的中止已發出的請求，
+    // 但至少能讓後面的迴圈提早跳出、不再對已關閉的連線寫入資料。
+    let clientDisconnected = false;
+    req.on('close', () => { clientDisconnected = true; });
+
     const baseConfig: any = {
       systemInstruction,
       tools,
@@ -235,7 +241,7 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
     let finalContentParts: any[] = [];
 
     // 工具調用循環（最多 5 次，防止死循環）
-    while (toolCallCount < 5) {
+    while (toolCallCount < 5 && !clientDisconnected) {
       const response = await ai.models.generateContent({
         model: MODEL_ID,
         contents,
@@ -259,10 +265,19 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
           const searchQuery = (args as any).query;
           console.log(`\n🔧 工具調用 #${toolCallCount}: web_search("${searchQuery}")`);
 
-          // 通知前端正在搜尋
-          res.write(`data: ${JSON.stringify({ text: `🔍 正在搜尋: ${searchQuery}...\n\n` })}\n\n`);
+          // 通知前端正在搜尋（獨立事件，不混進文字內容裡，前端可以做成獨立的狀態卡片）
+          res.write(`data: ${JSON.stringify({ type: 'search', status: 'start', query: searchQuery })}\n\n`);
 
           const result = await tavily_search(searchQuery);
+
+          res.write(`data: ${JSON.stringify({
+            type: 'search',
+            status: 'done',
+            query: searchQuery,
+            success: result?.success ?? false,
+            resultCount: result?.results?.length ?? 0,
+          })}\n\n`);
+
           toolResultParts.push({
             functionResponse: {
               name: "web_search",
@@ -287,6 +302,7 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
     });
 
     for await (const chunk of finalStream) {
+      if (clientDisconnected) break;
       const chunkText = chunk.text;
       if (chunkText) {
         res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
@@ -294,8 +310,10 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
     }
 
     console.log(`\n✅ 對話完成，共進行 ${toolCallCount} 次工具調用`);
-    res.write('data: [DONE]\n\n');
-    res.end();
+    if (!clientDisconnected && !res.writableEnded) {
+      res.write('data: [DONE]\n\n');
+      res.end();
+    }
 
   } catch (error: any) {
     console.error(`\n❌ AI Chat 錯誤: ${error.message}`);
