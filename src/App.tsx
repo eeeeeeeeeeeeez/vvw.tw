@@ -55,7 +55,6 @@ import {
  Code2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
@@ -66,8 +65,8 @@ import { BLOG_POSTS, getBlogPostBySlug } from "./data/blogPosts";
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // --- Constants ---
-const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || ""; 
-const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+// GEMINI_API_KEY 與 genAI client 已移除：Flash 與 Agent 模式現在都透過後端 /api/ai/chat、
+// /api/ai/agent 呼叫 Gemini，前端不再需要、也不應該持有 API key。
 
 // 從環境變數讀取管理員帳密
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || "admin";
@@ -1635,34 +1634,65 @@ ${documentsContext}` : ''}`;
  ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
  } : s));
  } else {
- // --- 一般模式：Gemini 3.5 Flash，走標準 generateContentStream，逐字串流 ---
- let aiPromptParts: any[] = [];
+ // --- 一般模式：改走後端 /api/ai/chat（SSE 串流），API key 不再曝光於前端，
+ // 且後端這條路由掛有 web_search（Tavily）工具，AI 才有真正的聯網搜尋能力 ---
+ let backendUserMsg = userMsg;
+ let backendFileData: { type: string; content: string; name: string } | undefined;
+
  if (currentFile && currentFile.type.startsWith('image/')) {
  // 圖片無法放進純文字的 documentsContext，仍需在當輪以 inlineData 附上
- aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
- aiPromptParts.push({ text: userMsg });
+ backendFileData = { type: currentFile.type, content: currentFile.content, name: currentFile.name };
  } else if (isTextFile) {
  // 文字類檔案的內容已經併入 systemInstruction 的 documentsContext，這裡不重複帶入完整內容，
  // 只需標註「這輪新上傳了這份檔案」，避免同一份內容被重複計入 token
- aiPromptParts.push({ text: `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n${userMsg}` });
- } else {
- aiPromptParts.push({ text: userMsg });
+ backendUserMsg = `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n${userMsg}`;
  }
 
- const response = await genAI.models.generateContentStream({
- model: "gemini-3.5-flash-lite",
- config: { systemInstruction },
- contents: [
- ...buildHistoryWindow(messages).map(m => ({ role: m.role === "user"? "user": "model", parts: [{ text: m.content }] })),
- { role: "user", parts: aiPromptParts }
- ],
+ const chatRes = await fetch('/api/ai/chat', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({
+ messages: buildHistoryWindow(messages).map(m => ({ role: m.role, content: m.content })),
+ userMsg: backendUserMsg,
+ fileData: backendFileData,
+ systemInstruction,
+ thinkingLevel: 'medium',
+ }),
  });
 
- for await (const chunk of response) {
- fullText += chunk.text || "";
+ if (!chatRes.ok || !chatRes.body) {
+ const errBody = await chatRes.json().catch(() => ({}));
+ throw new Error(errBody.error || `AI 服務請求失敗 (${chatRes.status})`);
+ }
+
+ const reader = chatRes.body.getReader();
+ const decoder = new TextDecoder();
+ let sseBuffer = '';
+
+ while (true) {
+ const { value, done } = await reader.read();
+ if (done) break;
+ sseBuffer += decoder.decode(value, { stream: true });
+ const events = sseBuffer.split('\n\n');
+ sseBuffer = events.pop() || '';
+
+ for (const event of events) {
+ const line = event.trim();
+ if (!line.startsWith('data: ')) continue;
+ const payload = line.slice(6);
+ if (payload === '[DONE]') continue;
+
+ let parsed: any;
+ try { parsed = JSON.parse(payload); } catch { continue; }
+
+ if (parsed.error) throw new Error(parsed.error);
+ if (parsed.text) {
+ fullText += parsed.text;
  setSessions(prev => prev.map(s => s.id === currentSessionId ? {
  ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
  } : s));
+ }
+ }
  }
  }
 
