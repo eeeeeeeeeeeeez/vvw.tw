@@ -132,7 +132,7 @@ const tools = [
  * - 手動處理工具調用循環後，最後一輪以串流方式回傳
  */
 router.post('/chat', async (req: Request, res: Response) => {
-  const { messages, userMsg, fileData, thinkingLevel = 'medium' } = req.body;
+  const { messages, userMsg, fileData, thinkingLevel = 'medium', systemInstruction: customSystemInstruction } = req.body;
 
   try {
     const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
@@ -143,7 +143,20 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     console.log(`🧠 使用思考等級: ${selectedThinkingLevel}`);
 
-    const systemInstruction = `你是由「亨波趨勢 (Henbo Advisory)」開發的進階 AI 自主代理。你具備視覺辨識、文檔解析與實時聯網搜尋的綜合能力。
+    // 搜尋工具的自主行動準則，附加在前端傳來的品牌 systemInstruction 之後，
+    // 確保不管用哪個角色設定，都保留「主動判斷是否要搜尋」的行為。
+    const searchBehaviorInstruction = `
+
+# 聯網搜尋能力
+你具備透過 web_search 工具即時查詢網路的能力。
+- 分析用戶問題是否涉及時間敏感信息（如「最新」、「現在」、年份等關鍵詞），或超出你知識庫範圍的資訊
+- 若需要，直接調用 web_search 工具查詢，不需徵求用戶許可
+- 搜尋結果不夠精確時，可更換關鍵字重新搜尋
+- 引用網路資料時標註來源 [1], [2] 並在末尾提供完整 URL`;
+
+    const systemInstruction = customSystemInstruction
+      ? `${customSystemInstruction}${searchBehaviorInstruction}`
+      : `你是由「亨波趨勢 (Henbo Advisory)」開發的進階 AI 自主代理。你具備視覺辨識、文檔解析與實時聯網搜尋的綜合能力。
 
 # 核心特性
 - 你的知識庫有截止日期，因此對於較新的資訊必須使用搜尋工具進行查證
