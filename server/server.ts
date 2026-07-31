@@ -37,7 +37,7 @@ app.get('/api/ai/status', (_req, res) => {
     features: {
       streaming: '✅ 已啟用',
       tool_calling: '✅ 已啟用',
-      search: process.env.GOOGLE_SEARCH_API_KEY ? '✅ 已配置' : '❌ 未配置'
+      search: process.env.TAVILY_API_KEY ? '✅ 已配置' : '❌ 未配置'
     }
   });
 });
