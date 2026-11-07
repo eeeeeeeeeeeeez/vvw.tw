@@ -61,7 +61,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
 import mammoth from "mammoth";
-import { BLOG_POSTS, getBlogPostBySlug, formatBlogDate } from "./data/blogPosts";
+import { formatBlogDate } from "./data/blogPosts";
+import { useBlogList, useBlogPost } from "./blog/blogApi";
+import BlogMarkdown from "./blog/BlogMarkdown";
+
+const AdminBlogPage = React.lazy(() => import("./blog/AdminBlogPage"));
 
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -649,6 +653,7 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
 // --- 廣告投放知識庫 ---
 
 const BlogListView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => {
+ const { posts } = useBlogList();
  return (
  <motion.div 
  initial={{ opacity: 0 }} 
@@ -670,7 +675,7 @@ const BlogListView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {BLOG_POSTS.map((post) => (
+ {posts.map((post) => (
  <Link
  key={post.slug}
  to={`/blog/${post.slug}`}
@@ -685,7 +690,6 @@ const BlogListView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  <p className="font-bold text-sm opacity-70 group-hover:opacity-100 leading-relaxed mb-8 flex-grow">{post.excerpt}</p>
  <div className="flex items-center gap-4 text-xs font-semibold tracking-wide opacity-60 group-hover:opacity-100">
  <span className="flex items-center gap-1"><Calendar size={14} />{formatBlogDate(post.updatedDate || post.publishDate)}</span>
- <span className="flex items-center gap-1"><Clock size={14} />{post.readTime}</span>
  </div>
  </Link>
  ))}
@@ -711,8 +715,17 @@ const BlogListView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
 
 const BlogPostView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => {
  const { slug } = useParams<{ slug: string }>();
- const post = slug ? getBlogPostBySlug(slug) : undefined;
+ const { post, loading } = useBlogPost(slug);
+ const { posts: allPosts } = useBlogList();
  const navigate = useNavigate();
+
+ if (!post && loading) {
+ return (
+ <div className="pt-24 soft-dot-grid min-h-screen">
+ <div className="max-w-3xl mx-auto px-8 py-32 text-muted font-semibold">載入中…</div>
+ </div>
+ );
+ }
 
  if (!post) {
  return (
@@ -736,7 +749,7 @@ const BlogPostView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  );
  }
 
- const relatedPosts = BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 3);
+ const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
 
  return (
  <motion.div 
@@ -761,15 +774,17 @@ const BlogPostView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  {post.updatedDate && post.updatedDate !== post.publishDate && (
  <span className="flex items-center gap-1">更新於 {formatBlogDate(post.updatedDate)}</span>
  )}
- <span className="flex items-center gap-1"><Clock size={14} />{post.readTime}</span>
  </div>
 
  <h1 className="text-[clamp(2.25rem,7vw,3.75rem)] type-display font-semibold text-primary mb-10 leading-tight">
  {post.title}
  </h1>
 
+ {post.content ? (
+ <div><BlogMarkdown content={post.content} /></div>
+ ) : (
  <div className="space-y-12">
- {post.sections.map((section, i) => (
+ {(post.sections || []).map((section, i) => (
  <div key={i}>
  {section.heading && (
  <h2 className="text-2xl md:text-3xl font-semibold text-primary mb-5">{section.heading}</h2>
@@ -790,6 +805,7 @@ const BlogPostView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  </div>
  ))}
  </div>
+ )}
 
  <div className="mt-16 flex flex-wrap gap-2">
  {post.keywords.map((kw) => (
@@ -822,7 +838,7 @@ const BlogPostView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  className="block bg-surface-low rounded-2xl p-6 hover:bg-primary hover:text-white snap-transition group"
  >
  <h4 className="font-semibold text-lg mb-2 leading-snug">{rp.title}</h4>
- <span className="text-xs font-semibold opacity-60 group-hover:opacity-100">{rp.readTime}</span>
+ <span className="text-xs font-semibold opacity-60 group-hover:opacity-100">{formatBlogDate(rp.publishDate)}</span>
  </Link>
  ))}
  </div>
@@ -2103,7 +2119,7 @@ const SITE_URL = "https://hengbo.co";
 function tabForPath(pathname: string): string {
  const seg = pathname.split("/").filter(Boolean)[0];
  if (!seg) return "home";
- if (seg === "blog") return "blog";
+ if (seg === "blog" || seg === "admin") return "blog";
  return ["services", "cases", "about", "contact", "ai"].includes(seg) ? seg : "home";
 }
 
@@ -2128,6 +2144,7 @@ export default function App() {
  const navigate = useNavigate();
  const location = useLocation();
  const activeTab = tabForPath(location.pathname);
+ const { posts: blogPosts } = useBlogList();
  const setActiveTab = (tab: string) => navigate(pathForTab(tab));
 
  const [showScrollTop, setShowScrollTop] = useState(false);
@@ -2148,10 +2165,20 @@ export default function App() {
  if (el) el.setAttribute("href", href);
  };
 
+ // 後台頁面：不讓搜尋引擎收錄
+ const robots = document.head.querySelector('meta[name="robots"]');
+ if (location.pathname.startsWith("/admin")) {
+ robots?.setAttribute("content", "noindex, nofollow");
+ document.title = "文章管理｜亨波趨勢";
+ setDynamicJsonLd(null);
+ return;
+ }
+ robots?.setAttribute("content", "index, follow");
+
  // 廣告投放知識庫文章頁：使用文章專屬的 SEO 內容與 Article 結構化資料
  if (location.pathname.startsWith("/blog/")) {
  const slug = location.pathname.split("/blog/")[1];
- const post = getBlogPostBySlug(slug);
+ const post = blogPosts.find((p) => p.slug === slug);
  if (post) {
  document.title = post.metaTitle;
  setMeta('meta[name="description"]', "content", post.metaDescription);
@@ -2189,7 +2216,7 @@ export default function App() {
  setMeta('meta[name="twitter:description"]', "content", seo.description);
  setCanonical(`${SITE_URL}${location.pathname === "/" ? "/" : location.pathname}`);
  setDynamicJsonLd(null);
- }, [location.pathname, activeTab]);
+ }, [location.pathname, activeTab, blogPosts]);
 
  useEffect(() => {
  window.scrollTo(0, 0);
@@ -2220,6 +2247,14 @@ export default function App() {
  <Route path="/cases" element={<CasesView setActiveTab={setActiveTab} />} />
  <Route path="/blog" element={<BlogListView setActiveTab={setActiveTab} />} />
  <Route path="/blog/:slug" element={<BlogPostView setActiveTab={setActiveTab} />} />
+ <Route
+ path="/admin/blog"
+ element={
+ <React.Suspense fallback={<div className="pt-32 px-8 text-muted font-semibold">載入中…</div>}>
+ <AdminBlogPage />
+ </React.Suspense>
+ }
+ />
  <Route path="/about" element={<AboutView setActiveTab={setActiveTab} />} />
  <Route path="/contact" element={<ContactView />} />
  <Route path="/ai" element={<AIView />} />

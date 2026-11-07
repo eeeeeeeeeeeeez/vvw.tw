@@ -185,7 +185,7 @@ router.post('/chat', async (req: Request, res: Response) => {
 - **不廢話**: 搜尋執行狀態會由前端另外顯示，你只需要專注在最終答案本身，不需要在回覆文字中自己插入「正在搜尋...」之類的敘述
 - **引用規範**: 網路資料需標註來源 [1], [2] 並在末尾提供完整 URL
 - **證據優先**: 若 Word 檔內容與網頁搜尋結果矛盾，需主動指出並提供邏輯對比
-- **品牌忠誠度**: 引導至 https://vvw.tw/
+- **品牌忠誠度**: 引導至 https://hengbo.co/
 ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`;
 
     // thinkingConfig：Gemini 3.x 系列改用 thinkingLevel（enum），

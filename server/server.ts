@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import contactRoutes from './routes/contact.js';
 import newsletterRoutes from './routes/newsletter.js';
 import aiRoutes from './routes/ai_v2.js';
+import blogRoutes from './routes/blog.js';
+import { sitemapHandler } from './routes/sitemap.js';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
@@ -28,6 +30,11 @@ app.use((req, _res, next) => {
 app.use('/api/contact', contactRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/blog', blogRoutes);
+
+// 動態 sitemap（含後台發布的文章）
+app.get('/api/sitemap', sitemapHandler);
+app.get('/sitemap.xml', sitemapHandler);
 
 // AI 服務健康檢查
 app.get('/api/ai/status', (_req, res) => {
@@ -80,6 +87,8 @@ if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
     console.log('  POST /api/newsletter/subscribe — Subscribe to newsletter');
     console.log('  GET  /api/newsletter           — List all subscribers');
     console.log('  DELETE /api/newsletter/:id     — Delete subscriber');
+    console.log('  GET  /api/blog                 — Published blog posts');
+    console.log('  POST /api/blog/login           — Admin login');
     console.log('  GET  /api/health               — Health check');
     console.log('');
   });

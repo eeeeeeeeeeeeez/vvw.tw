@@ -71,3 +71,41 @@ CREATE POLICY "Allow anonymous select newsletter"
 -- 7. 索引加速查詢
 CREATE INDEX IF NOT EXISTS idx_contact_created_at ON contact_submissions (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers (email);
+
+-- ============================================
+-- 8. 知識庫文章（後台發文頁 /admin/blog 使用）
+-- ============================================
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  meta_title TEXT,
+  meta_description TEXT,
+  category TEXT NOT NULL DEFAULT '廣告投放',
+  keywords TEXT[] NOT NULL DEFAULT '{}',
+  excerpt TEXT NOT NULL DEFAULT '',
+  content TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+  publish_date DATE,
+  updated_date DATE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+
+-- 匿名只能讀取已發布文章；新增/修改/刪除一律由後端 service_role 處理
+CREATE POLICY "Allow anonymous read published blog"
+  ON blog_posts
+  FOR SELECT
+  TO anon
+  USING (status = 'published');
+
+CREATE POLICY "Allow service role full access blog"
+  ON blog_posts
+  FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_blog_status_date ON blog_posts (status, publish_date DESC);
