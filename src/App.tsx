@@ -61,7 +61,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
 import mammoth from "mammoth";
-import { BLOG_POSTS, getBlogPostBySlug } from "./data/blogPosts";
+import { BLOG_POSTS, getBlogPostBySlug, formatBlogDate } from "./data/blogPosts";
 
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -247,35 +247,9 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
  );
 };
 
-// 合作夥伴 LOGO 清單 —— 檔案請放到 /public/partners/ 資料夾，命名需與此陣列一致
-const PARTNER_LOGOS = Array.from({ length: 10 }, (_, i) => ({
- name: `合作夥伴 ${i + 1}`,
- src: `/partners/partner-${String(i + 1).padStart(2, "0")}.png`,
-}));
-
 const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => (
  <footer className="bg-primary rounded-t-[40px] w-full pt-16 pb-24 mt-24">
- <div className="max-w-7xl mx-auto px-8">
- <div className="flex items-center gap-4 mb-8">
- <span className="text-secondary font-semibold tracking-wide text-xs">合作夥伴</span>
- <div className="flex-grow h-px bg-white/10"/>
- </div>
- <div className="partner-marquee-wrap overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
- <div className="partner-marquee-track items-center">
- {[...PARTNER_LOGOS, ...PARTNER_LOGOS].map((partner, i) => (
- <div key={`${partner.name}-${i}`} className="shrink-0 w-[150px] h-20 mx-3 bg-white rounded-2xl flex items-center justify-center p-4">
- <img
- src={partner.src}
- alt={partner.name}
- loading="lazy"
- className="max-h-full max-w-full object-contain"
- />
- </div>
- ))}
- </div>
- </div>
- </div>
- <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-white mt-16 pt-16 border-t border-white/10">
+ <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-white">
  <div className="col-span-1 md:col-span-2">
  <div className="flex items-center gap-4 mb-8">
  <Logo className="w-12 h-12" variant="white"/>
@@ -710,7 +684,7 @@ const BlogListView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  <h2 className="text-2xl font-semibold mb-4 leading-snug">{post.title}</h2>
  <p className="font-bold text-sm opacity-70 group-hover:opacity-100 leading-relaxed mb-8 flex-grow">{post.excerpt}</p>
  <div className="flex items-center gap-4 text-xs font-semibold tracking-wide opacity-60 group-hover:opacity-100">
- <span className="flex items-center gap-1"><Calendar size={14} />{post.publishDate}</span>
+ <span className="flex items-center gap-1"><Calendar size={14} />{formatBlogDate(post.updatedDate || post.publishDate)}</span>
  <span className="flex items-center gap-1"><Clock size={14} />{post.readTime}</span>
  </div>
  </Link>
@@ -783,7 +757,10 @@ const BlogPostView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
 
  <div className="flex items-center gap-4 mb-6 text-xs font-semibold tracking-wide text-secondary">
  <span className="flex items-center gap-1"><Tag size={14} />{post.category}</span>
- <span className="flex items-center gap-1"><Calendar size={14} />{post.publishDate}</span>
+ <span className="flex items-center gap-1"><Calendar size={14} />發布於 {formatBlogDate(post.publishDate)}</span>
+ {post.updatedDate && post.updatedDate !== post.publishDate && (
+ <span className="flex items-center gap-1">更新於 {formatBlogDate(post.updatedDate)}</span>
+ )}
  <span className="flex items-center gap-1"><Clock size={14} />{post.readTime}</span>
  </div>
 
@@ -1084,7 +1061,7 @@ const ContactView: React.FC = () => {
  </div>
  <div>
  <h3 className="font-semibold tracking-wide text-secondary mb-2">電子郵件</h3>
- <p className="text-xl font-bold text-primary">1@grv.ccwu.cc</p>
+ <p className="text-xl font-bold text-primary">service@hengbo.co</p>
  <p className="text-muted font-medium">24/7 全天候運營支持</p>
  </div>
  </div>
@@ -1602,7 +1579,7 @@ const AIView = () => {
 1. **直接回答**：使用者的每一則訊息都是在跟你對話，不是新對話的開場，絕對不要在回覆中重新自我介紹、複述你的身分或職稱（例如「我是Hengbo AI顧問」「身為專業顧問」之類的開場白），開場自我介紹只在對話一開始出現過一次，之後每次回覆都直接切入內容即可。
 2. **語氣自然專業**：像真人助理一樣簡潔、務實地回答，不需要每句話都強調自己的專業性或角色定位。
 3. **繁體中文**：使用清楚、精準的『繁體中文』。
-4. **不要主動推銷官網或聯繫方式**：絕對不要在回覆中主動附上官網連結、聯繫頁面、或建議使用者「進一步諮詢」，除非使用者明確詢問「怎麼聯絡你們」「官網在哪」之類的問題，才可以回答 https://grv.ccwu.cc/ 。一般的提問（包含寫程式、產生內容、回答知識性問題）都直接回答問題本身就好，不要在回覆結尾加業務性質的引導句。
+4. **不要主動推銷官網或聯繫方式**：絕對不要在回覆中主動附上官網連結、聯繫頁面、或建議使用者「進一步諮詢」，除非使用者明確詢問「怎麼聯絡你們」「官網在哪」之類的問題，才可以回答 https://hengbo.co/ 。一般的提問（包含寫程式、產生內容、回答知識性問題）都直接回答問題本身就好，不要在回覆結尾加業務性質的引導句。
 ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}${documentsContext ? `
 
 以下是使用者在此對話中上傳過的檔案內容。即使使用者之後的提問沒有重新附上檔案，也可能是在針對這些內容追問，請一併參考：
@@ -2120,7 +2097,7 @@ const SEO_BY_TAB: Record<string, { title: string; description: string }> = {
  },
 };
 
-const SITE_URL = "https://grv.ccwu.cc";
+const SITE_URL = "https://hengbo.co";
 
 // 依路徑 (tab) 判斷應使用哪一組 SEO 內容，blog 文章頁另外處理
 function tabForPath(pathname: string): string {
@@ -2189,7 +2166,7 @@ export default function App() {
  headline: post.title,
  description: post.metaDescription,
  datePublished: post.publishDate,
- dateModified: post.publishDate,
+ dateModified: post.updatedDate || post.publishDate,
  keywords: post.keywords.join(", "),
  author: { "@type": "Organization", name: "亨波趨勢 HENGBO TREND" },
  publisher: {

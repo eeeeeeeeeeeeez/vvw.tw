@@ -83,7 +83,7 @@ export const Contact: React.FC = () => {
                 <div className="w-16 h-16 bg-primary text-white flex items-center justify-center brutalist-border group-hover:bg-secondary snap-transition shrink-0"><Mail size={32} /></div>
                 <div>
                   <span className="font-black uppercase tracking-widest text-xs text-secondary mb-2 block">電子郵件</span>
-                  <a href="mailto:service@hengbo.trend" className="text-2xl font-black text-primary hover:text-secondary snap-transition">service@hengbo.trend</a>
+                  <a href="mailto:service@hengbo.co" className="text-2xl font-black text-primary hover:text-secondary snap-transition">service@hengbo.co</a>
                 </div>
               </div>
               <div className="flex gap-8 group">

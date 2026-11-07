@@ -135,16 +135,3 @@
 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--color-primary) 20%, transparent) transparent; }
 
 .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-
-@keyframes partner-marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.partner-marquee-track {
-  display: flex;
-  width: max-content;
-  animation: partner-marquee 32s linear infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .partner-marquee-track { animation: none; }
-}

@@ -14,7 +14,8 @@ export interface BlogPost {
   metaTitle: string;
   metaDescription: string;
   category: string;
-  publishDate: string; // YYYY-MM-DD
+  publishDate: string; // YYYY-MM-DD（台灣時區）。新增文章時留空 ""，執行 npm run stamp 會自動填入當天真實日期
+  updatedDate?: string; // YYYY-MM-DD，文章有實質修改時填寫，用於「更新日期」、dateModified 與 sitemap lastmod
   readTime: string;
   keywords: string[];
   excerpt: string;
@@ -28,7 +29,7 @@ export const BLOG_POSTS: BlogPost[] = [
     metaTitle: "廣告投放是什麼？新手必看完整入門指南｜亨波趨勢",
     metaDescription: "廣告投放新手教學：一次搞懂廣告投放的定義、常見平台（Meta、Google、TikTok）、投放流程與常見指標，建立正確的廣告投放基礎觀念。",
     category: "廣告投放基礎",
-    publishDate: "2026-07-01",
+    publishDate: "2026-11-07",
     readTime: "6 分鐘",
     keywords: ["廣告投放是什麼", "廣告投放新手教學", "廣告投放入門", "數位廣告投放"],
     excerpt: "廣告投放是企業觸及目標受眾、創造轉換的核心工具。這篇文章帶你從零開始，認識廣告投放的定義、常見平台與基本流程。",
@@ -79,7 +80,7 @@ export const BLOG_POSTS: BlogPost[] = [
     metaTitle: "Meta 廣告投放教學：受眾精準定位 5 技巧｜亨波趨勢",
     metaDescription: "Meta 廣告投放教學，分享 5 個受眾精準定位技巧，包含自訂受眾、類似受眾與興趣鎖定，幫助品牌提升 Facebook / Instagram 廣告投放轉換率。",
     category: "平台實戰",
-    publishDate: "2026-07-08",
+    publishDate: "2026-11-07",
     readTime: "7 分鐘",
     keywords: ["Meta廣告投放", "Facebook廣告投放", "Instagram廣告投放", "受眾精準定位"],
     excerpt: "受眾定位是 Meta 廣告投放成敗的關鍵。這篇文章整理 5 個實戰技巧，協助你在 Facebook 與 Instagram 上找到最有價值的受眾。",
@@ -129,7 +130,7 @@ export const BLOG_POSTS: BlogPost[] = [
     metaTitle: "Google Ads 廣告投放攻略：搜尋廣告 vs 多媒體聯播網｜亨波趨勢",
     metaDescription: "Google 廣告投放怎麼選？解析搜尋廣告、多媒體聯播網與購物廣告的差異與適用時機，協助企業規劃最有效的 Google Ads 廣告投放策略。",
     category: "平台實戰",
-    publishDate: "2026-07-12",
+    publishDate: "2026-11-07",
     readTime: "6 分鐘",
     keywords: ["Google廣告投放", "Google Ads", "搜尋廣告", "多媒體聯播網廣告"],
     excerpt: "Google 廣告投放涵蓋多種廣告類型，各自適合不同的行銷目標。本文解析搜尋廣告與多媒體聯播網的差異，協助你做出正確的預算配置。",
@@ -167,7 +168,7 @@ export const BLOG_POSTS: BlogPost[] = [
     metaTitle: "廣告投放預算怎麼抓？中小企業預算規劃指南｜亨波趨勢",
     metaDescription: "中小企業廣告投放預算該怎麼抓？本文提供廣告投放預算規劃的實用原則，包含測試期預算、ROAS 抓法與淡旺季調整策略。",
     category: "策略規劃",
-    publishDate: "2026-07-16",
+    publishDate: "2026-11-07",
     readTime: "5 分鐘",
     keywords: ["廣告投放預算", "廣告投放成本", "廣告投放ROI", "廣告投放規劃"],
     excerpt: "廣告投放預算沒有標準答案，但有清楚的規劃邏輯。這篇文章整理中小企業常見的預算規劃原則，幫助你更有效率地分配廣告投放資源。",
@@ -205,7 +206,7 @@ export const BLOG_POSTS: BlogPost[] = [
     metaTitle: "廣告投放代操 vs 自己投放，企業該怎麼選？｜亨波趨勢",
     metaDescription: "廣告投放要自己做還是找代操？本文比較廣告投放代操與企業自行操作的優缺點，並提供選擇廣告投放代操公司的評估重點。",
     category: "策略規劃",
-    publishDate: "2026-07-20",
+    publishDate: "2026-11-07",
     readTime: "6 分鐘",
     keywords: ["廣告投放代操", "廣告投放公司", "廣告投放顧問", "廣告代操推薦"],
     excerpt: "廣告投放代操與自行操作各有優缺點。這篇文章從人力成本、專業門檻與成效面向分析，幫助企業做出最適合的選擇。",
@@ -247,3 +248,9 @@ export const BLOG_POSTS: BlogPost[] = [
 
 export const getBlogPostBySlug = (slug: string) =>
   BLOG_POSTS.find((post) => post.slug === slug);
+
+// 將 YYYY-MM-DD 直接格式化為「2026年11月7日」，不經過 Date 物件，避免時區造成日期偏移
+export const formatBlogDate = (date?: string) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(date || "");
+  return m ? `${m[1]}年${Number(m[2])}月${Number(m[3])}日` : "";
+};
