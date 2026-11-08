@@ -1830,7 +1830,7 @@ ${documentsContext}` : ''}`;
  animate={{ opacity: 1 }}
  exit={{ opacity: 0 }}
  onClick={() => setIsSidebarOpen(false)}
- className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-30 md:hidden"
+ className="fixed inset-x-0 top-20 bottom-0 bg-primary/40 backdrop-blur-sm z-30 md:hidden"
  />
  )}
  </AnimatePresence>
@@ -1842,7 +1842,7 @@ ${documentsContext}` : ''}`;
  animate={{ x: 0, opacity: 1 }}
  exit={{ x: -320, opacity: 0 }}
  transition={{ type: "spring", damping: 25, stiffness: 200 }}
- className="fixed md:relative inset-y-0 left-0 w-[280px] md:w-[320px] border-r border-surface-high flex flex-col bg-surface-low z-40 md:z-20 shadow-2xl md:shadow-none"
+ className="fixed top-20 bottom-0 md:relative md:top-auto md:bottom-auto left-0 w-[280px] md:w-[320px] border-r border-surface-high flex flex-col bg-surface-low z-40 md:z-20 shadow-2xl md:shadow-none"
  >
  <div className="p-6 space-y-6">
  <div className="flex items-center justify-between md:hidden mb-4">
@@ -2017,7 +2017,7 @@ ${documentsContext}` : ''}`;
  title="快速回答，支援圖片分析"
  className={`flex-1 sm:flex-none min-h-[44px] px-5 rounded-full transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/60 hover:text-primary"}`}
  >
- Flash 快速
+ Flash
  </button>
  <button
  type="button"
@@ -2027,7 +2027,7 @@ ${documentsContext}` : ''}`;
  title="處理複雜任務，回應較慢，不支援圖片分析"
  className={`flex-1 sm:flex-none min-h-[44px] px-5 rounded-full transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/60 hover:text-primary"}`}
  >
- Agent 進階
+ Agent
  </button>
  </div>
  </div>

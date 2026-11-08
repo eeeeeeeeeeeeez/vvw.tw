@@ -57,6 +57,7 @@ async function tavily_search(query: string) {
         max_results: 5,
         include_answer: true,
       }),
+      signal: AbortSignal.timeout(8000), // 搜尋最多等 8 秒，避免拖垮整個請求
     });
 
     if (!response.ok) {
@@ -226,12 +227,19 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    // 先把標頭與一個 SSE 註解送出去，讓瀏覽器知道連線已建立（前端會忽略這行）
+    res.flushHeaders?.();
+    res.write(': connected\n\n');
 
     // 前端按下「停止生成」或關閉連線時，這裡會收到通知。
     // Gemini SDK 目前沒有提供中途取消運算的機制，所以沒辦法真的中止已發出的請求，
     // 但至少能讓後面的迴圈提早跳出、不再對已關閉的連線寫入資料。
     let clientDisconnected = false;
     req.on('close', () => { clientDisconnected = true; });
+
+    // Vercel 函式上限 60 秒（vercel.json maxDuration）；這裡自己設 50 秒的期限，
+    // 超過就主動中止並回傳明確的逾時訊息，而不是等 Vercel 直接回 504。
+    const deadlineAt = Date.now() + 50_000;
 
     const baseConfig: any = {
       systemInstruction,
@@ -250,7 +258,7 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
       const response = await ai.models.generateContent({
         model: MODEL_ID,
         contents,
-        config: baseConfig,
+        config: { ...baseConfig, abortSignal: AbortSignal.timeout(Math.max(3000, deadlineAt - Date.now())) },
       });
 
       finalContentParts = response.candidates?.[0]?.content?.parts || [];
@@ -323,12 +331,17 @@ ${isImageRequest ? '- **圖片生成**: 要求畫圖時，在回覆最後加上�
     }
 
   } catch (error: any) {
+    const isTimeout =
+      error?.name === 'AbortError' || error?.name === 'TimeoutError' || /abort|timed? ?out/i.test(error?.message || '');
+    const errMessage = isTimeout
+      ? 'AI 回應逾時，請再試一次（若持續發生，可能是 Gemini 服務忙碌或搜尋太慢）'
+      : error.message;
     console.error(`\n❌ AI Chat 錯誤: ${error.message}`);
     // 若尚未送出任何 SSE 資料，回傳標準 JSON 錯誤；否則以 SSE 事件通知前端後結束串流
     if (!res.headersSent) {
-      res.status(500).json({ success: false, error: error.message });
+      res.status(500).json({ success: false, error: errMessage });
     } else {
-      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+      res.write(`data: ${JSON.stringify({ error: errMessage })}\n\n`);
       res.end();
     }
   }
