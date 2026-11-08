@@ -1316,7 +1316,7 @@ ${documentsContext}` : ''}`;
  }
 
  const response = await genAI.models.generateContentStream({
- model: "gemini-3.5-flash-lite",
+ model: "gemini-3.1-flash-lite",
  systemInstruction,
  contents: [
  ...buildHistoryWindow(messages).map(m => ({ role: m.role === "user"? "user": "model", parts: [{ text: m.content }] })),
