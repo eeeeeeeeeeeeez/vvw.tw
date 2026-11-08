@@ -2,19 +2,22 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Plus, Search, MessageSquare, Trash2, Send, Paperclip, 
   Sparkles, Bot, User, RefreshCw, Copy, Check, MoreVertical,
-  X, Menu, Eye, EyeOff, Lock, ArrowRight, Brain
+  X, Menu, Eye, EyeOff, Lock, ArrowRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
 import mammoth from "mammoth";
 import { Message, ChatSession, SelectedFile } from "../types";
-import { ADMIN_USERNAME, ADMIN_PASSWORD, SESSIONS_STORAGE_KEY } from "../constants";
+import { GEMINI_API_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, SESSIONS_STORAGE_KEY } from "../constants";
 import { Navbar } from "../components/Navbar";
 
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export const AI: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,8 +35,6 @@ export const AI: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [thinkingLevel, setThinkingLevel] = useState<'minimal' | 'low' | 'medium' | 'high'>('medium');
-  const [showThinkingMenu, setShowThinkingMenu] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -206,52 +207,42 @@ export const AI: React.FC = () => {
     setIsTyping(true);
 
     try {
-      const response = await fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: messages.slice(-10),
-          userMsg,
-          thinkingLevel,
-          fileData: currentFile ? {
-            name: currentFile.name,
-            type: currentFile.type,
-            content: currentFile.content
-          } : null
-        })
+      let aiPromptParts: any[] = [];
+      if (currentFile && currentFile.type.startsWith('image/')) {
+        aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
+        aiPromptParts.push({ text: userMsg });
+      } else if (currentFile) {
+        aiPromptParts.push({ text: `檔案內容 (${currentFile.name})：\n${currentFile.content.substring(0, 50000)}\n\n問題：${userMsg}` });
+      } else {
+        aiPromptParts.push({ text: userMsg });
+      }
+
+      const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        systemInstruction: `你是一位專業且充滿洞察力的『亨波 AI 顧問』，代表「亨波趨勢 (HENGBO TREND)」。
+你的核心特質：
+1. **專業顧問風範**：語氣專業、穩重且富有啟發性。
+2. **繁體中文專家**：務必使用優雅、精準的『繁體中文』。
+3. **數據與趨勢驅動**：強調數據支持與精準規劃。
+4. **品牌忠誠度**：引導至 https://vvw-tw.vercel.app/。
+${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}`,
       });
 
-      if (!response.ok) throw new Error('伺服器回應錯誤');
+      const result = await model.generateContentStream({
+        contents: [
+          ...messages.slice(-10).map(m => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
+          { role: "user", parts: aiPromptParts }
+        ],
+      });
 
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
       let fullText = "";
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const dataStr = line.slice(6);
-              if (dataStr === '[DONE]') break;
-              
-              try {
-                const data = JSON.parse(dataStr);
-                if (data.text) {
-                  fullText += data.text;
-                  setSessions(prev => prev.map(s => s.id === currentSessionId ? {
-                    ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
-                  } : s));
-                }
-              } catch (e) { /* 忽略不完整的 JSON */ }
-            }
-          }
-        }
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        fullText += chunkText;
+        setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+          ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
+        } : s));
       }
 
       const imgMatch = fullText.match(/\[IMAGE_GEN:\s*(.*?)\]/);
@@ -411,51 +402,6 @@ export const AI: React.FC = () => {
               </h2>
             </div>
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <button 
-                  onClick={() => setShowThinkingMenu(!showThinkingMenu)}
-                  className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors flex items-center gap-1 text-xs md:text-sm font-bold uppercase tracking-wider"
-                  title="調整思考等級"
-                >
-                  <Brain size={18} />
-                  <span className="hidden sm:inline">{thinkingLevel}</span>
-                </button>
-                <AnimatePresence>
-                  {showThinkingMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-2 w-48 bg-white border-2 border-primary/10 rounded-lg shadow-xl z-50"
-                    >
-                      {[
-                        { level: 'minimal' as const, label: '最少思考', desc: '最快、最粗簡' },
-                        { level: 'low' as const, label: '輕量思考', desc: '平衡效能' },
-                        { level: 'medium' as const, label: '中等思考', desc: '推薦選項' },
-                        { level: 'high' as const, label: '深度思考', desc: '最精確、最慢' }
-                      ].map(({ level, label, desc }) => (
-                        <button
-                          key={level}
-                          onClick={() => {
-                            setThinkingLevel(level);
-                            setShowThinkingMenu(false);
-                          }}
-                          className={`w-full text-left px-4 py-3 text-sm font-bold border-b border-primary/5 last:border-b-0 transition-all ${
-                            thinkingLevel === level
-                              ? 'bg-primary text-white'
-                              : 'hover:bg-surface-low text-primary'
-                          }`}
-                        >
-                          <div className="uppercase tracking-wider">{label}</div>
-                          <div className={`text-[10px] font-normal ${
-                            thinkingLevel === level ? 'text-white/70' : 'text-muted'
-                          }`}>{desc}</div>
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
               <button 
                 onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
                 className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors" 
