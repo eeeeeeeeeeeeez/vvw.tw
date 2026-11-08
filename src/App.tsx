@@ -1359,7 +1359,7 @@ const AIView = () => {
  setTimeout(() => setCopiedMessageId((current) => (current === id ? null : current)), 1500);
  };
 
- // AI 模型切換：'flash' = 一般 Gemini 3.5 Flash 對話（低延遲、支援圖片上傳分析）
+ // AI 模型切換：'flash' = 一般 Gemini 3.5 Flash-Lite 對話（低延遲、支援圖片上傳分析）
  // 'antigravity' = Antigravity Agent（Pre-GA 預覽版，會啟動沙盒環境，延遲較高，不支援圖片分析）
  const [aiModel, setAiModel] = useState<"flash"| "antigravity">("flash");
  // 記錄每個對話 session 對應的 Antigravity interaction/environment id，讓多輪對話能延續上下文
@@ -1614,23 +1614,6 @@ ${documentsContext}` : ''}`;
  ? `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n問題：${userMsg}`
  : userMsg;
 
- // Agent 模式沒有逐字串流，容易讓人以為卡住了，跑久一點就輪播不同的進度文字
- const agentProgressMessages = [
- "🤖 AI 正在沙盒環境中準備任務...",
- "🤖 分析問題並規劃執行步驟...",
- "🤖 執行中，複雜任務可能需要一點時間...",
- "🤖 整理結果，即將完成...",
- ];
- let progressIndex = 0;
- setSessions(prev => prev.map(s => s.id === currentSessionId ? {
- ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: agentProgressMessages[0] } : m)
- } : s));
- agentProgressTimerRef.current = setInterval(() => {
- progressIndex = Math.min(progressIndex + 1, agentProgressMessages.length - 1);
- setSessions(prev => prev.map(s => s.id === currentSessionId ? {
- ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: agentProgressMessages[progressIndex] } : m)
- } : s));
- }, 8000);
 
  const interactionRes = await fetch('/api/ai/agent', {
  method: 'POST',
@@ -1839,7 +1822,7 @@ ${documentsContext}` : ''}`;
  }
 
  return (
- <div className="pt-20 md:pt-24 h-screen flex bg-white overflow-hidden relative">
+ <div className="pt-20 md:pt-24 h-dvh flex bg-white overflow-hidden relative">
  <AnimatePresence>
  {isSidebarOpen && window.innerWidth <= 768 && (
  <motion.div 
@@ -1864,7 +1847,7 @@ ${documentsContext}` : ''}`;
  <div className="p-6 space-y-6">
  <div className="flex items-center justify-between md:hidden mb-4">
  <span className="font-semibold text-primary tracking-tight">對話列表</span>
- <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
+ <button onClick={() => setIsSidebarOpen(false)} className="p-2.5 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
  </div>
  <div className="relative">
  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={18} />
@@ -1873,7 +1856,7 @@ ${documentsContext}` : ''}`;
  placeholder="搜尋對話..."
  value={searchQuery}
  onChange={(e) => setSearchQuery(e.target.value)}
- className="w-full bg-white rounded-full border border-surface-high py-3 pl-10 pr-4 font-bold focus:outline-none focus:border-primary text-sm"
+ className="w-full bg-white rounded-full border border-surface-high py-3 pl-10 pr-4 font-bold focus:outline-none focus:border-primary text-base md:text-sm"
  />
  </div>
  <button 
@@ -1902,7 +1885,7 @@ ${documentsContext}` : ''}`;
  </div>
  <button 
  onClick={(e) => deleteSession(s.id, e)}
- className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1 hover:bg-primary/10 rounded-md text-primary/40 transition-opacity"
+ className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-2.5 md:p-1 -m-1.5 md:m-0 hover:bg-primary/10 rounded-md text-primary/40 transition-opacity"
  >
  <Trash2 size={14} />
  </button>
@@ -1916,7 +1899,7 @@ ${documentsContext}` : ''}`;
  <main className="flex-grow flex flex-col relative min-w-0 w-full">
  <header className="h-16 border-b border-surface-high/70 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
  <div className="flex items-center gap-3 md:gap-4">
- <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors">
+ <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2.5 hover:bg-surface-low rounded-lg text-primary transition-colors">
  <Menu size={24} />
  </button>
  <h2 className="font-semibold text-primary tracking-tight truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
@@ -1924,23 +1907,9 @@ ${documentsContext}` : ''}`;
  </h2>
  </div>
  <div className="flex items-center gap-2 md:gap-3">
- <div className="flex items-center bg-surface-low rounded-lg p-1 text-[10px] sm:text-xs font-semibold tracking-wide" title="切換 AI 模型">
- <button
- onClick={() => setAiModel("flash")}
- className={`px-2 sm:px-3 py-1.5 rounded-md transition-colors ${aiModel === "flash"? "bg-primary text-white": "text-primary/50 hover:text-primary"}`}
- >
- Flash
- </button>
- <button
- onClick={() => setAiModel("antigravity")}
- className={`px-2 sm:px-3 py-1.5 rounded-md transition-colors ${aiModel === "antigravity"? "bg-secondary text-white": "text-primary/50 hover:text-primary"}`}
- >
- Agent
- </button>
- </div>
  <button 
  onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
- className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
+ className="p-3 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
  title="刪除當前對話"
  >
  <Trash2 size={20} />
@@ -2036,7 +2005,32 @@ ${documentsContext}` : ''}`;
  )}
  </div>
 
- <footer className="p-4 md:p-6 bg-white border-t border-primary/10 pb-safe">
+ <footer className="p-3 md:p-6 bg-white border-t border-primary/10 pb-safe">
+ <div className="max-w-3xl mx-auto mb-3 flex items-center gap-3">
+ <span className="hidden sm:block text-xs font-semibold text-primary/50 shrink-0">模型</span>
+ <div className="flex flex-1 sm:flex-none items-center bg-surface-low rounded-full p-1 text-sm font-semibold" role="radiogroup" aria-label="切換 AI 模型">
+ <button
+ type="button"
+ role="radio"
+ aria-checked={aiModel === "flash"}
+ onClick={() => setAiModel("flash")}
+ title="快速回答，支援圖片分析"
+ className={`flex-1 sm:flex-none min-h-[44px] px-5 rounded-full transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/60 hover:text-primary"}`}
+ >
+ Flash 快速
+ </button>
+ <button
+ type="button"
+ role="radio"
+ aria-checked={aiModel === "antigravity"}
+ onClick={() => setAiModel("antigravity")}
+ title="處理複雜任務，回應較慢，不支援圖片分析"
+ className={`flex-1 sm:flex-none min-h-[44px] px-5 rounded-full transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/60 hover:text-primary"}`}
+ >
+ Agent 進階
+ </button>
+ </div>
+ </div>
  <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto relative">
  {selectedFile && (
  <div className="absolute bottom-full left-0 mb-3 p-2.5 pl-3 bg-surface-low rounded-xl flex items-center gap-2.5 border border-primary/10 animate-in slide-in-from-bottom-2">
@@ -2046,27 +2040,27 @@ ${documentsContext}` : ''}`;
  </div>
  )}
  <div className="flex items-end gap-2 bg-surface-low p-1.5 rounded-3xl ring-1 ring-transparent focus-within:ring-primary/30 transition-all">
- <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2.5 text-primary/40 hover:text-primary transition-colors"><Paperclip size={20} /></button>
+ <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={20} /></button>
  <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden"/>
  <textarea 
  value={input}
  onChange={(e) => setInput(e.target.value)}
  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) { e.preventDefault(); handleSendMessage(e); } }}
  placeholder="輸入訊息..."
- className="flex-grow bg-transparent border-none focus:ring-0 py-2.5 font-medium text-ink resize-none max-h-32 custom-scrollbar text-sm md:text-base placeholder:text-primary/30"
+ className="flex-grow bg-transparent border-none focus:ring-0 py-2.5 font-medium text-ink resize-none max-h-32 custom-scrollbar text-base placeholder:text-primary/30"
  rows={1}
  />
  {isTyping ? (
  <button
  type="button"
  onClick={handleStopGeneration}
- className="shrink-0 w-10 h-10 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-all"
+ className="shrink-0 w-11 h-11 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-all"
  title="停止生成"
  >
  <Square size={16} fill="currentColor"/>
  </button>
  ) : (
- <button disabled={!input.trim() && !selectedFile} className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full hover:bg-secondary transition-all disabled:opacity-30">
+ <button disabled={!input.trim() && !selectedFile} className="shrink-0 w-11 h-11 flex items-center justify-center bg-primary text-white rounded-full hover:bg-secondary transition-all disabled:opacity-30">
  <Send size={18} />
  </button>
  )}

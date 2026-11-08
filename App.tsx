@@ -1,12 +1,4 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import {
- Routes,
- Route,
- Link,
- useNavigate,
- useLocation,
- useParams,
-} from "react-router-dom";
 import { 
  Menu, 
  X, 
@@ -48,51 +40,33 @@ import {
  ShieldCheck,
  Clock,
  ChevronDown,
- Palette,
- BookOpen,
- Calendar,
- Tag,
- Code2,
- Square,
- Loader2
+ Palette
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as pdfjs from "pdfjs-dist";
 import mammoth from "mammoth";
-import { formatBlogDate } from "./data/blogPosts";
-import { useBlogList, useBlogPost } from "./blog/blogApi";
-import BlogMarkdown from "./blog/BlogMarkdown";
-
-const AdminBlogPage = React.lazy(() => import("./blog/AdminBlogPage"));
 
 // 設定 PDF.js Worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // --- Constants ---
-// GEMINI_API_KEY 與 genAI client 已移除：Flash 與 Agent 模式現在都透過後端 /api/ai/chat、
-// /api/ai/agent 呼叫 Gemini，前端不再需要、也不應該持有 API key。
+const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || ""; 
+const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // 從環境變數讀取管理員帳密
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || "admin";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "hengbo2026";
 
 // --- Types ---
-interface SearchStatus {
- query: string;
- status: "searching"| "done";
- success?: boolean;
- resultCount?: number;
-}
-
 interface Message {
  role: "user"| "ai";
  content: string;
  id: string;
  timestamp: Date;
  imageUrl?: string;
- searches?: SearchStatus[];
 }
 
 interface SessionDocument {
@@ -158,7 +132,6 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
  { id: "home", label: "首頁"},
  { id: "services", label: "專業服務"},
  { id: "cases", label: "精選案例"},
- { id: "blog", label: "知識庫"},
  { id: "about", label: "關於我們"},
  { id: "ai", label: "亨波AI"},
  ];
@@ -251,9 +224,35 @@ const Navbar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }>
  );
 };
 
+// 合作夥伴 LOGO 清單 —— 檔案請放到 /public/partners/ 資料夾，命名需與此陣列一致
+const PARTNER_LOGOS = Array.from({ length: 10 }, (_, i) => ({
+ name: `合作夥伴 ${i + 1}`,
+ src: `/partners/partner-${String(i + 1).padStart(2, "0")}.png`,
+}));
+
 const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => (
  <footer className="bg-primary rounded-t-[40px] w-full pt-16 pb-24 mt-24">
- <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-white">
+ <div className="max-w-7xl mx-auto px-8">
+ <div className="flex items-center gap-4 mb-8">
+ <span className="text-secondary font-semibold tracking-wide text-xs">合作夥伴</span>
+ <div className="flex-grow h-px bg-white/10"/>
+ </div>
+ <div className="partner-marquee-wrap overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+ <div className="partner-marquee-track items-center">
+ {[...PARTNER_LOGOS, ...PARTNER_LOGOS].map((partner, i) => (
+ <div key={`${partner.name}-${i}`} className="shrink-0 w-[150px] h-20 mx-3 bg-white rounded-2xl flex items-center justify-center p-4">
+ <img
+ src={partner.src}
+ alt={partner.name}
+ loading="lazy"
+ className="max-h-full max-w-full object-contain"
+ />
+ </div>
+ ))}
+ </div>
+ </div>
+ </div>
+ <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-white mt-16 pt-16 border-t border-white/10">
  <div className="col-span-1 md:col-span-2">
  <div className="flex items-center gap-4 mb-8">
  <Logo className="w-12 h-12" variant="white"/>
@@ -269,7 +268,6 @@ const Footer: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab 
  <span className="text-secondary font-semibold tracking-wide ">導覽導航</span>
  <button onClick={() => { setActiveTab("services"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">專業服務</button>
  <button onClick={() => { setActiveTab("cases"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">精選案例</button>
- <button onClick={() => { setActiveTab("blog"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">知識庫</button>
  <button onClick={() => { setActiveTab("about"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">關於我們</button>
  <button onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth"}); }} className="text-left text-surface-high hover:text-secondary snap-transition font-bold text-sm tracking-wide">聯繫我們</button>
  </div>
@@ -388,26 +386,6 @@ const HomeView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTa
  <p className="font-bold mb-8 leading-relaxed">對接政府資源，極大化研發與轉型動能。我們提供從資格評估到結案報告的全程專業輔導。</p>
  <button onClick={() => setActiveTab("services")} className="bg-white text-primary px-6 py-3 rounded-full font-medium hover:bg-primary hover:text-white snap-transition press-feedback">了解更多</button>
  </div>
- <div className="col-span-12 group bg-primary text-white p-12 rounded-3xl shadow-md soft-card-hover relative overflow-hidden hover:bg-secondary snap-transition">
- <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:opacity-20 snap-transition">
- <TrendingUp size={280} />
- </div>
- <span className="text-white/50 font-semibold text-2xl mb-8 block">03</span>
- <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-end relative z-10">
- <div>
- <h3 className="text-[clamp(1.75rem,6vw,3rem)] font-semibold mb-6">廣告投放代操</h3>
- <p className="font-bold text-lg leading-relaxed max-w-xl">
- 亨波趨勢專精 <strong>Meta、Google、TikTok 廣告投放</strong>，以數據洞察驅動受眾精準定位、素材創意優化與轉化率追蹤分析，為品牌極大化廣告投放的轉換效益與 ROI，是企業值得信賴的廣告投放代操顧問夥伴。
- </p>
- </div>
- <div className="flex flex-wrap gap-3 lg:justify-end">
- {["受眾精準定位", "素材創意優化", "轉化率追蹤分析", "跨平台廣告投放"].map((tag) => (
- <span key={tag} className="px-4 py-2 rounded-full border border-white/30 text-xs font-semibold tracking-wide">{tag}</span>
- ))}
- </div>
- </div>
- <button onClick={() => setActiveTab("services")} className="relative z-10 mt-10 bg-white text-primary px-6 py-3 rounded-full font-medium hover:bg-primary-dark hover:text-white snap-transition press-feedback">了解廣告投放服務</button>
- </div>
  </div>
  </div>
  </section>
@@ -452,26 +430,16 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  >
  <section className="px-8 py-32">
  <div className="max-w-7xl mx-auto">
- <div className="mb-16 max-w-4xl">
+ <div className="mb-32">
  <span className="font-semibold tracking-wide text-secondary mb-4 block">專業服務範疇</span>
- <h1 className="text-[clamp(3.5rem,12vw,8rem)] type-display font-semibold text-primary mb-8">
- 廣告投放<br/>
- <span className="text-stroke">代操顧問夥伴</span>
+ <h1 className="text-[clamp(3.5rem,12vw,8rem)] type-display font-semibold text-primary ">
+ 全方位<br/>
+ <span className="text-stroke">顧問解決方案</span>
  </h1>
- <p className="text-lg md:text-xl font-bold text-muted leading-relaxed">
- 亨波趨勢提供專業<strong className="text-primary">廣告投放</strong>代操服務，涵蓋 Meta、Google、TikTok 等主流平台，從受眾精準定位、素材創意優化到轉化率追蹤分析，以數據驅動策略極大化廣告投放成效與 ROI。同時提供企劃撰寫、政府補助申請、品牌視覺設計與資源對接，是企業成長最堅實的一站式顧問夥伴。
- </p>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
  {[
- { 
- icon: <TrendingUp size={64} />, 
- title: "廣告投放", 
- desc: "基於數據洞察的精準廣告投放策略，涵蓋受眾精準定位、素材創意優化與轉化率追蹤分析，極大化 Meta、Google、TikTok 等平台的廣告投放代操成效與 ROI。",
- features: ["受眾精準定位", "素材創意優化", "轉化率追蹤分析"],
- process: ["目標設定", "受眾分析", "素材製作", "投放測試", "數據優化"]
- },
  { 
  icon: <FileText size={64} />, 
  title: "企劃撰寫", 
@@ -492,6 +460,13 @@ const ServicesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActi
  desc: "讓品牌不只被看到，更被記住與喜愛。將品牌靈魂轉化為視覺語彙，建立專業形象。",
  features: ["視覺識別 (CIS)", "應用系統設計", "品牌故事轉化"],
  process: ["品牌診斷", "視覺探索", "設計執行", "規範建立", "應用落地"]
+ },
+ { 
+ icon: <TrendingUp size={64} />, 
+ title: "廣告投放", 
+ desc: "基於數據洞察的精準投放策略，極大化 Meta、Google、TikTok 等平台的轉型效益。",
+ features: ["受眾精準定位", "素材創意優化", "轉化率追蹤分析"],
+ process: ["目標設定", "受眾分析", "素材製作", "投放測試", "數據優化"]
  },
  { 
  icon: <Network size={64} />, 
@@ -646,206 +621,6 @@ const CasesView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveT
  </div>
  </div>
  </section>
- </motion.div>
- );
-};
-
-// --- 廣告投放知識庫 ---
-
-const BlogListView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => {
- const { posts } = useBlogList();
- return (
- <motion.div 
- initial={{ opacity: 0 }} 
- animate={{ opacity: 1 }} 
- exit={{ opacity: 0 }}
- className="pt-24 soft-dot-grid min-h-screen"
- >
- <section className="px-8 py-32">
- <div className="max-w-7xl mx-auto">
- <div className="mb-24 max-w-4xl">
- <span className="font-semibold tracking-wide text-secondary mb-4 block">知識庫</span>
- <h1 className="text-[clamp(3rem,10vw,6.5rem)] type-display font-semibold text-primary mb-8">
- 廣告投放<br/>
- <span className="text-stroke">知識庫</span>
- </h1>
- <p className="text-lg md:text-xl font-bold text-muted leading-relaxed">
- 亨波趨勢整理廣告投放相關的實戰知識與策略觀念，涵蓋 Meta、Google、TikTok 廣告投放教學、預算規劃與代操評估，幫助企業與行銷人員建立正確的廣告投放觀念。
- </p>
- </div>
-
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {posts.map((post) => (
- <Link
- key={post.slug}
- to={`/blog/${post.slug}`}
- onClick={() => window.scrollTo({ top: 0, behavior: "smooth"})}
- className="group flex flex-col bg-white rounded-3xl shadow-md soft-card-hover p-10 hover:bg-primary hover:text-white snap-transition"
- >
- <div className="flex items-center gap-3 mb-6 text-secondary group-hover:text-white/80">
- <BookOpen size={28} />
- <span className="font-semibold text-xs tracking-wide">{post.category}</span>
- </div>
- <h2 className="text-2xl font-semibold mb-4 leading-snug">{post.title}</h2>
- <p className="font-bold text-sm opacity-70 group-hover:opacity-100 leading-relaxed mb-8 flex-grow">{post.excerpt}</p>
- <div className="flex items-center gap-4 text-xs font-semibold tracking-wide opacity-60 group-hover:opacity-100">
- <span className="flex items-center gap-1"><Calendar size={14} />{formatBlogDate(post.updatedDate || post.publishDate)}</span>
- </div>
- </Link>
- ))}
- </div>
-
- <div className="mt-24 bg-primary text-white rounded-3xl p-12 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8">
- <div>
- <h2 className="text-3xl md:text-4xl font-semibold mb-4">需要專業的廣告投放代操服務？</h2>
- <p className="font-bold opacity-70 max-w-xl">讓亨波趨勢協助您規劃 Meta、Google、TikTok 廣告投放策略，以數據驅動極大化轉換效益。</p>
- </div>
- <button 
- onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth"}); }}
- className="shrink-0 bg-white text-primary px-8 py-4 rounded-full font-medium hover:bg-secondary hover:text-white snap-transition press-feedback"
- >
- 立即諮詢
- </button>
- </div>
- </div>
- </section>
- </motion.div>
- );
-};
-
-const BlogPostView: React.FC<{ setActiveTab: (t: string) => void }> = ({ setActiveTab }) => {
- const { slug } = useParams<{ slug: string }>();
- const { post, loading } = useBlogPost(slug);
- const { posts: allPosts } = useBlogList();
- const navigate = useNavigate();
-
- if (!post && loading) {
- return (
- <div className="pt-24 soft-dot-grid min-h-screen">
- <div className="max-w-3xl mx-auto px-8 py-32 text-muted font-semibold">載入中…</div>
- </div>
- );
- }
-
- if (!post) {
- return (
- <motion.div 
- initial={{ opacity: 0 }} 
- animate={{ opacity: 1 }} 
- exit={{ opacity: 0 }}
- className="pt-24 soft-dot-grid min-h-screen flex items-center justify-center px-8"
- >
- <div className="text-center max-w-xl">
- <h1 className="text-4xl font-semibold text-primary mb-6">找不到這篇文章</h1>
- <p className="font-bold text-muted mb-8">這篇廣告投放知識文章可能已經被移除或網址有誤。</p>
- <button 
- onClick={() => navigate("/blog")}
- className="bg-primary text-white px-8 py-4 rounded-full font-medium hover:bg-primary-dark snap-transition press-feedback"
- >
- 返回知識庫
- </button>
- </div>
- </motion.div>
- );
- }
-
- const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
-
- return (
- <motion.div 
- initial={{ opacity: 0 }} 
- animate={{ opacity: 1 }} 
- exit={{ opacity: 0 }}
- className="pt-24 soft-dot-grid"
- >
- <article className="px-8 py-24">
- <div className="max-w-3xl mx-auto">
- <button 
- onClick={() => navigate("/blog")}
- className="flex items-center gap-2 text-secondary font-semibold text-sm mb-10 hover:opacity-70 snap-transition press-feedback"
- >
- <ArrowRight size={18} className="rotate-180" />
- 返回知識庫
- </button>
-
- <div className="flex items-center gap-4 mb-6 text-xs font-semibold tracking-wide text-secondary">
- <span className="flex items-center gap-1"><Tag size={14} />{post.category}</span>
- <span className="flex items-center gap-1"><Calendar size={14} />發布於 {formatBlogDate(post.publishDate)}</span>
- {post.updatedDate && post.updatedDate !== post.publishDate && (
- <span className="flex items-center gap-1">更新於 {formatBlogDate(post.updatedDate)}</span>
- )}
- </div>
-
- <h1 className="text-[clamp(2.25rem,7vw,3.75rem)] type-display font-semibold text-primary mb-10 leading-tight">
- {post.title}
- </h1>
-
- {post.content ? (
- <div><BlogMarkdown content={post.content} /></div>
- ) : (
- <div className="space-y-12">
- {(post.sections || []).map((section, i) => (
- <div key={i}>
- {section.heading && (
- <h2 className="text-2xl md:text-3xl font-semibold text-primary mb-5">{section.heading}</h2>
- )}
- {section.paragraphs.map((p, j) => (
- <p key={j} className="text-lg font-medium text-muted leading-relaxed mb-4">{p}</p>
- ))}
- {section.list && (
- <ul className="space-y-3 mt-4">
- {section.list.map((item, k) => (
- <li key={k} className="flex items-start gap-3 font-semibold text-primary/90">
- <BadgeCheck size={20} className="text-secondary shrink-0 mt-1" />
- <span>{item}</span>
- </li>
- ))}
- </ul>
- )}
- </div>
- ))}
- </div>
- )}
-
- <div className="mt-16 flex flex-wrap gap-2">
- {post.keywords.map((kw) => (
- <span key={kw} className="px-4 py-2 rounded-full bg-surface-low text-xs font-semibold tracking-wide text-muted">#{kw}</span>
- ))}
- </div>
-
- <div className="mt-16 bg-primary text-white rounded-3xl p-10 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
- <div>
- <h3 className="text-2xl font-semibold mb-2">想進一步了解廣告投放代操服務？</h3>
- <p className="font-bold opacity-70">歡迎與亨波趨勢聯繫，為您的品牌規劃專屬廣告投放策略。</p>
- </div>
- <button 
- onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth"}); }}
- className="shrink-0 bg-white text-primary px-8 py-4 rounded-full font-medium hover:bg-secondary hover:text-white snap-transition press-feedback"
- >
- 立即諮詢
- </button>
- </div>
-
- {relatedPosts.length > 0 && (
- <div className="mt-20">
- <span className="font-semibold tracking-wide text-secondary mb-6 block">延伸閱讀</span>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
- {relatedPosts.map((rp) => (
- <Link
- key={rp.slug}
- to={`/blog/${rp.slug}`}
- onClick={() => window.scrollTo({ top: 0, behavior: "smooth"})}
- className="block bg-surface-low rounded-2xl p-6 hover:bg-primary hover:text-white snap-transition group"
- >
- <h4 className="font-semibold text-lg mb-2 leading-snug">{rp.title}</h4>
- <span className="text-xs font-semibold opacity-60 group-hover:opacity-100">{formatBlogDate(rp.publishDate)}</span>
- </Link>
- ))}
- </div>
- </div>
- )}
- </div>
- </article>
  </motion.div>
  );
 };
@@ -1223,103 +998,6 @@ const ContactView: React.FC = () => {
  );
 };
 
-// 聊天訊息中的程式碼區塊：提供複製功能，若偵測為 HTML 則額外提供「預覽網頁」，
-// 直接用 iframe 把 AI 產生的網頁渲染出來，不用複製貼上到其他地方才看得到畫面。
-// 用元件外部的 Map 保存每個程式碼區塊的「預覽開關」狀態，
-// key 是 blockKey（訊息ID + 區塊位置），而不是程式碼內容本身。
-// 這樣即使訊息在串流過程中內容不斷變動、CodeBlock 被重新建立，
-// 開關狀態也不會被重置回「顯示程式碼」。
-const codeBlockPreviewState = new Map<string, boolean>();
-
-const CodeBlock: React.FC<{ className?: string; children?: React.ReactNode; blockKey?: string }> = ({ className, children, blockKey }) => {
- const codeText = React.useMemo(() => String(children ?? "").replace(/\n$/, ""), [children]);
- const langMatch = /language-(\w+)/.exec(className || "");
- const lang = langMatch?.[1];
- // 沒有語言標記、且內容不含換行，視為 inline code（例如 `variable`），維持原本簡單樣式即可
- const isInline = !className && !codeText.includes("\n");
-
- const isHtml = lang === "html" || lang === "xml" || /^\s*<!doctype html|^\s*<html[\s>]/i.test(codeText);
- const [showPreview, setShowPreviewState] = useState(
- () => (blockKey ? codeBlockPreviewState.get(blockKey) : undefined) ?? false
- );
- const [copied, setCopied] = useState(false);
-
- const setShowPreview = (updater: boolean | ((prev: boolean) => boolean)) => {
- setShowPreviewState((prev) => {
- const next = typeof updater === "function" ? (updater as (p: boolean) => boolean)(prev) : updater;
- if (blockKey) codeBlockPreviewState.set(blockKey, next);
- return next;
- });
- };
-
- if (isInline) {
- return <code className={className}>{children}</code>;
- }
-
- const handleCopy = async () => {
- try {
- await navigator.clipboard.writeText(codeText);
- setCopied(true);
- setTimeout(() => setCopied(false), 1500);
- } catch {
- /* 剪貼簿權限被拒絕時靜默失敗即可 */
- }
- };
-
- return (
- <div className="not-prose my-4 rounded-2xl overflow-hidden border border-black/10 bg-ink text-white">
- <div className="flex items-center justify-between px-4 py-2 bg-white/10 text-white/60 text-[11px] font-semibold tracking-wide">
- <span>{lang ? lang.toUpperCase() : "CODE"}</span>
- <div className="flex items-center gap-4">
- {isHtml && (
- <button
- type="button"
- onClick={() => setShowPreview((p) => !p)}
- className="flex items-center gap-1 hover:text-white transition-colors press-feedback"
- >
- {showPreview ? (<><Code2 size={13}/> 檢視程式碼</>) : (<><Eye size={13}/> 預覽網頁</>)}
- </button>
- )}
- <button
- type="button"
- onClick={handleCopy}
- className="flex items-center gap-1 hover:text-white transition-colors press-feedback"
- >
- {copied ? (<><Check size={13}/> 已複製</>) : (<><Copy size={13}/> 複製</>)}
- </button>
- </div>
- </div>
-
- {showPreview && isHtml ? (
- <iframe
- srcDoc={codeText}
- sandbox="allow-scripts"
- className="w-full h-[420px] bg-white"
- title="網頁預覽"
- />
- ) : (
- <pre className="!my-0 !bg-transparent !rounded-none p-4 overflow-x-auto">
- <code className={className}>{codeText}</code>
- </pre>
- )}
- </div>
- );
-};
-
-// 產生每則訊息專屬的 ReactMarkdown components 設定，
-// 用一個遞增計數器幫每個程式碼區塊配上穩定的 blockKey（訊息ID + 區塊順序），
-// 讓 CodeBlock 的預覽開關狀態能跨越串流重新渲染而維持不變。
-function createMarkdownComponents(messageId: string) {
- let blockIndex = 0;
- return {
- pre: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
- code: (props: { className?: string; children?: React.ReactNode }) => {
- const key = `${messageId}-${blockIndex++}`;
- return <CodeBlock {...props} blockKey={key} />;
- },
- };
-}
-
 // ========== AIView 組件 ==========
 const AIView = () => {
  const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -1359,15 +1037,11 @@ const AIView = () => {
  setTimeout(() => setCopiedMessageId((current) => (current === id ? null : current)), 1500);
  };
 
- // AI 模型切換：'flash' = 一般 Gemini 3.5 Flash-Lite 對話（低延遲、支援圖片上傳分析）
+ // AI 模型切換：'flash' = 一般 Gemini 3.5 Flash 對話（低延遲、支援圖片上傳分析）
  // 'antigravity' = Antigravity Agent（Pre-GA 預覽版，會啟動沙盒環境，延遲較高，不支援圖片分析）
  const [aiModel, setAiModel] = useState<"flash"| "antigravity">("flash");
  // 記錄每個對話 session 對應的 Antigravity interaction/environment id，讓多輪對話能延續上下文
  const antigravityStateRef = useRef<Record<string, { interactionId?: string; environmentId?: string }>>({});
- // 目前正在進行中的請求，供「停止生成」按鈕中斷使用
- const abortControllerRef = useRef<AbortController | null>(null);
- // Agent 模式沒有逐字串流，跑很久時用來輪播提示文字的計時器
- const agentProgressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
  const SESSIONS_STORAGE_KEY = "hengbo_ai_sessions_v2";
 
@@ -1580,22 +1254,14 @@ const AIView = () => {
  setSelectedFile(null);
  setIsTyping(true);
 
- const abortController = new AbortController();
- abortControllerRef.current = abortController;
-
- // 只有明確表達「要畫一張圖／生成圖片」意圖時才觸發圖片生成，
- // 避免「架構圖」「地圖」「docker image」這類常見詞彙被誤判，
- // 導致本來要生成的正常文字內容被錯誤替換成圖片。
- const isImageRequest = /(幫我)?畫(一?[張個幅]|出)|(生成|產生|製作)(一[張個])?(圖片|插畫|海報|封面)|generate\s+(me\s+)?(an?\s+)?(image|picture|illustration)|draw\s+(me\s+)?(a|an)\s+\w+|create\s+(an?\s+)?(image|picture|illustration)/i.test(userMsg);
+ const isImageRequest = /畫|圖|生成圖片|繪製|image|draw|generate image/i.test(userMsg);
  const documentsContext = buildDocumentsContext(updatedDocuments);
- const todayStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: 'Asia/Taipei' });
- const systemInstruction = `你是「亨波趨勢 (HENGBO TREND)」網站上的 AI 助理，可以自由回答任何問題、協助寫程式、生成文件、回答一般知識問題，不是只能回答跟公司業務相關的問題。
-今天的實際日期是：${todayStr}（台灣時區）。這是系統提供的真實時間，優先於你訓練資料中的任何日期認知，使用者問「今天幾號」等時間相關問題時務必以此為準，不要用猜測或訓練資料中的日期回答。
+ const systemInstruction = `你是「亨波趨勢 (HENGBO TREND)」網站上的客服顧問助手，服務對象是正在諮詢的真實客戶。
 回覆風格：
 1. **直接回答**：使用者的每一則訊息都是在跟你對話，不是新對話的開場，絕對不要在回覆中重新自我介紹、複述你的身分或職稱（例如「我是Hengbo AI顧問」「身為專業顧問」之類的開場白），開場自我介紹只在對話一開始出現過一次，之後每次回覆都直接切入內容即可。
-2. **語氣自然專業**：像真人助理一樣簡潔、務實地回答，不需要每句話都強調自己的專業性或角色定位。
+2. **語氣自然專業**：像真人顧問一樣簡潔、務實地回答，不需要每句話都強調自己的專業性或角色定位。
 3. **繁體中文**：使用清楚、精準的『繁體中文』。
-4. **不要主動推銷官網或聯繫方式**：絕對不要在回覆中主動附上官網連結、聯繫頁面、或建議使用者「進一步諮詢」，除非使用者明確詢問「怎麼聯絡你們」「官網在哪」之類的問題，才可以回答 https://hengbo.co/ 。一般的提問（包含寫程式、產生內容、回答知識性問題）都直接回答問題本身就好，不要在回覆結尾加業務性質的引導句。
+4. **視情況引導**：只有在使用者的問題確實適合進一步諮詢或需要更多資訊時，才自然地提及可至 https://vvw-tw.vercel.app/ 或聯繫頁面了解更多，不要每則回覆都硬塞這句話。
 ${isImageRequest ? '要求畫圖時，在回覆最後加上：[IMAGE_GEN: 英文提示詞]' : ''}${documentsContext ? `
 
 以下是使用者在此對話中上傳過的檔案內容。即使使用者之後的提問沒有重新附上檔案，也可能是在針對這些內容追問，請一併參考：
@@ -1614,31 +1280,15 @@ ${documentsContext}` : ''}`;
  ? `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n問題：${userMsg}`
  : userMsg;
 
-
- const interactionRes = await fetch('/api/ai/agent', {
- method: 'POST',
- headers: { 'Content-Type': 'application/json' },
- signal: abortController.signal,
- body: JSON.stringify({
+ const interaction: any = await (genAI as any).interactions.create({
+ agent: "antigravity-preview-05-2026",
  input: agentInput,
- systemInstruction,
+ system_instruction: systemInstruction,
+ // 有前一輪就延續對話與沙盒環境，否則開一個新的沙盒
  ...(sessionState.interactionId
- ? { previousInteractionId: sessionState.interactionId, environmentId: sessionState.environmentId }
- : {}),
- }),
+ ? { previous_interaction_id: sessionState.interactionId, environment: sessionState.environmentId }
+ : { environment: "remote"}),
  });
-
- if (agentProgressTimerRef.current) {
- clearInterval(agentProgressTimerRef.current);
- agentProgressTimerRef.current = null;
- }
-
- if (!interactionRes.ok) {
- const errBody = await interactionRes.json().catch(() => ({}));
- throw new Error(errBody.error || `Agent 請求失敗 (${interactionRes.status})`);
- }
-
- const interaction: any = await interactionRes.json();
 
  // 目前 streaming 事件格式尚未有完整正式文件，先以非串流方式取得完整回覆，避免解析錯誤
  fullText = interaction.output_text || "";
@@ -1651,90 +1301,34 @@ ${documentsContext}` : ''}`;
  ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
  } : s));
  } else {
- // --- 一般模式：改走後端 /api/ai/chat（SSE 串流），API key 不再曝光於前端，
- // 且後端這條路由掛有 web_search（Tavily）工具，AI 才有真正的聯網搜尋能力 ---
- let backendUserMsg = userMsg;
- let backendFileData: { type: string; content: string; name: string } | undefined;
-
+ // --- 一般模式：Gemini 3.5 Flash，走標準 generateContentStream，逐字串流 ---
+ let aiPromptParts: any[] = [];
  if (currentFile && currentFile.type.startsWith('image/')) {
  // 圖片無法放進純文字的 documentsContext，仍需在當輪以 inlineData 附上
- backendFileData = { type: currentFile.type, content: currentFile.content, name: currentFile.name };
+ aiPromptParts.push({ inlineData: { data: currentFile.content.split(',')[1], mimeType: currentFile.type } });
+ aiPromptParts.push({ text: userMsg });
  } else if (isTextFile) {
  // 文字類檔案的內容已經併入 systemInstruction 的 documentsContext，這裡不重複帶入完整內容，
  // 只需標註「這輪新上傳了這份檔案」，避免同一份內容被重複計入 token
- backendUserMsg = `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n${userMsg}`;
+ aiPromptParts.push({ text: `（已上傳檔案：${currentFile!.name}，內容請參考系統指示中提供的檔案上下文）\n\n${userMsg}` });
+ } else {
+ aiPromptParts.push({ text: userMsg });
  }
 
- const chatRes = await fetch('/api/ai/chat', {
- method: 'POST',
- headers: { 'Content-Type': 'application/json' },
- signal: abortController.signal,
- body: JSON.stringify({
- messages: buildHistoryWindow(messages).map(m => ({ role: m.role, content: m.content })),
- userMsg: backendUserMsg,
- fileData: backendFileData,
+ const response = await genAI.models.generateContentStream({
+ model: "gemini-3.5-flash-lite",
  systemInstruction,
- thinkingLevel: 'medium',
- }),
+ contents: [
+ ...buildHistoryWindow(messages).map(m => ({ role: m.role === "user"? "user": "model", parts: [{ text: m.content }] })),
+ { role: "user", parts: aiPromptParts }
+ ],
  });
 
- if (!chatRes.ok || !chatRes.body) {
- const errBody = await chatRes.json().catch(() => ({}));
- throw new Error(errBody.error || `AI 服務請求失敗 (${chatRes.status})`);
- }
-
- const reader = chatRes.body.getReader();
- const decoder = new TextDecoder();
- let sseBuffer = '';
-
- while (true) {
- const { value, done } = await reader.read();
- if (done) break;
- sseBuffer += decoder.decode(value, { stream: true });
- const events = sseBuffer.split('\n\n');
- sseBuffer = events.pop() || '';
-
- for (const event of events) {
- const line = event.trim();
- if (!line.startsWith('data: ')) continue;
- const payload = line.slice(6);
- if (payload === '[DONE]') continue;
-
- let parsed: any;
- try { parsed = JSON.parse(payload); } catch { continue; }
-
- if (parsed.error) throw new Error(parsed.error);
-
- if (parsed.type === 'search') {
- // 搜尋狀態獨立成一組資料，前端渲染成獨立的卡片，不混進回覆文字裡
- setSessions(prev => prev.map(s => s.id === currentSessionId ? {
- ...s, messages: s.messages.map(m => {
- if (m.id !== aiMsgId) return m;
- const prevSearches = m.searches || [];
- if (parsed.status === 'start') {
- return { ...m, searches: [...prevSearches, { query: parsed.query, status: "searching"as const }] };
- }
- // status === 'done'：更新對應那筆搜尋紀錄
- return {
- ...m,
- searches: prevSearches.map(item =>
- item.query === parsed.query && item.status === "searching"
- ? { ...item, status: "done"as const, success: parsed.success, resultCount: parsed.resultCount }
- : item
- ),
- };
- })
- } : s));
- continue;
- }
-
- if (parsed.text) {
- fullText += parsed.text;
+ for await (const chunk of response) {
+ fullText += chunk.text || "";
  setSessions(prev => prev.map(s => s.id === currentSessionId ? {
  ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: fullText } : m)
  } : s));
- }
- }
  }
  }
 
@@ -1746,35 +1340,12 @@ ${documentsContext}` : ''}`;
  } : s));
  }
  } catch (e: any) {
- if (agentProgressTimerRef.current) {
- clearInterval(agentProgressTimerRef.current);
- agentProgressTimerRef.current = null;
- }
- if (e?.name === 'AbortError') {
- // 使用者主動按下停止，保留已經生成的內容，不當作錯誤處理
- setSessions(prev => prev.map(s => s.id === currentSessionId ? {
- ...s, messages: s.messages.map(m => {
- if (m.id !== aiMsgId) return m;
- return { ...m, content: m.content ? `${m.content}\n\n*（已停止生成）*` : "*（已停止生成）*"};
- })
- } : s));
- } else {
  setSessions(prev => prev.map(s => s.id === currentSessionId ? {
  ...s, messages: s.messages.map(m => m.id === aiMsgId ? { ...m, content: `錯誤：${e.message || "服務異常"}` } : m)
  } : s));
- }
  } finally {
  setIsTyping(false);
- abortControllerRef.current = null;
- if (agentProgressTimerRef.current) {
- clearInterval(agentProgressTimerRef.current);
- agentProgressTimerRef.current = null;
  }
- }
- };
-
- const handleStopGeneration = () => {
- abortControllerRef.current?.abort();
  };
 
  const filteredSessions = sessions.filter(s => 
@@ -1822,7 +1393,7 @@ ${documentsContext}` : ''}`;
  }
 
  return (
- <div className="pt-20 md:pt-24 h-dvh flex bg-white overflow-hidden relative">
+ <div className="pt-20 md:pt-24 h-screen flex bg-white overflow-hidden relative">
  <AnimatePresence>
  {isSidebarOpen && window.innerWidth <= 768 && (
  <motion.div 
@@ -1847,7 +1418,7 @@ ${documentsContext}` : ''}`;
  <div className="p-6 space-y-6">
  <div className="flex items-center justify-between md:hidden mb-4">
  <span className="font-semibold text-primary tracking-tight">對話列表</span>
- <button onClick={() => setIsSidebarOpen(false)} className="p-2.5 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
+ <button onClick={() => setIsSidebarOpen(false)} className="p-2 hover:bg-primary/5 rounded-lg"><X size={24} /></button>
  </div>
  <div className="relative">
  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={18} />
@@ -1856,7 +1427,7 @@ ${documentsContext}` : ''}`;
  placeholder="搜尋對話..."
  value={searchQuery}
  onChange={(e) => setSearchQuery(e.target.value)}
- className="w-full bg-white rounded-full border border-surface-high py-3 pl-10 pr-4 font-bold focus:outline-none focus:border-primary text-base md:text-sm"
+ className="w-full bg-white rounded-full border border-surface-high py-3 pl-10 pr-4 font-bold focus:outline-none focus:border-primary text-sm"
  />
  </div>
  <button 
@@ -1885,7 +1456,7 @@ ${documentsContext}` : ''}`;
  </div>
  <button 
  onClick={(e) => deleteSession(s.id, e)}
- className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-2.5 md:p-1 -m-1.5 md:m-0 hover:bg-primary/10 rounded-md text-primary/40 transition-opacity"
+ className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1 hover:bg-primary/10 rounded-md text-primary/40 transition-opacity"
  >
  <Trash2 size={14} />
  </button>
@@ -1899,7 +1470,7 @@ ${documentsContext}` : ''}`;
  <main className="flex-grow flex flex-col relative min-w-0 w-full">
  <header className="h-16 border-b border-surface-high/70 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-10">
  <div className="flex items-center gap-3 md:gap-4">
- <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2.5 hover:bg-surface-low rounded-lg text-primary transition-colors">
+ <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-surface-low rounded-lg text-primary transition-colors">
  <Menu size={24} />
  </button>
  <h2 className="font-semibold text-primary tracking-tight truncate max-w-[150px] sm:max-w-md text-sm md:text-base">
@@ -1907,9 +1478,23 @@ ${documentsContext}` : ''}`;
  </h2>
  </div>
  <div className="flex items-center gap-2 md:gap-3">
+ <div className="flex items-center bg-surface-low rounded-lg p-1 text-[10px] sm:text-xs font-semibold tracking-wide" title="切換 AI 模型">
+ <button
+ onClick={() => setAiModel("flash")}
+ className={`px-2 sm:px-3 py-1.5 rounded-md transition-colors ${aiModel === "flash"? "bg-primary text-white": "text-primary/50 hover:text-primary"}`}
+ >
+ Flash
+ </button>
+ <button
+ onClick={() => setAiModel("antigravity")}
+ className={`px-2 sm:px-3 py-1.5 rounded-md transition-colors ${aiModel === "antigravity"? "bg-secondary text-white": "text-primary/50 hover:text-primary"}`}
+ >
+ Agent
+ </button>
+ </div>
  <button 
  onClick={(e) => currentSessionId && deleteSession(currentSessionId, e)} 
- className="p-3 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
+ className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
  title="刪除當前對話"
  >
  <Trash2 size={20} />
@@ -1924,35 +1509,6 @@ ${documentsContext}` : ''}`;
  {msg.role === 'user' ? <User size={14} className="text-primary/50"/> : <i className="fa-solid fa-disease text-sm text-primary" aria-hidden="true"></i>}
  </div>
  <div className={`max-w-[82%] md:max-w-[75%] flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
- {msg.role === 'ai' && msg.searches && msg.searches.length > 0 && (
- <div className="flex flex-col gap-1.5 mb-1">
- {msg.searches.map((s, i) => (
- <div
- key={`${s.query}-${i}`}
- className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium w-fit border ${
- s.status === 'searching'
- ? 'bg-surface-low text-primary/60 border-primary/10'
- : s.success === false
- ? 'bg-red-50 text-red-500 border-red-100'
- : 'bg-secondary/5 text-secondary border-secondary/10'
- }`}
- >
- {s.status === 'searching' ? (
- <Loader2 size={12} className="animate-spin"/>
- ) : (
- <Search size={12} />
- )}
- <span>
- {s.status === 'searching'
- ? `正在搜尋: ${s.query}`
- : s.success === false
- ? `搜尋失敗: ${s.query}`
- : `已搜尋: ${s.query}（${s.resultCount ?? 0} 筆結果）`}
- </span>
- </div>
- ))}
- </div>
- )}
  <div className={`text-sm md:text-[15px] font-medium leading-relaxed px-4 py-2.5 ${
  msg.role === 'user'
  ? 'bg-primary text-white rounded-2xl rounded-br-md'
@@ -1960,10 +1516,7 @@ ${documentsContext}` : ''}`;
  }`}>
  {msg.role === 'user' ? <div className="whitespace-pre-wrap">{msg.content}</div> : (
  <div className="markdown-content prose prose-sm max-w-none">
- <ReactMarkdown
- remarkPlugins={[remarkGfm]}
- components={createMarkdownComponents(msg.id)}
- >{msg.content}</ReactMarkdown>
+ <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
  </div>
  )}
  {msg.imageUrl && (
@@ -2005,32 +1558,7 @@ ${documentsContext}` : ''}`;
  )}
  </div>
 
- <footer className="p-3 md:p-6 bg-white border-t border-primary/10 pb-safe">
- <div className="max-w-3xl mx-auto mb-3 flex items-center gap-3">
- <span className="hidden sm:block text-xs font-semibold text-primary/50 shrink-0">模型</span>
- <div className="flex flex-1 sm:flex-none items-center bg-surface-low rounded-full p-1 text-sm font-semibold" role="radiogroup" aria-label="切換 AI 模型">
- <button
- type="button"
- role="radio"
- aria-checked={aiModel === "flash"}
- onClick={() => setAiModel("flash")}
- title="快速回答，支援圖片分析"
- className={`flex-1 sm:flex-none min-h-[44px] px-5 rounded-full transition-colors ${aiModel === "flash" ? "bg-primary text-white" : "text-primary/60 hover:text-primary"}`}
- >
- Flash 快速
- </button>
- <button
- type="button"
- role="radio"
- aria-checked={aiModel === "antigravity"}
- onClick={() => setAiModel("antigravity")}
- title="處理複雜任務，回應較慢，不支援圖片分析"
- className={`flex-1 sm:flex-none min-h-[44px] px-5 rounded-full transition-colors ${aiModel === "antigravity" ? "bg-secondary text-white" : "text-primary/60 hover:text-primary"}`}
- >
- Agent 進階
- </button>
- </div>
- </div>
+ <footer className="p-4 md:p-6 bg-white border-t border-primary/10 pb-safe">
  <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto relative">
  {selectedFile && (
  <div className="absolute bottom-full left-0 mb-3 p-2.5 pl-3 bg-surface-low rounded-xl flex items-center gap-2.5 border border-primary/10 animate-in slide-in-from-bottom-2">
@@ -2040,30 +1568,19 @@ ${documentsContext}` : ''}`;
  </div>
  )}
  <div className="flex items-end gap-2 bg-surface-low p-1.5 rounded-3xl ring-1 ring-transparent focus-within:ring-primary/30 transition-all">
- <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-primary/40 hover:text-primary transition-colors"><Paperclip size={20} /></button>
+ <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2.5 text-primary/40 hover:text-primary transition-colors"><Paperclip size={20} /></button>
  <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden"/>
  <textarea 
  value={input}
  onChange={(e) => setInput(e.target.value)}
  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) { e.preventDefault(); handleSendMessage(e); } }}
  placeholder="輸入訊息..."
- className="flex-grow bg-transparent border-none focus:ring-0 py-2.5 font-medium text-ink resize-none max-h-32 custom-scrollbar text-base placeholder:text-primary/30"
+ className="flex-grow bg-transparent border-none focus:ring-0 py-2.5 font-medium text-ink resize-none max-h-32 custom-scrollbar text-sm md:text-base placeholder:text-primary/30"
  rows={1}
  />
- {isTyping ? (
- <button
- type="button"
- onClick={handleStopGeneration}
- className="shrink-0 w-11 h-11 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-all"
- title="停止生成"
- >
- <Square size={16} fill="currentColor"/>
- </button>
- ) : (
- <button disabled={!input.trim() && !selectedFile} className="shrink-0 w-11 h-11 flex items-center justify-center bg-primary text-white rounded-full hover:bg-secondary transition-all disabled:opacity-30">
+ <button disabled={(!input.trim() && !selectedFile) || isTyping} className="shrink-0 w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full hover:bg-secondary transition-all disabled:opacity-30">
  <Send size={18} />
  </button>
- )}
  </div>
  </form>
  </footer>
@@ -2074,73 +1591,8 @@ ${documentsContext}` : ''}`;
 
 // --- Main App ---
 
-// 各分頁的 SEO title / description，隨 activeTab 切換動態更新，
-// 廣告投放服務頁採用關鍵字強化文案。
-const SEO_BY_TAB: Record<string, { title: string; description: string }> = {
- home: {
- title: "廣告投放代操推薦｜亨波趨勢 HENGBO TREND｜Meta / Google / TikTok 精準廣告投放服務",
- description: "亨波趨勢專精廣告投放代操服務，提供 Meta、Google、TikTok 等平台的受眾精準定位、素材創意優化與轉化率追蹤分析，以數據驅動策略極大化廣告投放成效與 ROI。",
- },
- services: {
- title: "廣告投放服務與代操方案｜亨波趨勢 HENGBO TREND",
- description: "亨波趨勢廣告投放服務涵蓋受眾精準定位、素材創意優化、轉化率追蹤分析，並提供企劃撰寫、政府補助申請與品牌設計等一站式顧問服務，助您極大化廣告投放 ROI。",
- },
- cases: {
- title: "廣告投放成功案例｜亨波趨勢 HENGBO TREND",
- description: "查看亨波趨勢協助品牌透過精準廣告投放與品牌設計提升 ROI 與市場競爭力的實戰案例。",
- },
- about: {
- title: "關於我們｜亨波趨勢 HENGBO TREND 廣告投放顧問團隊",
- description: "亨波趨勢是專精廣告投放代操、企劃撰寫與政府補助申請的顧問團隊，助力企業引領趨勢。",
- },
- contact: {
- title: "聯繫我們｜廣告投放諮詢｜亨波趨勢 HENGBO TREND",
- description: "歡迎聯繫亨波趨勢，預約廣告投放代操諮詢，我們將為您規劃 Meta、Google、TikTok 精準廣告投放策略。",
- },
- ai: {
- title: "AI 智能顧問｜亨波趨勢 HENGBO TREND",
- description: "使用亨波趨勢 AI 智能顧問，即時獲得廣告投放、企劃撰寫與補助申請相關的專業建議。",
- },
- blog: {
- title: "廣告投放知識庫｜Meta / Google / TikTok 廣告投放教學｜亨波趨勢",
- description: "亨波趨勢廣告投放知識庫，整理 Meta、Google、TikTok 廣告投放教學、預算規劃與代操評估等實戰文章，協助企業建立正確的廣告投放觀念。",
- },
-};
-
-const SITE_URL = "https://hengbo.co";
-
-// 依路徑 (tab) 判斷應使用哪一組 SEO 內容，blog 文章頁另外處理
-function tabForPath(pathname: string): string {
- const seg = pathname.split("/").filter(Boolean)[0];
- if (!seg) return "home";
- if (seg === "blog" || seg === "admin") return "blog";
- return ["services", "cases", "about", "contact", "ai"].includes(seg) ? seg : "home";
-}
-
-function pathForTab(tab: string): string {
- return tab === "home" ? "/" : `/${tab}`;
-}
-
-// 將 <script type="application/ld+json" id="dynamic-jsonld"> 動態注入/移除，
-// 用於文章頁的 Article 結構化資料
-function setDynamicJsonLd(data: object | null) {
- const existing = document.getElementById("dynamic-jsonld");
- if (existing) existing.remove();
- if (!data) return;
- const script = document.createElement("script");
- script.type = "application/ld+json";
- script.id = "dynamic-jsonld";
- script.textContent = JSON.stringify(data);
- document.head.appendChild(script);
-}
-
 export default function App() {
- const navigate = useNavigate();
- const location = useLocation();
- const activeTab = tabForPath(location.pathname);
- const { posts: blogPosts } = useBlogList();
- const setActiveTab = (tab: string) => navigate(pathForTab(tab));
-
+ const [activeTab, setActiveTab] = useState("home");
  const [showScrollTop, setShowScrollTop] = useState(false);
  const [isLoading, setIsLoading] = useState(true);
 
@@ -2150,71 +1602,8 @@ export default function App() {
  }, []);
 
  useEffect(() => {
- const setMeta = (selector: string, attr: string, content: string) => {
- const el = document.head.querySelector(selector);
- if (el) el.setAttribute(attr, content);
- };
- const setCanonical = (href: string) => {
- const el = document.head.querySelector('link[rel="canonical"]');
- if (el) el.setAttribute("href", href);
- };
-
- // 後台頁面：不讓搜尋引擎收錄
- const robots = document.head.querySelector('meta[name="robots"]');
- if (location.pathname.startsWith("/admin")) {
- robots?.setAttribute("content", "noindex, nofollow");
- document.title = "文章管理｜亨波趨勢";
- setDynamicJsonLd(null);
- return;
- }
- robots?.setAttribute("content", "index, follow");
-
- // 廣告投放知識庫文章頁：使用文章專屬的 SEO 內容與 Article 結構化資料
- if (location.pathname.startsWith("/blog/")) {
- const slug = location.pathname.split("/blog/")[1];
- const post = blogPosts.find((p) => p.slug === slug);
- if (post) {
- document.title = post.metaTitle;
- setMeta('meta[name="description"]', "content", post.metaDescription);
- setMeta('meta[property="og:title"]', "content", post.metaTitle);
- setMeta('meta[property="og:description"]', "content", post.metaDescription);
- setMeta('meta[name="twitter:title"]', "content", post.metaTitle);
- setMeta('meta[name="twitter:description"]', "content", post.metaDescription);
- setCanonical(`${SITE_URL}${location.pathname}`);
- setDynamicJsonLd({
- "@context": "https://schema.org",
- "@type": "BlogPosting",
- headline: post.title,
- description: post.metaDescription,
- datePublished: post.publishDate,
- dateModified: post.updatedDate || post.publishDate,
- keywords: post.keywords.join(", "),
- author: { "@type": "Organization", name: "亨波趨勢 HENGBO TREND" },
- publisher: {
- "@type": "Organization",
- name: "亨波趨勢 HENGBO TREND",
- logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png`},
- },
- mainEntityOfPage: `${SITE_URL}${location.pathname}`,
- });
- return;
- }
- }
-
- const seo = SEO_BY_TAB[activeTab] || SEO_BY_TAB.home;
- document.title = seo.title;
- setMeta('meta[name="description"]', "content", seo.description);
- setMeta('meta[property="og:title"]', "content", seo.title);
- setMeta('meta[property="og:description"]', "content", seo.description);
- setMeta('meta[name="twitter:title"]', "content", seo.title);
- setMeta('meta[name="twitter:description"]', "content", seo.description);
- setCanonical(`${SITE_URL}${location.pathname === "/" ? "/" : location.pathname}`);
- setDynamicJsonLd(null);
- }, [location.pathname, activeTab, blogPosts]);
-
- useEffect(() => {
  window.scrollTo(0, 0);
- }, [location.pathname]);
+ }, [activeTab]);
 
  useEffect(() => {
  const handleScroll = () => {
@@ -2235,25 +1624,12 @@ export default function App() {
  <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
  
  <AnimatePresence mode="wait">
- <Routes location={location} key={location.pathname}>
- <Route path="/" element={<HomeView setActiveTab={setActiveTab} />} />
- <Route path="/services" element={<ServicesView setActiveTab={setActiveTab} />} />
- <Route path="/cases" element={<CasesView setActiveTab={setActiveTab} />} />
- <Route path="/blog" element={<BlogListView setActiveTab={setActiveTab} />} />
- <Route path="/blog/:slug" element={<BlogPostView setActiveTab={setActiveTab} />} />
- <Route
- path="/admin/blog"
- element={
- <React.Suspense fallback={<div className="pt-32 px-8 text-muted font-semibold">載入中…</div>}>
- <AdminBlogPage />
- </React.Suspense>
- }
- />
- <Route path="/about" element={<AboutView setActiveTab={setActiveTab} />} />
- <Route path="/contact" element={<ContactView />} />
- <Route path="/ai" element={<AIView />} />
- <Route path="*" element={<HomeView setActiveTab={setActiveTab} />} />
- </Routes>
+ {activeTab === "home"&& <HomeView key="home" setActiveTab={setActiveTab} />}
+ {activeTab === "services"&& <ServicesView key="services" setActiveTab={setActiveTab} />}
+ {activeTab === "cases"&& <CasesView key="cases" setActiveTab={setActiveTab} />}
+ {activeTab === "about"&& <AboutView key="about" setActiveTab={setActiveTab} />}
+ {activeTab === "contact"&& <ContactView key="contact"/>}
+ {activeTab === "ai"&& <AIView key="ai"/>}
  </AnimatePresence>
 
  {activeTab !== "ai"&& <Footer setActiveTab={setActiveTab} />}
