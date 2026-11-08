@@ -73,7 +73,7 @@ router.post('/chat', async (req: Request, res: Response) => {
     
     // 使用開發指南推薦的模型與系統提示詞
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash", // 暫用 2.0 flash，環境支援時可切換至指南指定的 gemma-4-31b-it
+      model: "gemini-3.1flash-lite", // 暫用 2.0 flash，環境支援時可切換至指南指定的 gemma-4-31b-it
       tools: tools as any,
       systemInstruction: `你是由「亨波趨勢 (Henbo Advisory)」開發的進階 AI 自主代理。你具備視覺辨識、文檔解析與實時聯網搜尋的綜合能力。
 # Autonomous Loop (核心邏輯)
